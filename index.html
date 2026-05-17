@@ -920,7 +920,7 @@ async function doLogin() {
       show('sc-register');
     } else {
       S = data;
-      localStorage.setItem('inflz_s', JSON.stringify({name,pin}));
+      try { localStorage.setItem('inflz_s', JSON.stringify({name,pin})); } catch(e){}
       show('sc-main');
       renderAll();
       showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
@@ -958,7 +958,7 @@ async function doRegister() {
   }
 
   await fbSave();
-  localStorage.setItem('inflz_s', JSON.stringify({name:S.name,pin:S.pin}));
+  try { localStorage.setItem('inflz_s', JSON.stringify({name:S.name,pin:S.pin})); } catch(e){}
   show('sc-main');
   renderAll();
   showToast(`🎉 ${S.name}님, ${_selLv === '기존수강생' ? '함께 계속 달려봐요!' : _selLv+' 챌린지 시작해요!'}`);
@@ -966,7 +966,7 @@ async function doRegister() {
 
 // ── 로그아웃
 function doLogout() {
-  localStorage.removeItem('inflz_s');
+  try { localStorage.removeItem('inflz_s'); } catch(e){}
   SKEY=null; S={};
   document.getElementById('l-name').value='';
   document.getElementById('l-pin').value='';
@@ -976,7 +976,6 @@ function doLogout() {
 // ── Firebase 저장
 async function fbSave() {
   S.lastActive = today();
-  // 오늘 투두+결과를 날짜별 기록에 저장
   if(!S.dailyLogs) S.dailyLogs = {};
   S.dailyLogs[today()] = {
     todos: JSON.parse(JSON.stringify(S.todos||[])),
@@ -984,6 +983,8 @@ async function fbSave() {
   };
   try { await DB.ref('students/'+SKEY).set(S); }
   catch(e) { showToast('저장 오류'); console.error(e); }
+  // localStorage 세션 저장 (차단돼도 무시)
+  try { localStorage.setItem('inflz_s', JSON.stringify({name:S.name,pin:S.pin})); } catch(e){}
 }
 
 // ── 렌더 전체
@@ -1653,22 +1654,28 @@ function showToast(msg){
 
 // ── 초기화
 window.addEventListener('load',()=>{
-  const isAdmin = location.search.includes('admin') || location.hash.includes('admin');
-  if(!IS_CFG){ show('sc-config'); return; }
-  if(!DB){ show('sc-welcome'); showToast('연결 중 오류가 발생했어요. 새로고침 해주세요.'); return; }
-  if(isAdmin){ show('sc-admin-login'); return; }
-
-  const sess=localStorage.getItem('inflz_s');
-  if(sess){
-    try{
-      const {name,pin}=JSON.parse(sess);
-      document.getElementById('l-name').value=name;
-      document.getElementById('l-pin').value=pin;
-      doLogin();
-      return;
-    }catch(e){}
-  }
+  // UI는 항상 먼저 웰컴 화면으로 (Firebase 상관없이)
   show('sc-welcome');
+
+  const isAdmin = location.search.includes('admin') || location.hash.includes('admin');
+
+  if(!IS_CFG){ show('sc-config'); return; }
+  if(isAdmin){ show('sc-admin-login'); return; }
+  if(!DB){ return; } // DB 없으면 웰컴에서 대기
+
+  // localStorage 세션 복원 (실패해도 웰컴 화면 유지)
+  try {
+    const sess = localStorage.getItem('inflz_s');
+    if(sess){
+      const {name,pin} = JSON.parse(sess);
+      document.getElementById('l-name').value = name;
+      document.getElementById('l-pin').value = pin;
+      doLogin();
+    }
+  } catch(e) {
+    // localStorage 차단돼도 웰컴 화면에서 정상 작동
+    console.warn('세션 복원 실패:', e);
+  }
 });
 </script>
 </body>
