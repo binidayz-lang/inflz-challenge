@@ -75,17 +75,20 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
 /* CALENDAR */
 .cal-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.day-cell{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bd);background:#FDFAF7;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent;position:relative}
-.day-cell:active{transform:scale(.9)}
-.day-cell .dn{font-size:15px;font-weight:900;color:#C5A892;line-height:1}
-.day-cell .dl{font-size:8px;color:#D0B8A4;font-weight:500}
+.day-cell{min-height:68px;border-radius:9px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;cursor:pointer;border:2px solid var(--bd);background:#FDFAF7;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent;position:relative;padding:7px 6px 6px}
+.day-cell:active{transform:scale(.93)}
+.day-cell .dn{font-size:13px;font-weight:900;color:#C5A892;line-height:1}
+.day-cell .dl{font-size:7px;color:#D0B8A4;font-weight:500;margin-top:1px}
 .day-cell.is-today{border-color:var(--p);box-shadow:0 0 0 3px rgba(200,149,108,.18)}
 .day-cell.is-today .dn{color:var(--p)}
 .day-cell.c-done{background:var(--gb);border-color:var(--g)}
 .day-cell.c-done .dn{color:var(--g)}
-.day-cell.c-done::after{content:'✓';position:absolute;top:2px;right:4px;font-size:9px;color:var(--g);font-weight:900}
-.day-cell.c-past{opacity:.4;cursor:default}
+.day-cell.c-done::after{content:'✓';position:absolute;top:4px;right:5px;font-size:9px;color:var(--g);font-weight:900}
+.day-cell.c-past{opacity:.55;cursor:pointer}
 .day-cell.c-future{opacity:.28;cursor:default}
+.cell-todo{font-size:8px;color:var(--g);font-weight:700;margin-top:3px}
+.cell-preview{font-size:8px;color:var(--m);line-height:1.4;margin-top:2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;width:100%;word-break:break-all}
+.gongu-mark{font-size:9px;margin-top:2px;background:#E8F7EE;border-radius:4px;padding:1px 4px;color:#5BAD7F;font-weight:700;align-self:flex-start}
 
 /* TODO */
 .todo-list{list-style:none;margin-bottom:10px}
@@ -157,7 +160,68 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .toast.show{transform:translateX(-50%) translateY(0)}
 .center-row{text-align:center;padding:12px 14px 0}
 .logout-btn{background:none;border:1.5px solid var(--bd);color:var(--m);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer}
+/* TABS */
+.tab-nav{display:flex;gap:6px;padding:10px 14px 0}
+.tab-btn{flex:1;border:none;border-radius:var(--rs);padding:10px 4px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s}
+.tab-btn.active{background:var(--p);color:#fff}
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* FILTER */
+.filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.filter-btn{border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:5px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m);transition:all .2s;white-space:nowrap}
+.filter-btn.active{background:var(--p);border-color:var(--p);color:#fff}
+
+/* SCH CARD */
+.sch-card{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh)}
+.sch-type{display:inline-block;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-bottom:8px}
+.sch-title{font-size:14px;font-weight:900;margin-bottom:5px}
+.sch-detail{font-size:12px;color:var(--m);line-height:1.8}
+.sch-actions{display:flex;gap:8px;margin-top:10px}
+.sch-edit{background:#F5ECE4;border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m)}
+.sch-del-btn{background:#FFF0EC;border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:#E07A5F}
+.share-btn{background:var(--kk);border:none;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:#3B1D1D;width:100%;margin-top:10px}
+.share-btn:hover{opacity:.88}
+
+/* GONGU CALENDAR ITEM */
+.gongu-cal-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F5ECE4}
+.gongu-cal-item:last-child{border-bottom:none}
+.gongu-dot{width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0}
+
+/* MODAL */
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-wrap.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto}
+.modal-wrap.open .modal-box{transform:translateY(0)}
+.modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-title{font-size:16px;font-weight:900}
+.modal-close{background:none;border:none;font-size:22px;color:var(--m);cursor:pointer;line-height:1}
+.log-section{margin-bottom:16px}
+.log-section-title{font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.log-todo-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F5ECE4;font-size:13px}
+.log-todo-item:last-child{border-bottom:none}
+.log-result{font-size:13px;line-height:1.7;color:var(--t);background:#FDF5EE;border-radius:var(--rs);padding:12px;white-space:pre-wrap}
+.log-empty{font-size:12px;color:var(--m);text-align:center;padding:20px 0}
+.day-cell.has-log::before{content:'📝';position:absolute;bottom:2px;font-size:7px;line-height:1}
+.date-row{display:flex;gap:8px}
+.date-row .field{flex:1;margin-bottom:0}
+.empty-state{text-align:center;padding:32px 20px;color:var(--m);font-size:13px;line-height:2}
 .loader{text-align:center;padding:30px;color:var(--m);font-size:13px}
+
+/* DAY LOG MODAL */
+.modal-wrap{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9990;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-wrap.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--w);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px 40px;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.modal-wrap.open .modal-box{transform:translateY(0)}
+.modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-title{font-size:16px;font-weight:900}
+.modal-close{background:none;border:none;font-size:22px;color:var(--m);cursor:pointer;line-height:1}
+.log-section{margin-bottom:16px}
+.log-section-title{font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.log-todo-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F5ECE4;font-size:13px}
+.log-todo-item:last-child{border-bottom:none}
+.log-result{font-size:13px;line-height:1.7;color:var(--t);background:#FDF5EE;border-radius:var(--rs);padding:12px;white-space:pre-wrap}
+.log-empty{font-size:12px;color:var(--m);text-align:center;padding:20px 0}
+.day-cell.has-log::before{content:'📝';position:absolute;bottom:2px;font-size:7px;line-height:1}
 </style>
 </head>
 <body>
@@ -233,14 +297,20 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 <div id="sc-welcome" class="screen">
   <div class="card" style="margin-top:32px;text-align:center;padding:32px 20px">
     <div style="font-size:44px;margin-bottom:16px">🔥</div>
-    <h2 style="font-size:20px;font-weight:900;line-height:1.4;margin-bottom:8px">인플즈메리네<br>챌린지 캘린더입니다</h2>
-    <p style="font-size:13px;color:var(--m);margin-bottom:28px;line-height:1.7">지금 어떤 쪽인가요?</p>
+    <h2 style="font-size:20px;font-weight:900;line-height:1.5;margin-bottom:8px">안녕하세요 😊<br>인플즈메리네 챌린지 캘린더예요!</h2>
+    <p style="font-size:13px;color:var(--m);margin-bottom:28px;line-height:1.8">오늘도 한 걸음 내딛으러 오셨군요 🌱<br>어떤 상황이신가요?</p>
     <button class="btn btn-dark" onclick="chooseType('new')" style="margin-bottom:12px">
-      🌱 오늘부터 챌린지 시작합니다
+      🌱 오늘부터 챌린지 시작할게요!
     </button>
     <button class="btn btn-out" onclick="chooseType('existing')" style="margin-top:0">
-      🔄 이미 챌린지를 하고 있어요
+      🔄 저 이미 챌린지 중이에요!
     </button>
+    <div style="text-align:center;margin-top:18px;padding-top:16px;border-top:1px solid var(--border,#EAD9CC)">
+      <a href="guide-signup.html" target="_blank"
+         style="font-size:12px;color:var(--p);font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px">
+        📋 처음이신가요? 가입 안내 보기 →
+      </a>
+    </div>
   </div>
 </div>
 
@@ -249,21 +319,21 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 ══════════════════════════════ -->
 <div id="sc-login" class="screen">
   <div class="card" style="margin-top:20px">
-    <div class="card-ttl">🔐 입장하기</div>
+    <div class="card-ttl">🙋 반가워요!</div>
     <div class="field">
-      <label>이름</label>
+      <label>이름이 뭐예요?</label>
       <input type="text" id="l-name" placeholder="이름 입력 (예: 홍길동)" maxlength="10"
              onkeydown="if(event.key==='Enter')document.getElementById('l-pin').focus()">
     </div>
     <div class="field">
-      <label>숫자 4자리 비밀번호</label>
-      <input type="password" id="l-pin" placeholder="본인만 아는 숫자 4자리" maxlength="4"
+      <label>나만의 숫자 4자리 비밀번호</label>
+      <input type="password" id="l-pin" placeholder="꼭 기억해두세요 😊" maxlength="4"
              inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="btn btn-dark" onclick="doLogin()">입장하기 →</button>
-    <p style="text-align:center;font-size:11px;color:var(--m);margin-top:12px;line-height:1.7">
-      처음이시면 이름+비번 입력 후 입장하면 자동으로 가입돼요<br>
-      비번은 기기 바꿔도 이 번호로 다시 로그인하면 돼요
+    <button class="btn btn-dark" onclick="doLogin()">들어갈게요 →</button>
+    <p style="text-align:center;font-size:11px;color:var(--m);margin-top:12px;line-height:1.8">
+      처음이시면 이름+비번 입력 후 바로 시작할 수 있어요 🌱<br>
+      비번은 꼭 기억해두세요! 폰 바꿔도 그대로 이어져요
     </p>
   </div>
 </div>
@@ -273,7 +343,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 ══════════════════════════════ -->
 <div id="sc-register" class="screen">
   <div class="card" style="margin-top:20px">
-    <div class="card-ttl">🌱 챌린지 시작 설정</div>
+    <div class="card-ttl">🌱 시작 전에 딱 하나만요!</div>
     <div class="field">
       <label>시작 레벨</label>
       <div class="lv-tabs">
@@ -303,70 +373,114 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 ══════════════════════════════ -->
 <div id="sc-main" class="screen">
 
-  <div class="lv-history" id="lv-hist"></div>
-  <div id="done-banner"></div>
+  <div class="lv-hist-wrap">
+    <div class="lv-history" id="lv-hist"></div>
+  </div>
 
-  <!-- 오늘 현황 -->
-  <div class="card" id="today-card">
-    <div class="today-badge">
-      <span id="b-emoji">🌱</span>
-      <span id="b-lv" style="font-size:15px">초급</span>
-      <span style="opacity:.5;font-size:13px">|</span>
-      <span id="b-name">이름</span>님
-      <span style="opacity:.5;font-size:13px">|</span>
-      <span class="big" id="b-day">1</span>일차
+  <!-- 탭 네비게이션 -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="calendar" onclick="switchTab('calendar')">📅 캘린더</button>
+    <button class="tab-btn" data-tab="gongu" onclick="switchTab('gongu')">🛒 공구</button>
+    <button class="tab-btn" data-tab="ipjum" onclick="switchTab('ipjum')">🏪 입점</button>
+    <button class="tab-btn" onclick="window.open('guide-usage.html','_blank')">📖 사용법</button>
+  </div>
+
+  <!-- ── 탭1: 캘린더 ── -->
+  <div class="tab-content active" id="tab-calendar">
+    <div id="done-banner"></div>
+    <div class="card" id="today-card">
+      <div class="today-badge">
+        <span id="b-emoji">🌱</span>
+        <span id="b-lv" style="font-size:15px">초급</span>
+        <span style="opacity:.5;font-size:13px">|</span>
+        <span id="b-name">이름</span>님
+        <span style="opacity:.5;font-size:13px">|</span>
+        <span class="big" id="b-day">1</span>일차
+      </div>
+      <div class="prog-wrap"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
+      <div class="prog-row">
+        <span id="p-l">시작일</span>
+        <span id="p-pct" style="font-weight:700;color:var(--p)">0%</span>
+        <span id="p-r">30일차</span>
+      </div>
     </div>
-    <div class="prog-wrap"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
-    <div class="prog-row">
-      <span id="p-l">시작일</span>
-      <span id="p-pct" style="font-weight:700;color:var(--p)">0%</span>
-      <span id="p-r">30일차</span>
+    <div class="card">
+      <div class="card-ttl">📅 30일 달력</div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">📋 오늘의 투두리스트</div>
+      <ul class="todo-list" id="todo-list"></ul>
+      <div class="add-row">
+        <input type="text" id="todo-inp" placeholder="할 일 입력 후 추가" maxlength="60"
+               onkeydown="if(event.key==='Enter')addTodo()">
+        <button class="btn-add" onclick="addTodo()">+ 추가</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">✅ 오늘 해낸 결과</div>
+      <p style="font-size:11px;color:var(--m);margin-bottom:8px">수치, 건수, 구체적 성과를 적어보세요</p>
+      <textarea id="result-inp" placeholder="예) DM 제안 5명 / 메일 제안 3명 / 제안 제품: 유기농 그래놀라 / 입점 회사: ○○마켓 / 홍보글 작성 완료 / 인스타 홍보 게시..."></textarea>
+      <button class="btn btn-acc" onclick="saveResult()">결과 저장</button>
+    </div>
+    <div class="card">
+      <div class="card-ttl">📤 챌린지방 제출 양식</div>
+      <div class="submit-box" id="submit-box">아래 버튼을 눌러 양식을 생성하세요</div>
+      <div class="btn-row">
+        <button class="btn btn-dark" onclick="genSubmit()">✨ 양식 생성</button>
+        <button class="btn btn-out" onclick="copySubmit()">📋 복사</button>
+      </div>
+    </div>
+    <!-- 캘린더 탭 내 공구일정 확정 표시 -->
+    <div class="card" id="gongu-cal-card" style="display:none">
+      <div class="card-ttl">🛒 확정된 공구일정</div>
+      <div id="gongu-cal-list"></div>
+    </div>
+    <div class="center-row">
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+    <div class="footer">
+      <strong>인플즈메리네 챌린지 캘린더</strong><br>
+      아래 버튼으로 챌린지방 바로 입장 💬
     </div>
   </div>
 
-  <!-- 달력 -->
-  <div class="card">
-    <div class="card-ttl">📅 30일 달력</div>
-    <div class="cal-grid" id="cal-grid"></div>
-  </div>
-
-  <!-- 투두 -->
-  <div class="card">
-    <div class="card-ttl">📋 오늘의 투두리스트</div>
-    <ul class="todo-list" id="todo-list"></ul>
-    <div class="add-row">
-      <input type="text" id="todo-inp" placeholder="할 일 입력 후 추가" maxlength="60"
-             onkeydown="if(event.key==='Enter')addTodo()">
-      <button class="btn-add" onclick="addTodo()">+ 추가</button>
+  <!-- ── 탭2: 공구일정 ── -->
+  <div class="tab-content" id="tab-gongu">
+    <div class="card" style="padding:14px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:700">🛒 공구일정</span>
+        <button class="btn-add" onclick="openGonguModal()">+ 추가</button>
+      </div>
+      <div class="filter-row" id="gongu-filter">
+        <button class="filter-btn active" onclick="filterGongu('all',this)">전체</button>
+        <button class="filter-btn" onclick="filterGongu('협찬',this)">협찬</button>
+        <button class="filter-btn" onclick="filterGongu('공구예정',this)">공구예정</button>
+        <button class="filter-btn" onclick="filterGongu('공구일정 확정',this)">확정</button>
+      </div>
     </div>
+    <div id="gongu-list"></div>
   </div>
 
-  <!-- 결과 -->
-  <div class="card">
-    <div class="card-ttl">✅ 오늘 해낸 결과</div>
-    <p style="font-size:11px;color:var(--m);margin-bottom:8px">수치, 건수, 구체적 성과를 적어보세요</p>
-    <textarea id="result-inp" placeholder="예) 소싱 3개 완료 / 블로그 1건 발행 / 판매페이지 수정..."></textarea>
-    <button class="btn btn-acc" onclick="saveResult()">결과 저장</button>
-  </div>
-
-  <!-- 제출 양식 -->
-  <div class="card">
-    <div class="card-ttl">📤 챌린지방 제출 양식</div>
-    <div class="submit-box" id="submit-box">아래 버튼을 눌러 양식을 생성하세요</div>
-    <div class="btn-row">
-      <button class="btn btn-dark" onclick="genSubmit()">✨ 양식 생성</button>
-      <button class="btn btn-out" onclick="copySubmit()">📋 복사</button>
+  <!-- ── 탭3: 입점 ── -->
+  <div class="tab-content" id="tab-ipjum">
+    <div class="card" style="padding:14px 18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:700">🏪 입점 관리</span>
+        <button class="btn-add" onclick="openIpjumModal()">+ 추가</button>
+      </div>
+      <div class="filter-row" id="ipjum-filter">
+        <button class="filter-btn active" onclick="filterIpjum('all',this)">전체</button>
+        <button class="filter-btn" onclick="filterIpjum('입점제안완료',this)">제안완료</button>
+        <button class="filter-btn" onclick="filterIpjum('입점연락 옴',this)">연락옴</button>
+        <button class="filter-btn" onclick="filterIpjum('입점진행중',this)">진행중</button>
+        <button class="filter-btn" onclick="filterIpjum('신청완료',this)">신청완료</button>
+        <button class="filter-btn" onclick="filterIpjum('입점완료',this)">완료</button>
+      </div>
     </div>
+    <div id="ipjum-list"></div>
   </div>
 
-  <div class="center-row">
-    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
-  </div>
-
-  <div class="footer">
-    <strong>인플즈메리네 챌린지 캘린더</strong><br>
-    아래 버튼으로 챌린지방 바로 입장 💬
-  </div>
 </div>
 
 <!-- ══════════════════════════════
@@ -398,6 +512,115 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   <div id="admin-list"><div class="loader">불러오는 중...</div></div>
   <div class="center-row" style="padding-bottom:10px">
     <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
+  </div>
+</div>
+
+<!-- 공구일정 모달 -->
+<div class="modal-wrap" id="gongu-modal" onclick="if(event.target===this)closeGonguModal()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="gongu-modal-title">🛒 공구일정 추가</div>
+      <button class="modal-close" onclick="closeGonguModal()">×</button>
+    </div>
+    <div class="field">
+      <label>유형</label>
+      <select id="g-type" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7">
+        <option value="공구예정">🛒 공구예정</option>
+        <option value="협찬">🎁 협찬</option>
+        <option value="공구일정 확정">✅ 공구일정 확정</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>셀러 인스타 주소</label>
+      <input type="text" id="g-seller" placeholder="@인스타아이디" maxlength="50">
+    </div>
+    <div class="field">
+      <label>상품명</label>
+      <input type="text" id="g-product" placeholder="예) 유기농 그래놀라" maxlength="50">
+    </div>
+    <div class="date-row field">
+      <div class="field">
+        <label>시작일</label>
+        <input type="date" id="g-start">
+      </div>
+      <div class="field">
+        <label>종료일</label>
+        <input type="date" id="g-end">
+      </div>
+    </div>
+    <div class="field">
+      <label>메모 (선택)</label>
+      <input type="text" id="g-memo" placeholder="추가 메모" maxlength="100">
+    </div>
+    <button class="btn btn-dark" onclick="saveGongu()" style="margin-top:4px">저장하기</button>
+  </div>
+</div>
+
+<!-- 입점 모달 -->
+<div class="modal-wrap" id="ipjum-modal" onclick="if(event.target===this)closeIpjumModal()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="ipjum-modal-title">🏪 입점 추가</div>
+      <button class="modal-close" onclick="closeIpjumModal()">×</button>
+    </div>
+    <div class="field">
+      <label>유형</label>
+      <select id="i-type" onchange="toggleCompletionDate()" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7">
+        <option value="입점제안완료">📤 입점제안완료</option>
+        <option value="입점연락 옴">📞 입점연락 옴</option>
+        <option value="입점진행중">⚙️ 입점진행중</option>
+        <option value="신청완료">✅ 신청완료</option>
+        <option value="입점완료">🎉 입점완료</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>제품명</label>
+      <input type="text" id="i-product" placeholder="제품명" maxlength="50">
+    </div>
+    <div class="field">
+      <label>해당 회사 주소 (URL)</label>
+      <input type="text" id="i-company" placeholder="https://company.com" maxlength="100">
+    </div>
+    <div class="field">
+      <label>신청일</label>
+      <input type="date" id="i-apply">
+    </div>
+    <div class="field" id="i-completion-wrap" style="display:none">
+      <label>입점완료일</label>
+      <input type="date" id="i-completion">
+    </div>
+    <div class="field">
+      <label>메모 (선택)</label>
+      <textarea id="i-memo" placeholder="수수료, 조건, 메모" style="min-height:60px;font-size:13px"></textarea>
+    </div>
+    <button class="btn btn-dark" onclick="saveIpjum()" style="margin-top:4px">저장하기</button>
+  </div>
+</div>
+
+<!-- 날짜별 기록 모달 -->
+<div class="modal-wrap" id="day-modal" onclick="if(event.target===this)closeDayModal()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="modal-title">📅 기록</div>
+      <button class="modal-close" onclick="closeDayModal()">×</button>
+    </div>
+    <div id="modal-body"></div>
+    <div id="modal-edit-area">
+      <div class="log-section">
+        <div class="log-section-title">📋 그날의 할 일</div>
+        <ul class="todo-list" id="modal-todo-list"></ul>
+        <div class="add-row" style="margin-top:6px">
+          <input type="text" id="modal-todo-inp" placeholder="할 일 추가" maxlength="60"
+                 onkeydown="if(event.key==='Enter')modalAddTodo()" style="font-size:13px">
+          <button class="btn-add" onclick="modalAddTodo()" style="font-size:12px;padding:9px 12px">+ 추가</button>
+        </div>
+      </div>
+      <div class="log-section" style="margin-top:14px">
+        <div class="log-section-title">✨ 그날 해낸 것</div>
+        <textarea id="modal-result-inp" placeholder="그날 이룬 것, 수치, 성과를 적어보세요" style="min-height:80px;font-size:13px"></textarea>
+      </div>
+      <button class="btn btn-dark" onclick="saveModalLog()" style="margin-top:14px">💾 저장하기</button>
+    </div>
   </div>
 </div>
 
@@ -478,7 +701,8 @@ function blankState(name,pin) {
       심화:{startDate:'',checked:{},done:false},
       기존수강생:{startDate:'',checked:{},done:false,baseDay:1},
     },
-    todos:[],todosDate:'',result:'',resultDate:'',lastActive:today()
+    todos:[],todosDate:'',result:'',resultDate:'',lastActive:today(),dailyLogs:{},
+    gonguSchedules:[], ipjumItems:[]
   };
 }
 
@@ -527,7 +751,7 @@ async function doLogin() {
       localStorage.setItem('inflz_s', JSON.stringify({name,pin}));
       show('sc-main');
       renderAll();
-      showToast(`👋 ${name}님, 돌아오셨군요!`);
+      showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
     }
   } catch(e) {
     showToast('연결 오류. Firebase 설정을 확인해주세요.');
@@ -565,7 +789,7 @@ async function doRegister() {
   localStorage.setItem('inflz_s', JSON.stringify({name:S.name,pin:S.pin}));
   show('sc-main');
   renderAll();
-  showToast(`🎉 ${S.name}님, ${_selLv === '기존수강생' ? '기존수강생으로' : _selLv} 챌린지 시작!`);
+  showToast(`🎉 ${S.name}님, ${_selLv === '기존수강생' ? '함께 계속 달려봐요!' : _selLv+' 챌린지 시작해요!'}`);
 }
 
 // ── 로그아웃
@@ -580,6 +804,12 @@ function doLogout() {
 // ── Firebase 저장
 async function fbSave() {
   S.lastActive = today();
+  // 오늘 투두+결과를 날짜별 기록에 저장
+  if(!S.dailyLogs) S.dailyLogs = {};
+  S.dailyLogs[today()] = {
+    todos: JSON.parse(JSON.stringify(S.todos||[])),
+    result: S.result||''
+  };
   try { await DB.ref('students/'+SKEY).set(S); }
   catch(e) { showToast('저장 오류'); console.error(e); }
 }
@@ -650,6 +880,9 @@ function renderAll() {
   renderTodos();
   const ri = document.getElementById('result-inp');
   if(ri) ri.value = (S.resultDate===today() ? S.result : '') || '';
+  renderGongu();
+  renderIpjum();
+  renderGonguCalendar();
 }
 
 // ── 달력
@@ -659,16 +892,58 @@ function renderCal(todayNum, lv, baseDay) {
   const chk = S.levels[lv]?.checked || {};
   const isExisting = lv === '기존수강생';
   const base = baseDay || 1;
+
+  // 확정된 공구일정
+  const confirmedGongu = (S.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정'&&g.startDate);
+
   for(let d=1;d<=30;d++){
     const cell = document.createElement('div');
     cell.className = 'day-cell';
     const done = !!chk['d'+d];
-    const displayNum = isExisting ? base + d - 1 : d; // 실제 표시 일차
+    const displayNum = isExisting ? base + d - 1 : d;
+    const cellDate = S.levels[lv]?.startDate ? addDays(S.levels[lv].startDate, d-1) : '';
+
+    // 날짜 레이블 (5/17 형식)
+    const dateLabel = cellDate ? fmtDate(cellDate) : 'Day';
+
+    // 공구일정 마커
+    const gonguOnDay = cellDate ? confirmedGongu.filter(g=>{
+      const end = g.endDate || g.startDate;
+      return cellDate >= g.startDate && cellDate <= end;
+    }) : [];
+
+    const log = cellDate ? (S.dailyLogs||{})[cellDate] : null;
+    const hasLog = log && (log.result || (log.todos||[]).length > 0);
+
     if(d<todayNum)      cell.classList.add(done?'c-done':'c-past');
     else if(d===todayNum){ cell.classList.add('is-today'); if(done) cell.classList.add('c-done'); }
     else                 cell.classList.add('c-future');
-    cell.innerHTML=`<span class="dn" style="${isExisting?'font-size:12px':''}">${displayNum}</span><span class="dl">Day</span>`;
-    if(d<=todayNum){
+
+    // 미리보기
+    let previewHtml = '';
+    if(hasLog && d <= todayNum) {
+      const doneCnt = (log.todos||[]).filter(t=>t.done).length;
+      const totalCnt = (log.todos||[]).length;
+      const resultText = log.result ? log.result.trim() : '';
+      if(totalCnt > 0) previewHtml += `<div class="cell-todo">✓ ${doneCnt}/${totalCnt}</div>`;
+      if(resultText)   previewHtml += `<div class="cell-preview">${esc(resultText)}</div>`;
+    }
+
+    // 공구 마커 HTML
+    const gonguHtml = gonguOnDay.map(g=>{
+      const name = g.product.length>5 ? g.product.slice(0,5)+'..' : g.product;
+      return `<div class="gongu-mark">🛒 ${esc(name)}</div>`;
+    }).join('');
+
+    cell.innerHTML = `
+      <span class="dn" style="${isExisting?'font-size:11px':''}">${displayNum}</span>
+      <span class="dl">${dateLabel}</span>
+      ${gonguHtml}
+      ${previewHtml}`;
+
+    if(d < todayNum && cellDate) {
+      cell.addEventListener('click', () => showDayModal(d, displayNum, cellDate));
+    } else if(d === todayNum) {
       cell.addEventListener('click', async()=>{
         S.levels[lv].checked['d'+d] = !S.levels[lv].checked['d'+d];
         renderCal(todayNum,lv,base);
@@ -852,6 +1127,345 @@ async function loadAdmin(){
     document.getElementById('admin-list').innerHTML='';
     console.error(e);
   }
+}
+
+// ── 날짜별 기록 모달
+let _modalDate = '';
+let _modalTodos = [];
+
+function showDayModal(d, displayNum, dateStr) {
+  _modalDate = dateStr;
+  const log = (S.dailyLogs||{})[dateStr];
+  _modalTodos = log && log.todos ? JSON.parse(JSON.stringify(log.todos)) : [];
+
+  const dt = new Date(dateStr);
+  const dateLabel = `${dt.getMonth()+1}월 ${dt.getDate()}일 · ${displayNum}일차`;
+  document.getElementById('modal-title').textContent = `📅 ${dateLabel}`;
+  document.getElementById('modal-body').innerHTML = '';
+
+  // 결과 텍스트 채우기
+  document.getElementById('modal-result-inp').value = (log && log.result) ? log.result : '';
+
+  renderModalTodos();
+  document.getElementById('day-modal').classList.add('open');
+  // 기록 없으면 안내 문구
+  if(!log || ((!log.todos||log.todos.length===0) && !log.result)) {
+    document.getElementById('modal-body').innerHTML =
+      `<p style="font-size:12px;color:var(--m);text-align:center;padding:4px 0 12px;line-height:1.7">
+        이날 기록이 없어요 🌿<br>지금 바로 추가할 수 있어요!
+      </p>`;
+  }
+}
+
+function renderModalTodos() {
+  const list = document.getElementById('modal-todo-list');
+  if(!list) return;
+  list.innerHTML = '';
+  _modalTodos.forEach((t,i) => {
+    const li = document.createElement('li');
+    li.className = 'todo-item';
+    li.innerHTML = `
+      <div class="todo-chk ${t.done?'on':''}" onclick="modalToggleTodo(${i})">${t.done?'✓':''}</div>
+      <span class="todo-txt ${t.done?'cross':''}">${esc(t.text)}</span>
+      <button class="todo-del" onclick="modalDelTodo(${i})">×</button>`;
+    list.appendChild(li);
+  });
+}
+function modalAddTodo() {
+  const inp = document.getElementById('modal-todo-inp');
+  const t = inp.value.trim();
+  if(!t) return;
+  _modalTodos.push({id:Date.now(), text:t, done:false});
+  inp.value = '';
+  renderModalTodos();
+}
+function modalToggleTodo(i) { _modalTodos[i].done=!_modalTodos[i].done; renderModalTodos(); }
+function modalDelTodo(i) { _modalTodos.splice(i,1); renderModalTodos(); }
+
+async function saveModalLog() {
+  const result = document.getElementById('modal-result-inp').value;
+  if(!S.dailyLogs) S.dailyLogs = {};
+  S.dailyLogs[_modalDate] = {
+    todos: JSON.parse(JSON.stringify(_modalTodos)),
+    result: result
+  };
+  await fbSave();
+  // 달력 새로고침 (has-log 업데이트)
+  const lv = S.currentLevel;
+  const sd = S.levels[lv]?.startDate||'';
+  const diff = sd ? diffDays(sd, today()) : 0;
+  const dayInBlock = sd ? Math.min(Math.max(diff+1,1),30) : 1;
+  const baseDay = lv==='기존수강생' ? (S.levels[lv]?.baseDay||1) : 1;
+  renderCal(dayInBlock, lv, baseDay);
+  closeDayModal();
+  showToast('✅ 기록이 저장됐어요!');
+}
+
+function closeDayModal() {
+  document.getElementById('day-modal').classList.remove('open');
+  _modalDate = '';
+  _modalTodos = [];
+}
+
+// ── 탭 전환
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+// ── 유형 색상
+const TYPE_CLR = {
+  '협찬':       {bg:'#FFF0EC',c:'#E07A5F'},
+  '공구예정':   {bg:'#EBF5FD',c:'#6DB6F0'},
+  '공구일정 확정':{bg:'#E8F7EE',c:'#5BAD7F'},
+  '입점제안완료':{bg:'#EBF5FD',c:'#6DB6F0'},
+  '입점연락 옴':{bg:'#FFF8E1',c:'#C8956C'},
+  '입점진행중': {bg:'#FDF2EA',c:'#C8956C'},
+  '신청완료':   {bg:'#EBF7F1',c:'#5BAD7F'},
+  '입점완료':   {bg:'#E8F7EE',c:'#5BAD7F'},
+};
+function typeBadge(t) {
+  const c = TYPE_CLR[t]||{bg:'#F0E6DD',c:'#8B6B52'};
+  return `<span class="sch-type" style="background:${c.bg};color:${c.c}">${t}</span>`;
+}
+
+// ════════════════════════
+//  공구일정
+// ════════════════════════
+let _gonguId = null;
+let _gonguFilter = 'all';
+
+function openGonguModal(id=null) {
+  _gonguId = id;
+  document.getElementById('gongu-modal-title').textContent = id ? '🛒 공구일정 수정' : '🛒 공구일정 추가';
+  if(id) {
+    const g = (S.gonguSchedules||[]).find(x=>x.id===id);
+    if(g) {
+      document.getElementById('g-type').value = g.type||'공구예정';
+      document.getElementById('g-seller').value = g.seller||'';
+      document.getElementById('g-product').value = g.product||'';
+      document.getElementById('g-start').value = g.startDate||'';
+      document.getElementById('g-end').value = g.endDate||'';
+      document.getElementById('g-memo').value = g.memo||'';
+    }
+  } else {
+    document.getElementById('g-type').value = '공구예정';
+    ['g-seller','g-product','g-memo'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('g-start').value = today();
+    document.getElementById('g-end').value = '';
+  }
+  document.getElementById('gongu-modal').classList.add('open');
+}
+function closeGonguModal() {
+  document.getElementById('gongu-modal').classList.remove('open');
+  _gonguId = null;
+}
+async function saveGongu() {
+  const type    = document.getElementById('g-type').value;
+  const seller  = document.getElementById('g-seller').value.trim();
+  const product = document.getElementById('g-product').value.trim();
+  const startDate = document.getElementById('g-start').value;
+  const endDate   = document.getElementById('g-end').value;
+  const memo    = document.getElementById('g-memo').value.trim();
+  if(!product) { showToast('상품명을 입력해주세요!'); return; }
+  if(!S.gonguSchedules) S.gonguSchedules = [];
+  if(_gonguId) {
+    const idx = S.gonguSchedules.findIndex(g=>g.id===_gonguId);
+    if(idx>=0) S.gonguSchedules[idx] = {...S.gonguSchedules[idx], type, seller, product, startDate, endDate, memo};
+  } else {
+    S.gonguSchedules.unshift({id:Date.now(), type, seller, product, startDate, endDate, memo});
+  }
+  await fbSave();
+  closeGonguModal();
+  renderGongu();
+  renderGonguCalendar();
+  showToast(_gonguId ? '✅ 수정됐어요!' : '🛒 공구일정 추가됐어요!');
+}
+async function delGongu(id) {
+  if(!confirm('삭제할까요?')) return;
+  S.gonguSchedules = (S.gonguSchedules||[]).filter(g=>g.id!==id);
+  await fbSave();
+  renderGongu();
+  renderGonguCalendar();
+  showToast('삭제됐어요');
+}
+function filterGongu(f, btn) {
+  _gonguFilter = f;
+  document.querySelectorAll('#gongu-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderGongu();
+}
+function shareGongu(id) {
+  const g = (S.gonguSchedules||[]).find(x=>x.id===id);
+  if(!g) return;
+  const dateStr = g.startDate&&g.endDate ? `${g.startDate} ~ ${g.endDate}` : g.startDate||'-';
+  const msg = `🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;
+  navigator.clipboard.writeText(msg).then(()=>{
+    showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');
+    setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'), 1000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea'); ta.value=msg;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');
+    setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'), 1000);
+  });
+}
+function renderGongu() {
+  const list = document.getElementById('gongu-list');
+  if(!list) return;
+  let items = (S.gonguSchedules||[]);
+  if(_gonguFilter !== 'all') items = items.filter(g=>g.type===_gonguFilter);
+  if(items.length===0) {
+    list.innerHTML=`<div class="empty-state">아직 공구일정이 없어요 🛒<br>+ 추가 버튼으로 등록해보세요!</div>`;
+    return;
+  }
+  list.innerHTML = items.map(g=>`
+    <div class="sch-card">
+      ${typeBadge(g.type)}
+      <div class="sch-title">${esc(g.product)}</div>
+      <div class="sch-detail">
+        ${g.seller?`📱 ${esc(g.seller)}<br>`:''}
+        ${g.startDate?`📅 ${g.startDate}${g.endDate?' ~ '+g.endDate:''}<br>`:''}
+        ${g.memo?`📝 ${esc(g.memo)}`:''}
+      </div>
+      <div class="sch-actions">
+        <button class="sch-edit" onclick="openGonguModal(${g.id})">✏️ 수정</button>
+        <button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button>
+      </div>
+      ${(g.type==='공구일정 확정'||g.type==='협찬')?
+        `<button class="share-btn" onclick="shareGongu(${g.id})">💬 메리님께 공유하기</button>`:''}
+    </div>`).join('');
+}
+function renderGonguCalendar() {
+  const confirmed = (S.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정'&&g.startDate);
+  const card = document.getElementById('gongu-cal-card');
+  const calList = document.getElementById('gongu-cal-list');
+  if(!card||!calList) return;
+  if(confirmed.length===0) { card.style.display='none'; return; }
+  card.style.display='block';
+  calList.innerHTML = confirmed.map(g=>`
+    <div class="gongu-cal-item">
+      <div class="gongu-dot"></div>
+      <div>
+        <div style="font-size:13px;font-weight:700">${esc(g.product)}</div>
+        <div style="font-size:11px;color:var(--m)">${g.startDate}${g.endDate?' ~ '+g.endDate:''} ${g.seller?'· '+esc(g.seller):''}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════
+//  입점
+// ════════════════════════
+let _ipjumId = null;
+let _ipjumFilter = 'all';
+
+function toggleCompletionDate() {
+  const t = document.getElementById('i-type').value;
+  const wrap = document.getElementById('i-completion-wrap');
+  if(wrap) wrap.style.display = t==='입점완료' ? 'block' : 'none';
+}
+function openIpjumModal(id=null) {
+  _ipjumId = id;
+  document.getElementById('ipjum-modal-title').textContent = id ? '🏪 입점 수정' : '🏪 입점 추가';
+  if(id) {
+    const i = (S.ipjumItems||[]).find(x=>x.id===id);
+    if(i) {
+      document.getElementById('i-type').value = i.type||'입점제안완료';
+      document.getElementById('i-product').value = i.product||'';
+      document.getElementById('i-company').value = i.company||'';
+      document.getElementById('i-apply').value = i.applyDate||'';
+      document.getElementById('i-completion').value = i.completionDate||'';
+      document.getElementById('i-memo').value = i.memo||'';
+      toggleCompletionDate();
+    }
+  } else {
+    document.getElementById('i-type').value = '입점제안완료';
+    ['i-product','i-company','i-memo'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('i-apply').value = today();
+    document.getElementById('i-completion').value = '';
+    toggleCompletionDate();
+  }
+  document.getElementById('ipjum-modal').classList.add('open');
+}
+function closeIpjumModal() {
+  document.getElementById('ipjum-modal').classList.remove('open');
+  _ipjumId = null;
+}
+async function saveIpjum() {
+  const type = document.getElementById('i-type').value;
+  const product = document.getElementById('i-product').value.trim();
+  const company = document.getElementById('i-company').value.trim();
+  const applyDate = document.getElementById('i-apply').value;
+  const completionDate = type==='입점완료' ? document.getElementById('i-completion').value : '';
+  const memo = document.getElementById('i-memo').value.trim();
+  if(!product) { showToast('제품명을 입력해주세요!'); return; }
+  if(!S.ipjumItems) S.ipjumItems = [];
+  if(_ipjumId) {
+    const idx = S.ipjumItems.findIndex(i=>i.id===_ipjumId);
+    if(idx>=0) S.ipjumItems[idx] = {...S.ipjumItems[idx], type, product, company, applyDate, completionDate, memo};
+  } else {
+    S.ipjumItems.unshift({id:Date.now(), type, product, company, applyDate, completionDate, memo});
+  }
+  await fbSave();
+  closeIpjumModal();
+  renderIpjum();
+  showToast(_ipjumId ? '✅ 수정됐어요!' : '🏪 입점 항목 추가됐어요!');
+}
+async function delIpjum(id) {
+  if(!confirm('삭제할까요?')) return;
+  S.ipjumItems = (S.ipjumItems||[]).filter(i=>i.id!==id);
+  await fbSave();
+  renderIpjum();
+  showToast('삭제됐어요');
+}
+function filterIpjum(f, btn) {
+  _ipjumFilter = f;
+  document.querySelectorAll('#ipjum-filter .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderIpjum();
+}
+function shareIpjum(id) {
+  const i = (S.ipjumItems||[]).find(x=>x.id===id);
+  if(!i) return;
+  const msg = `🏪 [${i.type}] 공유드려요!\n\n제품: ${i.product}\n회사: ${i.company||'-'}${i.memo?'\n메모: '+i.memo:''}`;
+  navigator.clipboard.writeText(msg).then(()=>{
+    showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');
+    setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'), 1000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea'); ta.value=msg;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');
+    setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'), 1000);
+  });
+}
+function renderIpjum() {
+  const list = document.getElementById('ipjum-list');
+  if(!list) return;
+  let items = (S.ipjumItems||[]);
+  if(_ipjumFilter !== 'all') items = items.filter(i=>i.type===_ipjumFilter);
+  if(items.length===0) {
+    list.innerHTML=`<div class="empty-state">아직 입점 항목이 없어요 🏪<br>+ 추가 버튼으로 등록해보세요!</div>`;
+    return;
+  }
+  list.innerHTML = items.map(i=>`
+    <div class="sch-card">
+      ${typeBadge(i.type)}
+      <div class="sch-title">${esc(i.product)}</div>
+      <div class="sch-detail">
+        ${i.company?`🔗 ${esc(i.company)}<br>`:''}
+        ${i.applyDate?`📅 신청일: ${i.applyDate}<br>`:''}
+        ${i.completionDate?`✅ 완료일: ${i.completionDate}<br>`:''}
+        ${i.memo?`📝 ${esc(i.memo)}`:''}
+      </div>
+      <div class="sch-actions">
+        <button class="sch-edit" onclick="openIpjumModal(${i.id})">✏️ 수정</button>
+        <button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button>
+      </div>
+      ${i.type==='입점연락 옴'?
+        `<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리님께 공유하기</button>`:''}
+    </div>`).join('');
 }
 
 // ── 유틸

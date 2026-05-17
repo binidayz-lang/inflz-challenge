@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>처음 시작하기 | 인플즈메리네 챌린지</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#C8956C;--pd:#9D6744;--pa:#E8A87C;
+  --bg:#FDF8F4;--w:#fff;--t:#2C1A0E;--m:#8B6B52;
+  --bd:#EAD9CC;--g:#5BAD7F;
+  --sh:0 4px 20px rgba(200,149,108,.12);
+  --r:16px;--rs:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);font-size:14px;padding-bottom:60px;max-width:480px;margin:0 auto}
+
+.hdr{background:linear-gradient(135deg,#2C1A0E 0%,#5C3317 55%,#9D6744 100%);color:#fff;padding:36px 20px 30px;text-align:center;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:rgba(200,149,108,.1)}
+.hdr-badge{display:inline-block;background:rgba(200,149,108,.25);border:1px solid rgba(200,149,108,.4);color:#F2D4C0;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:20px;margin-bottom:12px}
+.hdr h1{font-size:26px;font-weight:900;line-height:1.35;position:relative;z-index:1}
+.hdr h1 em{color:var(--pa);font-style:normal}
+.hdr-sub{font-size:13px;color:rgba(255,255,255,.6);margin-top:8px;line-height:1.6}
+
+.card{background:var(--w);border-radius:var(--r);padding:20px;margin:12px 14px 0;box-shadow:var(--sh)}
+.card-ttl{font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px}
+
+/* 스텝 */
+.step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #F5ECE4;align-items:flex-start}
+.step:last-child{border-bottom:none;padding-bottom:0}
+.step-circle{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pa));color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;flex-shrink:0}
+.step-body{}
+.step-title{font-size:14px;font-weight:900;margin-bottom:4px}
+.step-desc{font-size:12px;color:var(--m);line-height:1.7}
+.step-desc b{color:var(--t)}
+
+/* 박스 */
+.highlight{background:linear-gradient(135deg,#FDF2EA,#FFF5EE);border:1.5px solid var(--pa);border-radius:var(--rs);padding:14px 16px;margin:10px 0;font-size:13px;line-height:1.8}
+.warn-box{background:#FFF0EC;border-left:3px solid #E07A5F;border-radius:0 var(--rs) var(--rs) 0;padding:13px 15px;margin:10px 0;font-size:12px;color:var(--t);line-height:1.8}
+.warn-box strong{color:#E07A5F;display:block;margin-bottom:3px}
+.ok-box{background:#E8F7EE;border-left:3px solid var(--g);border-radius:0 var(--rs) var(--rs) 0;padding:13px 15px;margin:10px 0;font-size:12px;color:var(--t);line-height:1.8}
+.ok-box strong{color:var(--g);display:block;margin-bottom:3px}
+
+/* 레벨 */
+.lv-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.lv-item{border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 12px;font-size:12px}
+.lv-item .emoji{font-size:20px;margin-bottom:4px}
+.lv-item .name{font-weight:900;margin-bottom:2px}
+.lv-item .desc{color:var(--m);font-size:11px}
+
+/* CTA 버튼 */
+.cta-wrap{padding:20px 14px 0}
+.cta-btn{display:block;width:100%;background:linear-gradient(135deg,#2C1A0E,#9D6744);color:#fff;border:none;border-radius:var(--rs);padding:16px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer;text-align:center;text-decoration:none;letter-spacing:.5px;transition:opacity .2s}
+.cta-btn:hover{opacity:.88}
+.cta-sub{text-align:center;font-size:11px;color:var(--m);margin-top:10px;line-height:1.7}
+
+.footer{text-align:center;padding:24px 20px;font-size:11px;color:var(--m);line-height:2}
+.footer strong{color:var(--p)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-badge">✦ 인플즈메리네 ✦</div>
+  <h1>챌린지 캘린더<br><em>처음 시작하기</em></h1>
+  <p class="hdr-sub">딱 3분이면 시작할 수 있어요 😊<br>차근차근 따라와 주세요!</p>
+</div>
+
+<!-- STEP 1 -->
+<div class="card">
+  <div class="card-ttl">📋 가입 방법 — 4단계</div>
+
+  <div class="step">
+    <div class="step-circle">1</div>
+    <div class="step-body">
+      <div class="step-title">어떤 상황인지 선택해요</div>
+      <div class="step-desc">
+        <b>🌱 오늘부터 챌린지 시작할게요!</b><br>
+        처음 시작하는 분<br><br>
+        <b>🔄 저 이미 챌린지 중이에요!</b><br>
+        이미 진행 중인 기존 수강생
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">2</div>
+    <div class="step-body">
+      <div class="step-title">이름 + 비밀번호 입력</div>
+      <div class="step-desc">
+        <b>이름</b>: 챌린지방에 표시될 이름 (예: 홍길동)<br>
+        <b>비밀번호</b>: 본인만 아는 숫자 4자리<br><br>
+        처음이면 자동으로 가입돼요!
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">3</div>
+    <div class="step-body">
+      <div class="step-title">레벨 선택</div>
+      <div class="step-desc">해당하는 레벨을 선택해요</div>
+      <div class="lv-row" style="margin-top:10px">
+        <div class="lv-item">
+          <div class="emoji">🌱</div>
+          <div class="name">초급</div>
+          <div class="desc">처음 시작</div>
+        </div>
+        <div class="lv-item">
+          <div class="emoji">🌿</div>
+          <div class="name">중급</div>
+          <div class="desc">기초 완료</div>
+        </div>
+        <div class="lv-item">
+          <div class="emoji">🌳</div>
+          <div class="name">고급</div>
+          <div class="desc">심화 진행</div>
+        </div>
+        <div class="lv-item">
+          <div class="emoji">🔥</div>
+          <div class="name">심화</div>
+          <div class="desc">마스터 단계</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-circle">4</div>
+    <div class="step-body">
+      <div class="step-title">시작일 선택 후 완료!</div>
+      <div class="step-desc">
+        챌린지를 시작한 날짜를 선택하고<br>
+        <b>챌린지 시작하기 →</b> 버튼을 누르면 끝!<br><br>
+        바로 내 캘린더가 나타나요 🎉
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 비밀번호 주의 -->
+<div class="card">
+  <div class="card-ttl">🔑 비밀번호 안내</div>
+  <div class="warn-box">
+    <strong>⚠️ 비밀번호는 꼭 메모해두세요!</strong>
+    비밀번호를 잊어버리면 복구가 어려워요.<br>
+    숫자 4자리를 지금 바로 메모해두세요 📝
+  </div>
+  <div class="ok-box">
+    <strong>✅ 폰 바꿔도 괜찮아요!</strong>
+    새 폰에서 같은 이름 + 같은 비밀번호로 들어오면<br>
+    모든 기록이 그대로 살아있어요 😊
+  </div>
+</div>
+
+<!-- 기존 수강생 -->
+<div class="card">
+  <div class="card-ttl">🔄 기존 수강생이라면</div>
+  <div class="highlight">
+    <b>🔄 이미 챌린지 중이에요!</b> 선택 후<br>
+    현재 몇 일차인지 숫자로 입력해요<br><br>
+    예) 지금 121일차 진행 중 → <b>121</b> 입력<br>
+    → 자동으로 121~150일차 캘린더가 시작돼요!<br>
+    → 150일차 이후엔 다음 30일 버튼이 나타나요
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-wrap">
+  <a class="cta-btn" href="index.html">
+    🚀 챌린지 캘린더 시작하기
+  </a>
+  <p class="cta-sub">
+    사용법이 더 궁금하다면 →
+    <a href="guide-usage.html" style="color:var(--p);font-weight:700">사용법 전체 보기</a>
+  </p>
+</div>
+
+<div class="footer">
+  <strong>인플즈메리네 챌린지 캘린더</strong><br>
+  문의: 카카오 오픈채팅 open.kakao.com/o/sstU0gKg
+</div>
+
+</body>
+</html>
