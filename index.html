@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인플즈메리네 챌린지 캘린더</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p:#C8956C; --pd:#9D6744; --pa:#E8A87C; --pl:#F2D4C0;
+  --bg:#FDF8F4; --w:#fff; --t:#2C1A0E; --m:#8B6B52;
+  --bd:#EAD9CC; --g:#5BAD7F; --gb:#E8F7EE;
+  --lv1:#6DB6F0; --lv2:#5BAD7F; --lv3:#C8956C; --lv4:#9B72CF;
+  --kk:#FEE500;
+  --sh:0 4px 20px rgba(200,149,108,.13); --r:16px; --rs:10px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--t);min-height:100vh;padding-bottom:110px;font-size:14px}
+.screen{display:none}.screen.active{display:block}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#2C1A0E 0%,#5C3317 55%,#9D6744 100%);color:#fff;padding:26px 20px 22px;text-align:center;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(200,149,108,.1);pointer-events:none}
+.hdr-badge{display:inline-block;background:rgba(200,149,108,.25);border:1px solid rgba(200,149,108,.4);color:#F2D4C0;font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:20px;margin-bottom:10px}
+.hdr h1{font-size:22px;font-weight:900;position:relative;z-index:1}
+.hdr h1 em{color:var(--pa);font-style:normal}
+.hdr-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:6px}
+
+/* CARD */
+.card{background:var(--w);border-radius:var(--r);padding:18px;margin:10px 14px 0;box-shadow:var(--sh)}
+.card-ttl{font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:13px}
+
+/* INPUTS */
+input[type=text],input[type=password],input[type=date],textarea{
+  width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;
+  font-family:inherit;font-size:14px;color:var(--t);outline:none;transition:border .2s;background:#FDFAF7
+}
+input:focus,textarea:focus{border-color:var(--p);background:#fff}
+textarea{resize:vertical;min-height:70px;line-height:1.6}
+label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:5px}
+.field{margin-bottom:13px}.field:last-child{margin-bottom:0}
+
+/* BUTTONS */
+.btn{width:100%;border:none;border-radius:var(--rs);padding:13px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;margin-top:10px}
+.btn:hover{opacity:.88}
+.btn-dark{background:linear-gradient(135deg,#2C1A0E,#9D6744);color:#fff}
+.btn-acc{background:var(--p);color:#fff}
+.btn-acc:hover{background:var(--pd);opacity:1}
+.btn-out{background:#fff;border:1.5px solid var(--bd);color:var(--m)}
+.btn-out:hover{border-color:var(--p);color:var(--p);opacity:1}
+.btn-row{display:flex;gap:8px;margin-top:11px}
+.btn-row .btn{margin-top:0;flex:1}
+
+/* LEVEL TABS */
+.lv-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.lv-tab{border:2px solid var(--bd);background:#FDFAF7;border-radius:var(--rs);padding:10px 4px;text-align:center;cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;color:var(--m);transition:all .2s}
+.lv-tab .em{display:block;font-size:18px;margin-bottom:3px}
+.lv-tab.active[data-lv="초급"]{border-color:var(--lv1);background:#EBF5FD;color:var(--lv1)}
+.lv-tab.active[data-lv="중급"]{border-color:var(--lv2);background:#EBF7F1;color:var(--lv2)}
+.lv-tab.active[data-lv="고급"]{border-color:var(--lv3);background:#FDF2EA;color:var(--lv3)}
+.lv-tab.active[data-lv="심화"]{border-color:var(--lv4);background:#F4EEF9;color:var(--lv4)}
+
+/* TODAY BADGE */
+.today-badge{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--p),var(--pa));color:#fff;border-radius:30px;padding:11px 20px;font-size:15px;font-weight:900;margin-bottom:12px}
+.today-badge .big{font-size:26px;line-height:1}
+
+/* PROGRESS */
+.prog-wrap{background:#F0E6DD;border-radius:10px;height:10px;overflow:hidden;margin-bottom:6px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--pa));border-radius:10px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--m)}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.day-cell{aspect-ratio:1;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bd);background:#FDFAF7;transition:all .2s;user-select:none;-webkit-tap-highlight-color:transparent;position:relative}
+.day-cell:active{transform:scale(.9)}
+.day-cell .dn{font-size:15px;font-weight:900;color:#C5A892;line-height:1}
+.day-cell .dl{font-size:8px;color:#D0B8A4;font-weight:500}
+.day-cell.is-today{border-color:var(--p);box-shadow:0 0 0 3px rgba(200,149,108,.18)}
+.day-cell.is-today .dn{color:var(--p)}
+.day-cell.c-done{background:var(--gb);border-color:var(--g)}
+.day-cell.c-done .dn{color:var(--g)}
+.day-cell.c-done::after{content:'✓';position:absolute;top:2px;right:4px;font-size:9px;color:var(--g);font-weight:900}
+.day-cell.c-past{opacity:.4;cursor:default}
+.day-cell.c-future{opacity:.28;cursor:default}
+
+/* TODO */
+.todo-list{list-style:none;margin-bottom:10px}
+.todo-item{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid #F5ECE4}
+.todo-item:last-child{border-bottom:none}
+.todo-chk{width:20px;height:20px;border-radius:6px;border:2px solid var(--bd);background:#fff;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:12px;color:#fff}
+.todo-chk.on{background:var(--g);border-color:var(--g)}
+.todo-txt{flex:1;font-size:13px;line-height:1.4}
+.todo-txt.cross{text-decoration:line-through;color:var(--m)}
+.todo-del{background:none;border:none;color:#DCC5B5;font-size:17px;cursor:pointer;padding:0 3px;line-height:1}
+.todo-del:hover{color:#c0392b}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1}
+.btn-add{background:var(--p);color:#fff;border:none;border-radius:var(--rs);padding:10px 14px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-add:hover{background:var(--pd)}
+
+/* SUBMIT */
+.submit-box{background:#FDF5EE;border:1.5px dashed #E8D5C4;border-radius:var(--rs);padding:15px;white-space:pre-wrap;font-size:13px;line-height:1.85;color:var(--t);min-height:60px;word-break:break-all}
+
+/* LEVEL COMPLETE */
+.complete-banner{background:linear-gradient(135deg,#2C1A0E,#5C3317);color:#fff;border-radius:var(--r);padding:28px 20px;text-align:center;margin:10px 14px 0}
+.complete-banner .big-emoji{font-size:44px;margin-bottom:12px}
+.complete-banner h2{font-size:20px;font-weight:900;margin-bottom:8px}
+.complete-banner p{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:18px;line-height:1.7}
+.btn-next-lv{background:linear-gradient(135deg,var(--p),var(--pa));color:#fff;border:none;border-radius:30px;padding:14px 32px;font-family:inherit;font-size:15px;font-weight:900;cursor:pointer}
+.all-done-banner{background:linear-gradient(135deg,#9B72CF,#C8956C);color:#fff;border-radius:var(--r);padding:28px 20px;text-align:center;margin:10px 14px 0}
+
+/* LV HISTORY */
+.lv-history{display:flex;gap:6px;padding:10px 14px 0;flex-wrap:wrap}
+.lv-badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700}
+
+/* ADMIN */
+.admin-hdr{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;padding:20px;margin:10px 14px 0;border-radius:var(--r);display:flex;justify-content:space-between;align-items:center}
+.admin-hdr h2{font-size:18px;font-weight:900}
+.admin-hdr p{font-size:12px;opacity:.6;margin-top:4px}
+.admin-refresh{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;cursor:pointer}
+.stu-card{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh);display:flex;align-items:center;gap:12px}
+.sc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.sc-info{flex:1;min-width:0}
+.sc-name{font-size:15px;font-weight:900}
+.sc-detail{font-size:11px;color:var(--m);margin-top:2px}
+.sc-right{text-align:right;flex-shrink:0}
+.sc-day{font-size:22px;font-weight:900;color:var(--p);line-height:1}
+.sc-day-lbl{font-size:10px;color:var(--m)}
+.tag-ok{display:inline-block;background:#E8F7EE;color:var(--g);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:4px}
+.tag-no{display:inline-block;background:#FFF0EC;color:#E07A5F;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:4px}
+.tag-on{display:inline-block;background:#FFF8E1;color:#C8956C;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;margin-top:4px}
+
+/* SETUP GUIDE */
+.setup-step{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh);display:flex;gap:12px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0}
+.step-txt h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.step-txt p{font-size:12px;color:var(--m);line-height:1.7}
+.step-txt a{color:var(--p);font-weight:700}
+.code-box{background:#1e1e1e;color:#d4d4d4;border-radius:8px;padding:12px;font-size:11px;font-family:monospace;overflow-x:auto;margin-top:8px;white-space:pre;line-height:1.6}
+.hl{color:#CE9178}
+
+/* KAKAO FLOAT */
+.kakao-float{position:fixed;bottom:24px;right:18px;z-index:9999;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;text-decoration:none}
+.kakao-btn{width:56px;height:56px;border-radius:50%;background:var(--kk);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:transform .2s}
+.kakao-btn:hover{transform:scale(1.08)}
+.kakao-btn svg{width:28px;height:28px}
+.kakao-label{background:rgba(0,0,0,.72);color:#fff;border-radius:12px;padding:3px 9px;font-size:10px;font-weight:700;white-space:nowrap}
+
+/* MISC */
+.footer{text-align:center;padding:24px 20px 10px;font-size:11px;color:var(--m);line-height:2.1}
+.footer strong{color:var(--p)}
+.toast{position:fixed;bottom:95px;left:50%;transform:translateX(-50%) translateY(60px);background:#2C1A0E;color:#fff;padding:11px 22px;border-radius:30px;font-size:13px;font-weight:700;transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:9998;white-space:nowrap;max-width:90vw;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.center-row{text-align:center;padding:12px 14px 0}
+.logout-btn{background:none;border:1.5px solid var(--bd);color:var(--m);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer}
+.loader{text-align:center;padding:30px;color:var(--m);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- 공통 헤더 -->
+<div class="hdr">
+  <div class="hdr-badge">✦ 인플즈메리네 ✦</div>
+  <h1>챌린지 <em>캘린더</em></h1>
+  <p class="hdr-sub">매일 기록하고, 결과로 증명하세요 🔥</p>
+</div>
+
+<!-- ══════════════════════════════
+     S0: Firebase 미설정 안내
+══════════════════════════════ -->
+<div id="sc-config" class="screen">
+  <div class="card" style="text-align:center;padding:24px 20px;margin-top:16px">
+    <div style="font-size:36px;margin-bottom:12px">⚙️</div>
+    <h2 style="font-size:18px;font-weight:900;margin-bottom:8px">Firebase 설정이 필요해요</h2>
+    <p style="font-size:12px;color:var(--m);line-height:1.7">아래 4단계를 따라하면 수강생 데이터가<br>클라우드에 저장돼요 (약 10분 소요)</p>
+  </div>
+
+  <div class="setup-step">
+    <div class="step-num">1</div>
+    <div class="step-txt">
+      <h4>Firebase 프로젝트 만들기</h4>
+      <p>구글 계정으로 접속 → "프로젝트 추가"<br>
+      <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a></p>
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="step-num">2</div>
+    <div class="step-txt">
+      <h4>웹 앱 등록 → config 복사</h4>
+      <p>프로젝트 홈 → ⚙️ → "앱 추가" → &lt;/&gt; 웹 → 앱 이름 입력 → 등록<br>
+      firebaseConfig 코드 블록 복사</p>
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="step-num">3</div>
+    <div class="step-txt">
+      <h4>Realtime Database 활성화</h4>
+      <p>왼쪽 메뉴 → 빌드 → Realtime Database → "데이터베이스 만들기" → <strong>테스트 모드로 시작</strong></p>
+    </div>
+  </div>
+
+  <div class="setup-step">
+    <div class="step-num">4</div>
+    <div class="step-txt">
+      <h4>이 파일 상단 FIREBASE_CONFIG 수정</h4>
+      <p>복사한 config를 아래 위치에 붙여넣기 후 Netlify에 다시 배포</p>
+      <div class="code-box">const FIREBASE_CONFIG = {
+  <span class="hl">apiKey: "복사한값",
+  authDomain: "복사한값",
+  databaseURL: "복사한값",
+  projectId: "복사한값",
+  storageBucket: "복사한값",
+  messagingSenderId: "복사한값",
+  appId: "복사한값"</span>
+};</div>
+    </div>
+  </div>
+
+  <div class="card" style="font-size:12px;color:var(--m);line-height:1.8;text-align:center">
+    설정 완료 후 파일을 Netlify에 다시 드래그하면 바로 작동해요 😊
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     S1: 학생 로그인
+══════════════════════════════ -->
+<div id="sc-login" class="screen">
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🔐 입장하기</div>
+    <div class="field">
+      <label>이름</label>
+      <input type="text" id="l-name" placeholder="이름 입력 (예: 홍길동)" maxlength="10"
+             onkeydown="if(event.key==='Enter')document.getElementById('l-pin').focus()">
+    </div>
+    <div class="field">
+      <label>숫자 4자리 비밀번호</label>
+      <input type="password" id="l-pin" placeholder="본인만 아는 숫자 4자리" maxlength="4"
+             inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-dark" onclick="doLogin()">입장하기 →</button>
+    <p style="text-align:center;font-size:11px;color:var(--m);margin-top:12px;line-height:1.7">
+      처음이시면 이름+비번 입력 후 입장하면 자동으로 가입돼요<br>
+      비번은 기기 바꿔도 이 번호로 다시 로그인하면 돼요
+    </p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     S2: 신규 설정
+══════════════════════════════ -->
+<div id="sc-register" class="screen">
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🌱 챌린지 시작 설정</div>
+    <div class="field">
+      <label>시작 레벨</label>
+      <div class="lv-tabs">
+        <button class="lv-tab" data-lv="초급" onclick="selLvBtn(this)"><span class="em">🌱</span>초급</button>
+        <button class="lv-tab" data-lv="중급" onclick="selLvBtn(this)"><span class="em">🌿</span>중급</button>
+        <button class="lv-tab" data-lv="고급" onclick="selLvBtn(this)"><span class="em">🌳</span>고급</button>
+        <button class="lv-tab" data-lv="심화" onclick="selLvBtn(this)"><span class="em">🔥</span>심화</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>챌린지 시작일</label>
+      <input type="date" id="r-date">
+    </div>
+    <button class="btn btn-dark" onclick="doRegister()">챌린지 시작하기 →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     S3: 메인 앱
+══════════════════════════════ -->
+<div id="sc-main" class="screen">
+
+  <div class="lv-history" id="lv-hist"></div>
+  <div id="done-banner"></div>
+
+  <!-- 오늘 현황 -->
+  <div class="card" id="today-card">
+    <div class="today-badge">
+      <span id="b-emoji">🌱</span>
+      <span id="b-lv" style="font-size:15px">초급</span>
+      <span style="opacity:.5;font-size:13px">|</span>
+      <span id="b-name">이름</span>님
+      <span style="opacity:.5;font-size:13px">|</span>
+      <span class="big" id="b-day">1</span>일차
+    </div>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-bar" style="width:0%"></div></div>
+    <div class="prog-row">
+      <span id="p-l">시작일</span>
+      <span id="p-pct" style="font-weight:700;color:var(--p)">0%</span>
+      <span id="p-r">30일차</span>
+    </div>
+  </div>
+
+  <!-- 달력 -->
+  <div class="card">
+    <div class="card-ttl">📅 30일 달력</div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+
+  <!-- 투두 -->
+  <div class="card">
+    <div class="card-ttl">📋 오늘의 투두리스트</div>
+    <ul class="todo-list" id="todo-list"></ul>
+    <div class="add-row">
+      <input type="text" id="todo-inp" placeholder="할 일 입력 후 추가" maxlength="60"
+             onkeydown="if(event.key==='Enter')addTodo()">
+      <button class="btn-add" onclick="addTodo()">+ 추가</button>
+    </div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="card">
+    <div class="card-ttl">✅ 오늘 해낸 결과</div>
+    <p style="font-size:11px;color:var(--m);margin-bottom:8px">수치, 건수, 구체적 성과를 적어보세요</p>
+    <textarea id="result-inp" placeholder="예) 소싱 3개 완료 / 블로그 1건 발행 / 판매페이지 수정..."></textarea>
+    <button class="btn btn-acc" onclick="saveResult()">결과 저장</button>
+  </div>
+
+  <!-- 제출 양식 -->
+  <div class="card">
+    <div class="card-ttl">📤 챌린지방 제출 양식</div>
+    <div class="submit-box" id="submit-box">아래 버튼을 눌러 양식을 생성하세요</div>
+    <div class="btn-row">
+      <button class="btn btn-dark" onclick="genSubmit()">✨ 양식 생성</button>
+      <button class="btn btn-out" onclick="copySubmit()">📋 복사</button>
+    </div>
+  </div>
+
+  <div class="center-row">
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+
+  <div class="footer">
+    <strong>인플즈메리네 챌린지 캘린더</strong><br>
+    아래 버튼으로 챌린지방 바로 입장 💬
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     S4: 관리자 로그인
+══════════════════════════════ -->
+<div id="sc-admin-login" class="screen">
+  <div class="card" style="margin-top:20px">
+    <div class="card-ttl">🔒 관리자 로그인</div>
+    <div class="field">
+      <label>관리자 비밀번호</label>
+      <input type="password" id="a-pw" placeholder="비밀번호 입력"
+             onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <button class="btn btn-dark" onclick="doAdminLogin()">로그인</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     S5: 관리자 대시보드
+══════════════════════════════ -->
+<div id="sc-admin" class="screen">
+  <div class="admin-hdr">
+    <div>
+      <h2>📊 수강생 현황</h2>
+      <p id="admin-summary">로딩 중...</p>
+    </div>
+    <button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button>
+  </div>
+  <div id="admin-list"><div class="loader">불러오는 중...</div></div>
+  <div class="center-row" style="padding-bottom:10px">
+    <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
+  </div>
+</div>
+
+<!-- 카카오 플로팅 버튼 -->
+<a class="kakao-float" href="https://open.kakao.com/o/sstU0gKg" target="_blank" rel="noopener">
+  <div class="kakao-btn">
+    <svg viewBox="0 0 24 24" fill="#3B1D1D" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.548 5.078 3.9 6.522L4.8 21l4.636-2.318A11.07 11.07 0 0 0 12 18.6c5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/>
+    </svg>
+  </div>
+  <div class="kakao-label">챌린지방 바로가기</div>
+</a>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+//  🔧 여기만 수정하세요
+// ═══════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyATt-hEuctEFZkHRD9TpxNOXdOq5FyLBb0",
+  authDomain: "marryz-challenge.firebaseapp.com",
+  databaseURL: "https://marryz-challenge-default-rtdb.firebaseio.com",
+  projectId: "marryz-challenge",
+  storageBucket: "marryz-challenge.firebasestorage.app",
+  messagingSenderId: "157658417157",
+  appId: "1:157658417157:web:80cf775131c2d817dcf46c"
+};
+const ADMIN_PW = "marryz2026";   // ← 관리자 비밀번호 (변경 가능)
+// ═══════════════════════════════════════
+
+// ── 상수
+const IS_CFG   = !FIREBASE_CONFIG.apiKey.includes("YOUR");
+const LEVELS   = ['초급','중급','고급','심화'];
+const LV_EMOJI = {초급:'🌱',중급:'🌿',고급:'🌳',심화:'🔥'};
+const LV_CLR   = {초급:'#6DB6F0',중급:'#5BAD7F',고급:'#C8956C',심화:'#9B72CF'};
+const LV_BG    = {초급:'#EBF5FD',중급:'#EBF7F1',고급:'#FDF2EA',심화:'#F4EEF9'};
+
+let DB   = null;
+let SKEY = null;
+let S    = {};
+let _selLv = '';
+
+// ── Firebase
+if (IS_CFG) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  DB = firebase.database();
+}
+
+// ── 날짜
+const today    = () => new Date().toISOString().split('T')[0];
+const diffDays = (a,b) => Math.floor((new Date(b)-new Date(a))/86400000);
+const addDays  = (d,n) => { const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt.toISOString().split('T')[0]; };
+const fmtDate  = d => { const dt=new Date(d); return `${dt.getMonth()+1}/${dt.getDate()}`; };
+
+// ── 화면
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── 기본 상태
+function blankState(name,pin) {
+  return {
+    name, pin,
+    currentLevel: '',
+    levels: {
+      초급:{startDate:'',checked:{},done:false},
+      중급:{startDate:'',checked:{},done:false},
+      고급:{startDate:'',checked:{},done:false},
+      심화:{startDate:'',checked:{},done:false},
+    },
+    todos:[],todosDate:'',result:'',resultDate:'',lastActive:today()
+  };
+}
+
+// ── 레벨 탭
+function selLvBtn(btn) {
+  document.querySelectorAll('.lv-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  _selLv = btn.dataset.lv;
+}
+
+// ── Firebase 키 (특수문자 제거)
+function mkKey(name,pin) {
+  return (name+'_'+pin).replace(/[.#$[\]/]/g,'_');
+}
+
+// ── 로그인
+async function doLogin() {
+  const name = document.getElementById('l-name').value.trim();
+  const pin  = document.getElementById('l-pin').value.trim();
+  if(!name) { showToast('이름을 입력해주세요!'); return; }
+  if(!/^\d{4}$/.test(pin)) { showToast('숫자 4자리를 입력해주세요!'); return; }
+
+  const key = mkKey(name,pin);
+  try {
+    const snap = await DB.ref('students/'+key).once('value');
+    const data = snap.val();
+    SKEY = key;
+    if(!data) {
+      S = blankState(name,pin);
+      document.getElementById('r-date').value = today();
+      _selLv = '';
+      document.querySelectorAll('.lv-tab').forEach(t=>t.classList.remove('active'));
+      show('sc-register');
+    } else {
+      S = data;
+      localStorage.setItem('inflz_s', JSON.stringify({name,pin}));
+      show('sc-main');
+      renderAll();
+      showToast(`👋 ${name}님, 돌아오셨군요!`);
+    }
+  } catch(e) {
+    showToast('연결 오류. Firebase 설정을 확인해주세요.');
+    console.error(e);
+  }
+}
+
+// ── 신규 등록
+async function doRegister() {
+  if(!_selLv) { showToast('레벨을 선택해주세요!'); return; }
+  const sd = document.getElementById('r-date').value;
+  if(!sd) { showToast('시작일을 선택해주세요!'); return; }
+  S.currentLevel = _selLv;
+  S.levels[_selLv].startDate = sd;
+  S.levels[_selLv].done = false;
+  await fbSave();
+  localStorage.setItem('inflz_s', JSON.stringify({name:S.name,pin:S.pin}));
+  show('sc-main');
+  renderAll();
+  showToast(`🎉 ${S.name}님, ${_selLv} 챌린지 시작!`);
+}
+
+// ── 로그아웃
+function doLogout() {
+  localStorage.removeItem('inflz_s');
+  SKEY=null; S={};
+  document.getElementById('l-name').value='';
+  document.getElementById('l-pin').value='';
+  show('sc-login');
+}
+
+// ── Firebase 저장
+async function fbSave() {
+  S.lastActive = today();
+  try { await DB.ref('students/'+SKEY).set(S); }
+  catch(e) { showToast('저장 오류'); console.error(e); }
+}
+
+// ── 렌더 전체
+function renderAll() {
+  const lv   = S.currentLevel;
+  const sd   = S.levels[lv]?.startDate || '';
+  const diff = sd ? diffDays(sd, today()) : 0;
+  const dayNum = sd ? Math.min(Math.max(diff+1,1),30) : 1;
+  const over   = sd ? diff >= 30 : false;
+  const pct    = Math.round((Math.min(dayNum,30)/30)*100);
+
+  // 완료 레벨 배지
+  const hist = document.getElementById('lv-hist');
+  hist.innerHTML = '';
+  LEVELS.filter(l=>S.levels[l]?.done).forEach(l=>{
+    const b=document.createElement('span');
+    b.className='lv-badge';
+    b.style.cssText=`background:${LV_BG[l]};color:${LV_CLR[l]};border:1.5px solid ${LV_CLR[l]}`;
+    b.innerHTML=`${LV_EMOJI[l]} ${l} ✓`;
+    hist.appendChild(b);
+  });
+
+  // 레벨 완료 배너
+  const cb = document.getElementById('done-banner');
+  const nl = LEVELS[LEVELS.indexOf(lv)+1] || null;
+  if(over) {
+    document.getElementById('today-card').style.display='none';
+    cb.innerHTML = nl
+      ? `<div class="complete-banner">
+          <div class="big-emoji">🎉</div>
+          <h2>${lv} 30일 완료!</h2>
+          <p>${S.name}님 정말 대단해요!<br>${nl}로 올라갈 준비가 됐나요?</p>
+          <button class="btn-next-lv" onclick="advanceLv()">
+            ${LV_EMOJI[nl]} ${nl} 챌린지 시작하기 →</button></div>`
+      : `<div class="all-done-banner">
+          <div style="font-size:48px;margin-bottom:12px">🏆</div>
+          <h2 style="font-size:22px;font-weight:900;margin-bottom:8px">전 과정 완료!</h2>
+          <p style="font-size:13px;opacity:.85;line-height:1.8">
+            ${S.name}님<br>초급부터 심화까지 전부 해내셨습니다!<br>진짜 대단합니다 🔥</p></div>`;
+  } else {
+    cb.innerHTML = '';
+    document.getElementById('today-card').style.display='block';
+    document.getElementById('b-emoji').textContent = LV_EMOJI[lv];
+    document.getElementById('b-lv').textContent = lv;
+    document.getElementById('b-name').textContent = S.name;
+    document.getElementById('b-day').textContent = dayNum;
+    document.getElementById('prog-bar').style.width = pct+'%';
+    document.getElementById('p-pct').textContent = pct+'%';
+    document.getElementById('p-l').textContent = sd ? fmtDate(sd)+' 시작' : '시작일';
+    document.getElementById('p-r').textContent = sd ? fmtDate(addDays(sd,29))+' 완료' : '30일차';
+  }
+
+  renderCal(dayNum, lv);
+  syncTodos();
+  renderTodos();
+  const ri = document.getElementById('result-inp');
+  if(ri) ri.value = (S.resultDate===today() ? S.result : '') || '';
+}
+
+// ── 달력
+function renderCal(todayNum, lv) {
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  const chk = S.levels[lv]?.checked || {};
+  for(let d=1;d<=30;d++){
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    const done = !!chk['d'+d];
+    if(d<todayNum)      cell.classList.add(done?'c-done':'c-past');
+    else if(d===todayNum){ cell.classList.add('is-today'); if(done) cell.classList.add('c-done'); }
+    else                 cell.classList.add('c-future');
+    cell.innerHTML=`<span class="dn">${d}</span><span class="dl">Day</span>`;
+    if(d<=todayNum){
+      cell.addEventListener('click', async()=>{
+        S.levels[lv].checked['d'+d] = !S.levels[lv].checked['d'+d];
+        renderCal(todayNum,lv);
+        await fbSave();
+        showToast(S.levels[lv].checked['d'+d]?`Day ${d} ✅`:`Day ${d} 해제`);
+      });
+    }
+    grid.appendChild(cell);
+  }
+}
+
+// ── 투두
+function syncTodos() {
+  if(S.todosDate !== today()){
+    S.todos = (S.todos||[]).filter(t=>!t.done); // 미완료만 이월
+    S.todosDate = today();
+  }
+}
+function renderTodos() {
+  const list = document.getElementById('todo-list');
+  if(!list) return;
+  list.innerHTML='';
+  (S.todos||[]).forEach((t,i)=>{
+    const li=document.createElement('li');
+    li.className='todo-item';
+    li.innerHTML=`
+      <div class="todo-chk ${t.done?'on':''}" onclick="toggleTodo(${i})">${t.done?'✓':''}</div>
+      <span class="todo-txt ${t.done?'cross':''}">${esc(t.text)}</span>
+      <button class="todo-del" onclick="delTodo(${i})">×</button>`;
+    list.appendChild(li);
+  });
+}
+async function addTodo(){
+  const inp=document.getElementById('todo-inp');
+  const t=inp.value.trim();
+  if(!t) return;
+  if(!S.todos) S.todos=[];
+  S.todos.push({id:Date.now(),text:t,done:false});
+  inp.value='';
+  renderTodos();
+  await fbSave();
+}
+async function toggleTodo(i){ S.todos[i].done=!S.todos[i].done; renderTodos(); await fbSave(); }
+async function delTodo(i){ S.todos.splice(i,1); renderTodos(); await fbSave(); }
+
+// ── 결과 저장
+async function saveResult(){
+  S.result=document.getElementById('result-inp').value;
+  S.resultDate=today();
+  await fbSave();
+  showToast('✅ 결과 저장 완료!');
+}
+
+// ── 레벨 업
+async function advanceLv(){
+  const nl=LEVELS[LEVELS.indexOf(S.currentLevel)+1];
+  if(!nl) return;
+  S.levels[S.currentLevel].done=true;
+  S.currentLevel=nl;
+  S.levels[nl].startDate=today();
+  S.levels[nl].done=false;
+  S.todos=[]; S.todosDate=''; S.result=''; S.resultDate='';
+  await fbSave();
+  renderAll();
+  showToast(`🎉 ${nl} 챌린지 시작!`);
+}
+
+// ── 제출 양식
+function genSubmit(){
+  const lv=S.currentLevel;
+  const sd=S.levels[lv]?.startDate||'';
+  const dayNum=sd?Math.min(Math.max(diffDays(sd,today())+1,1),30):1;
+  const todos=S.todos||[];
+  const result=(S.result||'').trim();
+  let txt=`${LV_EMOJI[lv]} [${lv}] ${dayNum}일차 | ${S.name}\n\n`;
+  if(todos.length>0){
+    txt+=`📋 오늘의 할 일\n`;
+    todos.forEach(t=>{txt+=`${t.done?'✅':'⬜'} ${t.text}\n`;});
+    txt+='\n';
+  }
+  if(result){
+    txt+=`✨ 오늘 해낸 것\n`;
+    result.split('\n').forEach(l=>{if(l.trim())txt+=`• ${l.trim()}\n`;});
+  } else {
+    const done=todos.filter(t=>t.done);
+    if(done.length>0){ txt+=`✨ 오늘 해낸 것\n`; done.forEach(t=>{txt+=`• ${t.text}\n`;}); }
+  }
+  document.getElementById('submit-box').textContent=txt.trim();
+  showToast('양식 생성 완료! 복사하세요 📤');
+}
+function copySubmit(){
+  const text=document.getElementById('submit-box').textContent;
+  if(!text||text.includes('아래 버튼')){ genSubmit(); return; }
+  navigator.clipboard.writeText(text).then(()=>{
+    showToast('📋 복사 완료! 챌린지방에 붙여넣으세요');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('📋 복사 완료!');
+  });
+}
+
+// ── 관리자
+function doAdminLogin(){
+  const pw=document.getElementById('a-pw').value;
+  if(pw!==ADMIN_PW){ showToast('비밀번호가 틀렸습니다'); return; }
+  show('sc-admin');
+  loadAdmin();
+}
+async function loadAdmin(){
+  document.getElementById('admin-summary').textContent='로딩 중...';
+  document.getElementById('admin-list').innerHTML='<div class="loader">불러오는 중...</div>';
+  try {
+    const snap=await DB.ref('students').once('value');
+    const data=snap.val();
+    if(!data){
+      document.getElementById('admin-summary').textContent='등록된 수강생이 없습니다';
+      document.getElementById('admin-list').innerHTML='';
+      return;
+    }
+    const list=Object.values(data);
+    const td=today();
+    const subCnt=list.filter(s=>s.resultDate===td).length;
+    const activeCnt=list.filter(s=>s.lastActive===td).length;
+    document.getElementById('admin-summary').textContent=
+      `총 ${list.length}명 · 오늘 결과제출 ${subCnt}명 · 접속 ${activeCnt}명`;
+
+    // 정렬: 마지막 활동 최신순
+    list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
+
+    const container=document.getElementById('admin-list');
+    container.innerHTML='';
+    list.forEach(s=>{
+      const lv=s.currentLevel||'초급';
+      const sd=s.levels?.[lv]?.startDate||'';
+      const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
+      const isResult=s.resultDate===td;
+      const isActive=s.lastActive===td;
+      const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
+
+      const card=document.createElement('div');
+      card.className='stu-card';
+      card.innerHTML=`
+        <div class="sc-av" style="background:${LV_BG[lv]}">${LV_EMOJI[lv]}</div>
+        <div class="sc-info">
+          <div class="sc-name">${esc(s.name)}</div>
+          <div class="sc-detail">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs}</div>
+          <div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div>
+        </div>
+        <div class="sc-right">
+          <div class="sc-day">${dayNum}</div>
+          <div class="sc-day-lbl">/ 30일차</div>
+          ${isResult
+            ? '<div><span class="tag-ok">✅ 결과제출</span></div>'
+            : isActive
+            ? '<div><span class="tag-on">🕐 접속만</span></div>'
+            : '<div><span class="tag-no">미제출</span></div>'}
+        </div>`;
+      container.appendChild(card);
+    });
+  } catch(e){
+    document.getElementById('admin-summary').textContent='오류 발생';
+    document.getElementById('admin-list').innerHTML='';
+    console.error(e);
+  }
+}
+
+// ── 유틸
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+let _tt;
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ── 초기화
+window.addEventListener('load',()=>{
+  const isAdmin = location.search.includes('admin') || location.hash.includes('admin');
+  if(!IS_CFG){ show('sc-config'); return; }
+  if(isAdmin){ show('sc-admin-login'); return; }
+
+  const sess=localStorage.getItem('inflz_s');
+  if(sess){
+    try{
+      const {name,pin}=JSON.parse(sess);
+      document.getElementById('l-name').value=name;
+      document.getElementById('l-pin').value=pin;
+      doLogin();
+      return;
+    }catch(e){}
+  }
+  show('sc-login');
+});
+</script>
+</body>
+</html>
