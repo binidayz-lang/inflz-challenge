@@ -617,7 +617,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       </div>
       <div style="font-size:12px;color:var(--m);line-height:1.8">
         ✏️ 수정 · 🗑 삭제 가능<br>
-        확정/협찬 → 💬 <strong style="color:var(--t)">메리님께 공유하기</strong> 버튼 표시<br>
+        확정/협찬 → 💬 <strong style="color:var(--t)">메리에게 공유!</strong> 버튼 표시<br>
         확정 일정 → 캘린더에 🛒 자동 표시
       </div>
     </div>
@@ -626,7 +626,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <div class="card-ttl">🏪 입점 탭</div>
       <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px">
         <div style="display:flex;gap:8px;align-items:center;font-size:12px"><span style="background:#EBF5FD;color:#6DB6F0;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700">①</span>입점제안완료</div>
-        <div style="display:flex;gap:8px;align-items:center;font-size:12px"><span style="background:#FFF8E1;color:#C8956C;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700">②</span><span>입점연락 옴 → <strong>메리님께 공유 버튼!</strong></span></div>
+        <div style="display:flex;gap:8px;align-items:center;font-size:12px"><span style="background:#FFF8E1;color:#C8956C;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700">②</span><span>입점연락 옴 → <strong>메리에게 공유 버튼!</strong></span></div>
         <div style="display:flex;gap:8px;align-items:center;font-size:12px"><span style="background:#FDF2EA;color:#C8956C;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700">③</span>입점진행중</div>
         <div style="display:flex;gap:8px;align-items:center;font-size:12px"><span style="background:#EBF7F1;color:#5BAD7F;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700">④</span>신청완료</div>
         <div style="display:flex;gap:8px;align-items:center;font-size:12px"><span style="background:#E8F7EE;color:#5BAD7F;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700">⑤</span>입점완료 → 완료일 기록</div>
@@ -1510,7 +1510,7 @@ function renderGongu() {
         <button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button>
       </div>
       ${(g.type==='공구일정 확정'||g.type==='협찬')?
-        `<button class="share-btn" onclick="shareGongu(${g.id})">💬 메리님께 공유하기</button>`:''}
+        `<button class="share-btn" onclick="shareGongu(${g.id})">💬 메리에게 공유!</button>`:''}
     </div>`).join('');
 }
 function renderGonguCalendar() {
@@ -1639,7 +1639,7 @@ function renderIpjum() {
         <button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button>
       </div>
       ${i.type==='입점연락 옴'?
-        `<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리님께 공유하기</button>`:''}
+        `<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리에게 공유!</button>`:''}
     </div>`).join('');
 }
 
