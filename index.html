@@ -125,7 +125,16 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .admin-hdr h2{font-size:18px;font-weight:900}
 .admin-hdr p{font-size:12px;opacity:.6;margin-top:4px}
 .admin-refresh{background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:8px;padding:7px 12px;font-family:inherit;font-size:12px;cursor:pointer}
-.stu-card{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh);display:flex;align-items:center;gap:12px}
+.stu-card{background:var(--w);border-radius:var(--rs);padding:14px 16px;margin:8px 14px 0;box-shadow:var(--sh);cursor:pointer;transition:box-shadow .2s}
+.stu-card:hover{box-shadow:0 6px 24px rgba(200,149,108,.2)}
+.stu-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)}
+.stu-detail.open{display:block}
+.stu-detail-ttl{font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin:10px 0 6px}
+.stu-detail-ttl:first-child{margin-top:0}
+.stu-log-item{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid #F5ECE4;font-size:12px}
+.stu-log-item:last-child{border-bottom:none}
+.stu-log-date{color:var(--m);flex-shrink:0;min-width:50px}
+.stu-log-content{flex:1;color:var(--t);line-height:1.6}
 .sc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .sc-info{flex:1;min-width:0}
 .sc-name{font-size:15px;font-weight:900}
@@ -1277,22 +1286,73 @@ async function loadAdmin(){
 
       const card=document.createElement('div');
       card.className='stu-card';
+
+      // 날짜별 기록 최근 5개
+      const logs = s.dailyLogs || {};
+      const logDates = Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,7);
+
+      // 공구일정
+      const gonguList = (s.gonguSchedules||[]).slice(0,3);
+      // 입점
+      const ipjumList = (s.ipjumItems||[]).slice(0,3);
+
       card.innerHTML=`
-        <div class="sc-av" style="background:${LV_BG[lv]}">${LV_EMOJI[lv]}</div>
-        <div class="sc-info">
-          <div class="sc-name">${esc(s.name)}</div>
-          <div class="sc-detail">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs}</div>
-          <div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="sc-av" style="background:${LV_BG[lv]}">${LV_EMOJI[lv]}</div>
+          <div class="sc-info">
+            <div class="sc-name">${esc(s.name)}</div>
+            <div class="sc-detail">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs}</div>
+            <div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div>
+          </div>
+          <div class="sc-right">
+            <div class="sc-day">${dayNum}</div>
+            <div class="sc-day-lbl">/ 30일차</div>
+            ${isResult
+              ? '<div><span class="tag-ok">✅ 결과제출</span></div>'
+              : isActive
+              ? '<div><span class="tag-on">🕐 접속만</span></div>'
+              : '<div><span class="tag-no">미제출</span></div>'}
+          </div>
         </div>
-        <div class="sc-right">
-          <div class="sc-day">${dayNum}</div>
-          <div class="sc-day-lbl">/ 30일차</div>
-          ${isResult
-            ? '<div><span class="tag-ok">✅ 결과제출</span></div>'
-            : isActive
-            ? '<div><span class="tag-on">🕐 접속만</span></div>'
-            : '<div><span class="tag-no">미제출</span></div>'}
+        <div class="stu-detail" id="detail-${esc(s.name)}">
+          ${logDates.length > 0 ? `
+          <div class="stu-detail-ttl">📅 최근 기록</div>
+          ${logDates.map(date=>{
+            const log = logs[date];
+            const doneTodos = (log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');
+            const result = log.result||'';
+            return `<div class="stu-log-item">
+              <div class="stu-log-date">${fmtDate(date)}</div>
+              <div class="stu-log-content">
+                ${doneTodos ? `✅ ${esc(doneTodos)}<br>` : ''}
+                ${result ? `✨ ${esc(result)}` : (!doneTodos ? '<span style="color:var(--m)">기록 없음</span>' : '')}
+              </div>
+            </div>`;
+          }).join('')}` : '<div style="font-size:12px;color:var(--m);padding:8px 0">아직 기록이 없어요</div>'}
+
+          ${gonguList.length > 0 ? `
+          <div class="stu-detail-ttl">🛒 공구일정 (최근 ${gonguList.length}건)</div>
+          ${gonguList.map(g=>`
+            <div class="stu-log-item">
+              <div class="stu-log-date" style="min-width:60px">${typeBadge(g.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div>
+              <div class="stu-log-content">${esc(g.product)} ${g.startDate?'· '+g.startDate:''}</div>
+            </div>`).join('')}` : ''}
+
+          ${ipjumList.length > 0 ? `
+          <div class="stu-detail-ttl">🏪 입점 (최근 ${ipjumList.length}건)</div>
+          ${ipjumList.map(i=>`
+            <div class="stu-log-item">
+              <div class="stu-log-date" style="min-width:60px">${typeBadge(i.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div>
+              <div class="stu-log-content">${esc(i.product)} ${i.company?'· '+esc(i.company):''}</div>
+            </div>`).join('')}` : ''}
         </div>`;
+
+      // 클릭 시 상세보기 토글
+      card.addEventListener('click', ()=>{
+        const detail = document.getElementById(`detail-${esc(s.name)}`);
+        if(detail) detail.classList.toggle('open');
+      });
+
       container.appendChild(card);
     });
   } catch(e){
