@@ -391,8 +391,8 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div style="background:#FDF5EE;border-left:3px solid var(--p);border-radius:0 8px 8px 0;padding:11px 13px;margin:12px 0;font-size:12px;line-height:1.7">
       <strong style="color:var(--p)">🔄 기존 수강생이라면?</strong><br>
       <b>이미 챌린지 중이에요!</b> 선택 후<br>
-      현재 몇 일차인지 숫자로 입력해요<br>
-      예) 121일차 진행 중 → <b>121</b> 입력
+      <b>메리와 챌린지를 시작한 날짜</b>를 입력하면<br>
+      오늘이 몇 일차인지 <b>자동으로 계산</b>돼요 🎯
     </div>
 
     <!-- 비번 주의 -->
@@ -446,10 +446,11 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <input type="date" id="r-date">
     </div>
     <div class="field" id="baseday-field" style="display:none">
-      <label>현재 몇 일차 진행중이세요?</label>
-      <input type="number" id="r-baseday" placeholder="예) 121" min="1" max="9999"
+      <label>📅 메리와 챌린지를 시작한 날짜가 언제예요?</label>
+      <input type="date" id="r-baseday-date"
              style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7">
-      <p style="font-size:11px;color:var(--m);margin-top:5px;line-height:1.6">입력한 일차부터 30일씩 계속 이어져요<br>예) 121 입력 → 121~150일차 → 151~180일차...</p>
+      <p style="font-size:11px;color:var(--m);margin-top:5px;line-height:1.6">처음 챌린지 시작한 날짜를 입력하면<br>오늘이 몇 일차인지 자동으로 계산돼요 🎯</p>
+      <div id="baseday-preview" style="display:none;margin-top:8px;background:#E8F7EE;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:700;color:#3A7D58;text-align:center"></div>
     </div>
     <button class="btn btn-dark" onclick="doRegister()">챌린지 시작하기 →</button>
   </div>
@@ -489,6 +490,9 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
         <span id="p-l">시작일</span>
         <span id="p-pct" style="font-weight:700;color:var(--p)">0%</span>
         <span id="p-r">30일차</span>
+      </div>
+      <div style="text-align:center;margin-top:10px">
+        <button onclick="openFixDateModal()" style="background:none;border:none;color:var(--m);font-family:inherit;font-size:11px;cursor:pointer;text-decoration:underline;padding:2px 6px">✏️ 혹시 날짜가 틀렸어요?</button>
       </div>
     </div>
     <div class="card">
@@ -800,6 +804,23 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   </div>
 </div>
 
+<!-- 날짜 수정 모달 -->
+<div class="modal-wrap" id="fix-date-modal" onclick="if(event.target===this)closeFixDateModal()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">✏️ 시작 날짜 수정</div>
+      <button class="modal-close" onclick="closeFixDateModal()">×</button>
+    </div>
+    <div class="field">
+      <label>메리와 챌린지를 시작한 날짜</label>
+      <input type="date" id="fix-date-input"
+             style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7">
+    </div>
+    <div id="fix-date-preview" style="display:none;margin:8px 0 4px;background:#E8F7EE;border-radius:8px;padding:9px 12px;font-size:14px;font-weight:700;color:#3A7D58;text-align:center"></div>
+    <button class="btn btn-dark" onclick="saveFixDate()" style="margin-top:8px">✅ 수정 완료</button>
+  </div>
+</div>
+
 <!-- 카카오 플로팅 버튼 -->
 <a class="kakao-float" href="https://open.kakao.com/o/sstU0gKg" target="_blank" rel="noopener">
   <div class="kakao-btn">
@@ -891,9 +912,37 @@ function selLvBtn(btn) {
   document.querySelectorAll('.lv-tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
   _selLv = btn.dataset.lv;
-  // 기존수강생 선택 시 일차 입력 필드 표시
+  // 기존수강생 선택 시 날짜 입력 필드 표시
   const bd = document.getElementById('baseday-field');
   if(bd) bd.style.display = _selLv === '기존수강생' ? 'block' : 'none';
+  // 날짜 입력 이벤트 연결 (중복 방지)
+  const dateInput = document.getElementById('r-baseday-date');
+  if(dateInput && !dateInput._listenerAdded) {
+    dateInput.addEventListener('change', updateBasedayPreview);
+    dateInput._listenerAdded = true;
+  }
+}
+
+// ── 기존수강생 날짜 → 일차 미리보기
+function updateBasedayPreview() {
+  const dateVal = document.getElementById('r-baseday-date').value;
+  const preview = document.getElementById('baseday-preview');
+  if(!dateVal || !preview) return;
+  const start = new Date(dateVal);
+  const todayDate = new Date(today());
+  const diff = Math.floor((todayDate - start) / 86400000);
+  const currentDay = diff + 1;
+  if(currentDay < 1) {
+    preview.style.display = 'block';
+    preview.style.background = '#FFF0EC';
+    preview.style.color = '#E07A5F';
+    preview.textContent = '⚠️ 오늘 이전 날짜를 선택해주세요';
+    return;
+  }
+  preview.style.display = 'block';
+  preview.style.background = '#E8F7EE';
+  preview.style.color = '#3A7D58';
+  preview.textContent = `🎯 현재 ${currentDay}일차 진행 중!`;
 }
 
 // ── Firebase 키 (특수문자 제거)
@@ -926,6 +975,12 @@ async function doLogin() {
       }
       const bd = document.getElementById('baseday-field');
       if(bd) bd.style.display = _userType === 'existing' ? 'block' : 'none';
+      // 날짜 입력 이벤트 연결
+      const dateInput = document.getElementById('r-baseday-date');
+      if(dateInput && !dateInput._listenerAdded) {
+        dateInput.addEventListener('change', updateBasedayPreview);
+        dateInput._listenerAdded = true;
+      }
       show('sc-register');
     } else {
       S = data;
@@ -945,8 +1000,13 @@ async function doRegister() {
   if(!_selLv) { showToast('레벨을 선택해주세요!'); return; }
 
   if(_selLv === '기존수강생') {
-    const currentDay = parseInt(document.getElementById('r-baseday').value);
-    if(!currentDay || currentDay < 1) { showToast('현재 몇 일차인지 입력해주세요!'); return; }
+    const startDateVal = document.getElementById('r-baseday-date').value;
+    if(!startDateVal) { showToast('챌린지 시작 날짜를 입력해주세요!'); return; }
+    const startDate = new Date(startDateVal);
+    const todayDate = new Date(today());
+    const diff = Math.floor((todayDate - startDate) / 86400000);
+    const currentDay = diff + 1;
+    if(currentDay < 1) { showToast('오늘 이전 날짜를 선택해주세요!'); return; }
     // 현재 일차가 속한 30일 블록 계산
     const blockNum = Math.ceil(currentDay / 30);
     const blockStartDay = (blockNum - 1) * 30 + 1; // 블록 시작 일차
@@ -971,6 +1031,84 @@ async function doRegister() {
   show('sc-main');
   renderAll();
   showToast(`🎉 ${S.name}님, ${_selLv === '기존수강생' ? '함께 계속 달려봐요!' : _selLv+' 챌린지 시작해요!'}`);
+}
+
+// ── 날짜 수정 모달
+function openFixDateModal() {
+  const lv = S.currentLevel;
+  // 현재 저장된 시작일 역산해서 기본값 세팅
+  const isExisting = lv === '기존수강생';
+  const sd = S.levels[lv]?.startDate || '';
+  let originalStart = sd;
+  if(isExisting && sd) {
+    // baseDay와 블록 startDate로 원래 챌린지 시작일 계산
+    const baseDay = S.levels[lv]?.baseDay || 1;
+    const blockOffset = (baseDay - 1) % 30; // 현재 블록 시작일차까지의 오프셋
+    const blockStart = new Date(sd);
+    // 원래 챌린지 시작일 = 블록 시작일 - (baseDay-1)일
+    const origDate = new Date(blockStart);
+    origDate.setDate(origDate.getDate() - (baseDay - 1 - blockOffset));
+    // 실제로는 전체 시작일 = 블록 startDate에서 (blockStartDay-1)일 이전
+    const totalBaseDay = S.levels[lv]?.baseDay || 1;
+    const todayDate = new Date(today());
+    const diff = diffDays(sd, today());
+    const dayInBlock = Math.min(Math.max(diff+1,1),30);
+    const actualDay = totalBaseDay + dayInBlock - 1;
+    // 원래 시작일 = 오늘 - (actualDay-1)일
+    const trueStart = new Date(todayDate);
+    trueStart.setDate(trueStart.getDate() - (actualDay - 1));
+    originalStart = trueStart.toISOString().split('T')[0];
+  }
+  const inp = document.getElementById('fix-date-input');
+  if(inp) inp.value = originalStart;
+  const prev = document.getElementById('fix-date-preview');
+  if(prev) prev.style.display = 'none';
+  // 날짜 변경 미리보기
+  if(inp && !inp._fixListenerAdded) {
+    inp.addEventListener('change', () => {
+      const v = inp.value;
+      if(!v) return;
+      const diff2 = Math.floor((new Date(today()) - new Date(v)) / 86400000);
+      const d = diff2 + 1;
+      if(d < 1) {
+        prev.style.background='#FFF0EC'; prev.style.color='#E07A5F';
+        prev.textContent='⚠️ 오늘 이전 날짜를 선택해주세요';
+      } else {
+        prev.style.background='#E8F7EE'; prev.style.color='#3A7D58';
+        prev.textContent=`🎯 수정 후: ${d}일차`;
+      }
+      prev.style.display = 'block';
+    });
+    inp._fixListenerAdded = true;
+  }
+  document.getElementById('fix-date-modal').classList.add('open');
+}
+function closeFixDateModal() {
+  document.getElementById('fix-date-modal').classList.remove('open');
+}
+async function saveFixDate() {
+  const v = document.getElementById('fix-date-input').value;
+  if(!v) { showToast('날짜를 선택해주세요!'); return; }
+  const diff = Math.floor((new Date(today()) - new Date(v)) / 86400000);
+  const currentDay = diff + 1;
+  if(currentDay < 1) { showToast('오늘 이전 날짜를 선택해주세요!'); return; }
+  const lv = S.currentLevel;
+  if(lv === '기존수강생') {
+    const blockNum = Math.ceil(currentDay / 30);
+    const blockStartDay = (blockNum - 1) * 30 + 1;
+    const daysIntoBlock = currentDay - blockStartDay;
+    const sd = addDays(today(), -daysIntoBlock);
+    S.levels['기존수강생'].baseDay = blockStartDay;
+    S.levels['기존수강생'].startDate = sd;
+    S.levels['기존수강생'].checked = {};
+  } else {
+    S.levels[lv].startDate = v;
+    S.levels[lv].checked = {};
+  }
+  await fbSave();
+  closeFixDateModal();
+  renderAll();
+  showToast(`✅ 날짜가 수정됐어요! 이제 ${currentDay}일차예요 🎯`);
 }
 
 // ── 로그아웃
@@ -1516,6 +1654,13 @@ async function saveGongu() {
   closeGonguModal();
   renderGongu();
   renderGonguCalendar();
+  // 캘린더 셀 🛒 마커도 함께 갱신
+  const _lv = S.currentLevel;
+  const _sd = S.levels[_lv]?.startDate||'';
+  const _diff = _sd ? diffDays(_sd, today()) : 0;
+  const _dib = _sd ? Math.min(Math.max(_diff+1,1),30) : 1;
+  const _base = _lv==='기존수강생' ? (S.levels[_lv]?.baseDay||1) : 1;
+  renderCal(_dib, _lv, _base);
   showToast(_gonguId ? '✅ 수정됐어요!' : '🛒 공구일정 추가됐어요!');
 }
 async function delGongu(id) {
@@ -1524,6 +1669,13 @@ async function delGongu(id) {
   await fbSave();
   renderGongu();
   renderGonguCalendar();
+  // 캘린더 셀 🛒 마커도 함께 갱신
+  const _lv2 = S.currentLevel;
+  const _sd2 = S.levels[_lv2]?.startDate||'';
+  const _diff2 = _sd2 ? diffDays(_sd2, today()) : 0;
+  const _dib2 = _sd2 ? Math.min(Math.max(_diff2+1,1),30) : 1;
+  const _base2 = _lv2==='기존수강생' ? (S.levels[_lv2]?.baseDay||1) : 1;
+  renderCal(_dib2, _lv2, _base2);
   showToast('삭제됐어요');
 }
 function filterGongu(f, btn) {
