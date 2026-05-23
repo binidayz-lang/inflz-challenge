@@ -231,6 +231,89 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .log-result{font-size:13px;line-height:1.7;color:var(--t);background:#FDF5EE;border-radius:var(--rs);padding:12px;white-space:pre-wrap}
 .log-empty{font-size:12px;color:var(--m);text-align:center;padding:20px 0}
 .day-cell.has-log::before{content:'📝';position:absolute;bottom:2px;font-size:7px;line-height:1}
+
+/* ── 공지 뱃지 */
+.notice-dot{display:inline-flex;align-items:center;justify-content:center;background:#E07A5F;color:#fff;font-size:9px;font-weight:900;min-width:16px;height:16px;padding:0 4px;border-radius:10px;margin-left:4px;line-height:1;vertical-align:middle}
+.tab-btn.active .notice-dot{background:rgba(255,255,255,.9);color:var(--p)}
+/* ── 공지 팝업 */
+.notice-popup-wrap{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:9995;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.notice-popup-wrap.open{opacity:1;pointer-events:all}
+.notice-popup-box{background:#fff;border-radius:22px;width:100%;max-width:400px;overflow:hidden;box-shadow:0 20px 60px rgba(44,26,18,.22);transform:translateY(30px);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.notice-popup-wrap.open .notice-popup-box{transform:translateY(0)}
+.notice-popup-head{background:linear-gradient(135deg,#2C1A0E,#9D6744);padding:20px 20px 18px;display:flex;align-items:flex-start;justify-content:space-between}
+.notice-popup-head .ttl{font-size:16px;font-weight:900;color:#fff}
+.notice-popup-head .sub{font-size:12px;color:rgba(255,255,255,.7);margin-top:4px}
+.notice-popup-x{background:rgba(255,255,255,.18);border:none;width:28px;height:28px;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:10px}
+.notice-popup-items{padding:14px 16px 6px}
+.notice-popup-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:#FDFAF7;border:1.5px solid var(--bd);border-radius:var(--rs);margin-bottom:8px}
+.notice-popup-item.is-pinned{background:#FDF5EE;border-color:var(--pl)}
+.notice-popup-dot{width:7px;height:7px;border-radius:50%;background:var(--p);flex-shrink:0}
+.notice-popup-ttl{flex:1;font-size:13.5px;font-weight:700;color:var(--t);line-height:1.4}
+.n-new{font-size:9.5px;font-weight:900;background:var(--p);color:#fff;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.notice-popup-foot{padding:8px 16px 20px;display:flex;gap:8px}
+.notice-popup-foot .btn{margin-top:0;flex:1}
+/* ── 공지 탭 */
+.notice-item{background:#fff;border-radius:var(--rs);padding:15px 16px;margin:8px 14px 0;box-shadow:var(--sh);cursor:pointer;position:relative;overflow:hidden}
+.notice-item::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(to bottom,var(--p),var(--pa))}
+.notice-item-top{display:flex;align-items:center;gap:6px;margin-bottom:7px;padding-left:10px}
+.notice-tag-chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--pl);color:var(--pd)}
+.notice-tag-chip.green{background:#E8F7EE;color:#3A7D58}
+.notice-tag-chip.warm{background:#FFF0EC;color:#C8623A}
+.notice-item-date{font-size:10.5px;color:var(--m);margin-left:auto}
+.notice-item-title{font-size:14px;font-weight:900;color:var(--t);padding-left:10px}
+.notice-item-body{display:none;font-size:13px;color:var(--t);line-height:1.8;padding:10px 10px 0;border-top:1px solid var(--bd);margin-top:10px;white-space:pre-wrap;word-break:break-all}
+.notice-item.expanded .notice-item-body{display:block}
+.notice-empty-state{text-align:center;padding:40px 20px;color:var(--m);font-size:13px;line-height:2}
+/* ── 관리자 공지 */
+.admin-notice-form{background:#fff;border-radius:var(--rs);padding:16px;margin:8px 14px 0;box-shadow:var(--sh)}
+.admin-ni{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:#fff;border-radius:var(--rs);margin:8px 14px 0;box-shadow:var(--sh)}
+.admin-ni .anib{flex:1;min-width:0}
+.admin-ni .anit{font-size:13.5px;font-weight:700;margin-bottom:3px;word-break:break-all}
+.admin-ni .anim{font-size:11px;color:var(--m)}
+.ani-acts{display:flex;gap:6px;flex-shrink:0;flex-direction:column}
+.ani-acts button{border:none;border-radius:8px;padding:5px 10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-tn{background:#E8F7EE;color:#3A7D58}
+.btn-tn.off{background:#F5ECE4;color:var(--m)}
+.btn-dn{background:#FFF0EC;color:#E07A5F}
+
+/* ── 교육일정 캘린더 */
+.edu-cal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0}
+.edu-cal-title{font-size:17px;font-weight:900;color:var(--t)}
+.edu-cal-nav{display:flex;gap:6px}
+.edu-cal-nav button{background:#F0E6DD;border:none;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--m);display:flex;align-items:center;justify-content:center;font-family:inherit}
+.edu-cal-nav button:active{background:var(--pl);color:var(--pd)}
+.edu-cal-grid-wrap{padding:10px 14px 0}
+.edu-dow-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.edu-dow{text-align:center;font-size:10px;font-weight:700;color:var(--m);padding:4px 0}
+.edu-dow.sun{color:#E05A5A}.edu-dow.sat{color:#5A7AE0}
+.edu-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.edu-cell{min-height:52px;border-radius:7px;padding:4px 3px;border:1.5px solid var(--bd);background:#FDFAF7;position:relative;cursor:default}
+.edu-cell.edu-other{opacity:.3}
+.edu-cell.edu-today{border-color:var(--p);box-shadow:0 0 0 2px rgba(200,149,108,.2)}
+.edu-cell .edu-dn{font-size:11px;font-weight:700;color:#C5A892;line-height:1;margin-bottom:2px}
+.edu-cell.edu-today .edu-dn{color:var(--p)}
+.edu-event{font-size:7.5px;font-weight:700;border-radius:3px;padding:1px 3px;margin-bottom:1px;line-height:1.3;word-break:keep-all;display:block}
+/* 유형별 색상 */
+.ev-off{background:#FFCDD2;color:#C62828}
+.ev-zoom{background:#E1BEE7;color:#6A1B9A}
+.ev-feedback{background:#FFF9C4;color:#F57F17}
+.ev-holiday{background:#ECEFF1;color:#546E7A}
+.ev-etc{background:#B2DFDB;color:#00695C}
+/* 일정 노트 */
+.edu-note-wrap{margin:10px 14px 0;background:#fff;border-radius:var(--rs);padding:14px 16px;box-shadow:var(--sh)}
+.edu-note-content{font-size:12.5px;color:var(--t);line-height:1.85;white-space:pre-wrap;word-break:break-all;min-height:40px}
+.edu-note-content.empty{color:var(--m);font-style:italic}
+/* 범례 */
+.edu-legend{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px 0}
+.edu-legend-item{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:700;color:var(--m)}
+.edu-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+/* 관리자 교육일정 폼 */
+.edu-admin-form{background:#fff;border-radius:var(--rs);padding:16px;margin:8px 14px 0;box-shadow:var(--sh)}
+.edu-admin-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:#fff;border-radius:var(--rs);margin:6px 14px 0;box-shadow:var(--sh)}
+.edu-admin-item .eab{flex:1;min-width:0}
+.edu-admin-item .eat{font-size:13px;font-weight:700;margin-bottom:2px;word-break:break-all}
+.edu-admin-item .eam{font-size:11px;color:var(--m)}
+.edu-del-btn{border:none;border-radius:8px;padding:5px 10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#FFF0EC;color:#E07A5F;flex-shrink:0;align-self:center}
 </style>
 </head>
 <body>
@@ -470,7 +553,8 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <button class="tab-btn active" data-tab="calendar" onclick="switchTab('calendar')">📅 캘린더</button>
     <button class="tab-btn" data-tab="gongu" onclick="switchTab('gongu')">🛒 공구</button>
     <button class="tab-btn" data-tab="ipjum" onclick="switchTab('ipjum')">🏪 입점</button>
-    <button class="tab-btn" data-tab="guide" onclick="switchTab('guide')">📖 사용법</button>
+    <button class="tab-btn" data-tab="notice" onclick="switchTab('notice')">📢 공지<span class="notice-dot" id="notice-badge" style="display:none">0</span></button>
+    <button class="tab-btn" data-tab="edu" onclick="switchTab('edu')">📆 교육일정</button>
   </div>
 
   <!-- ── 탭1: 캘린더 ── -->
@@ -529,6 +613,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
     <div class="center-row">
       <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    <button class="logout-btn" onclick="switchTab('guide')" style="margin-left:8px">📖 사용법</button>
     </div>
     <div class="footer">
       <strong>인플즈메리네 챌린지 캘린더</strong><br>
@@ -572,7 +657,52 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div id="ipjum-list"></div>
   </div>
 
-  <!-- ── 탭4: 사용법 ── -->
+  <!-- ── 탭4: 교육일정 ── -->
+  <div class="tab-content" id="tab-edu">
+    <div class="edu-cal-header">
+      <div class="edu-cal-title" id="edu-month-label">2026년 5월</div>
+      <div class="edu-cal-nav">
+        <button onclick="eduCalPrev()">‹</button>
+        <button onclick="eduCalToday()">오늘</button>
+        <button onclick="eduCalNext()">›</button>
+      </div>
+    </div>
+    <!-- 범례 -->
+    <div class="edu-legend">
+      <div class="edu-legend-item"><div class="edu-legend-dot ev-off"></div>오프교육</div>
+      <div class="edu-legend-item"><div class="edu-legend-dot ev-zoom"></div>줌스터디/줌교육</div>
+      <div class="edu-legend-item"><div class="edu-legend-dot ev-feedback"></div>피드백만</div>
+      <div class="edu-legend-item"><div class="edu-legend-dot ev-holiday"></div>휴일</div>
+      <div class="edu-legend-item"><div class="edu-legend-dot ev-etc"></div>기타</div>
+    </div>
+    <!-- 캘린더 -->
+    <div class="edu-cal-grid-wrap">
+      <div class="edu-dow-row">
+        <div class="edu-dow sun">일</div><div class="edu-dow">월</div><div class="edu-dow">화</div>
+        <div class="edu-dow">수</div><div class="edu-dow">목</div><div class="edu-dow">금</div>
+        <div class="edu-dow sat">토</div>
+      </div>
+      <div class="edu-cal-grid" id="edu-cal-grid"></div>
+    </div>
+    <!-- 월 노트 -->
+    <div class="edu-note-wrap">
+      <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">📝 이달의 안내사항</div>
+      <div class="edu-note-content" id="edu-note-content"></div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- ── 탭4: 공지사항 ── -->
+  <div class="tab-content" id="tab-notice">
+    <div class="card" style="margin-top:8px;padding:14px 16px">
+      <div style="font-size:13px;font-weight:900;margin-bottom:2px">📢 공지사항</div>
+      <div style="font-size:11px;color:var(--m)">메리 선생님의 공지를 확인하세요</div>
+    </div>
+    <div id="notice-list"><div class="notice-empty-state">📢<br>공지사항을 불러오는 중...</div></div>
+    <div style="height:20px"></div>
+  </div>
+
+  <!-- ── 탭5: 사용법 ── -->
   <div class="tab-content" id="tab-guide">
     <div class="card">
       <div style="font-size:16px;font-weight:900;margin-bottom:4px">📖 사용법 안내</div>
@@ -690,6 +820,91 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button>
   </div>
   <div id="admin-list"><div class="loader">불러오는 중...</div></div>
+  <!-- 교육일정 관리 섹션 -->
+  <div class="admin-hdr" style="margin-top:12px">
+    <div><h2>📆 교육일정 관리</h2><p>교육일정을 등록하세요</p></div>
+    <button class="admin-refresh" onclick="loadAdminEdu()">🔄 새로고침</button>
+  </div>
+  <div class="edu-admin-form">
+    <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">📆 일정 추가</div>
+    <div class="field"><label>날짜</label><input type="date" id="edu-date"></div>
+    <div class="field"><label>내용</label><input type="text" id="edu-title" placeholder="예) 오프교육 (11-13시)" maxlength="30"></div>
+    <div class="field"><label>유형</label>
+      <select id="edu-type" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+        <option value="off">🌸 오프교육</option>
+        <option value="zoom">💜 줌스터디/줌교육</option>
+        <option value="feedback">💛 피드백만 진행</option>
+        <option value="holiday">🩶 휴일</option>
+        <option value="etc">🩵 기타</option>
+      </select>
+    </div>
+    <button class="btn btn-dark" onclick="adminSaveEdu()" style="margin-top:4px">📤 일정 등록</button>
+  </div>
+  <!-- 월 안내사항 -->
+  <div class="edu-admin-form" style="margin-top:8px">
+    <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">📝 이달의 안내사항 수정</div>
+    <div class="field"><label>년/월</label>
+      <div style="display:flex;gap:8px">
+        <input type="number" id="edu-note-year" placeholder="2026" style="flex:1">
+        <input type="number" id="edu-note-month" placeholder="5" min="1" max="12" style="flex:1">
+      </div>
+    </div>
+    <div class="field"><label>안내사항 내용</label>
+      <textarea id="edu-note-body" style="min-height:100px" placeholder="참고사항, 필독 내용 등을 자유롭게 입력하세요"></textarea>
+    </div>
+    <button class="btn btn-dark" onclick="adminSaveEduNote()" style="margin-top:4px">💾 저장</button>
+  </div>
+  <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 교육일정</div>
+  <div id="admin-edu-list"><div class="notice-empty-state">등록된 일정이 없습니다</div></div>
+
+  <!-- 공지 관리 섹션 -->
+  <div class="admin-hdr" style="margin-top:12px">
+    <div>
+      <h2>📢 공지 관리</h2>
+      <p>수강생에게 공지를 보내세요</p>
+    </div>
+    <button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button>
+  </div>
+
+  <div class="admin-notice-form">
+    <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">✏️ 새 공지 작성</div>
+    <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
+    <div class="field"><label>내용</label><textarea id="adm-body" style="min-height:80px" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">
+      <div class="field" style="margin-bottom:0">
+        <label>태그</label>
+        <select id="adm-tag" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+          <option value="공지">공지</option>
+          <option value="필독">필독</option>
+          <option value="교육신청">📝 교육신청</option>
+          <option value="일정">일정</option>
+          <option value="중요">중요</option>
+          <option value="안내">안내</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>색상</label>
+        <select id="adm-tag-style" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+          <option value="">코랄 (기본)</option>
+          <option value="green">초록</option>
+          <option value="warm">주황</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;letter-spacing:0;text-transform:none">
+        <input type="checkbox" id="adm-pinned" style="width:auto;margin:0">📌 상단 고정
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;letter-spacing:0;text-transform:none">
+        <input type="checkbox" id="adm-isnew" checked style="width:auto;margin:0">🆕 NEW 표시
+      </label>
+    </div>
+    <button class="btn btn-dark" onclick="adminSaveNotice()" style="margin-top:4px">📤 공지 등록</button>
+  </div>
+
+  <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 공지</div>
+  <div id="admin-notice-list"><div class="notice-empty-state">등록된 공지가 없습니다</div></div>
+
   <div class="center-row" style="padding-bottom:10px">
     <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
   </div>
@@ -830,6 +1045,24 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   </div>
   <div class="kakao-label">챌린지방 바로가기</div>
 </a>
+
+<!-- ── 공지 팝업 (로그인 직후) ── -->
+<div class="notice-popup-wrap" id="notice-popup">
+  <div class="notice-popup-box">
+    <div class="notice-popup-head">
+      <div>
+        <div class="ttl">📢 새 공지가 있어요!</div>
+        <div class="sub" id="popup-sub"></div>
+      </div>
+      <button class="notice-popup-x" onclick="closeNoticePopup(true)">×</button>
+    </div>
+    <div class="notice-popup-items" id="popup-items"></div>
+    <div class="notice-popup-foot">
+      <button class="btn btn-dark" onclick="closeNoticePopup(false);switchTab('notice')">📋 공지 전체 보기</button>
+      <button class="btn btn-out" onclick="closeNoticePopup(true)">확인</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -988,6 +1221,7 @@ async function doLogin() {
       show('sc-main');
       renderAll();
       showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
+      setTimeout(()=>showNoticePopup(), 800);
     }
   } catch(e) {
     showToast('연결 오류. Firebase 설정을 확인해주세요.');
@@ -1030,6 +1264,7 @@ async function doRegister() {
   try { localStorage.setItem('inflz_s', JSON.stringify({name:S.name,pin:S.pin})); } catch(e){}
   show('sc-main');
   renderAll();
+  setTimeout(()=>showNoticePopup(),1200);
   showToast(`🎉 ${S.name}님, ${_selLv === '기존수강생' ? '함께 계속 달려봐요!' : _selLv+' 챌린지 시작해요!'}`);
 }
 
@@ -1390,6 +1625,8 @@ function doAdminLogin(){
   if(pw!==ADMIN_PW){ showToast('비밀번호가 틀렸습니다'); return; }
   show('sc-admin');
   loadAdmin();
+  loadAdminNotices();
+  loadAdminEdu();
 }
 async function loadAdmin(){
   document.getElementById('admin-summary').textContent='로딩 중...';
@@ -1586,6 +1823,8 @@ function switchTab(tab) {
   if(btn) btn.classList.add('active');
   const content = document.getElementById('tab-'+tab);
   if(content) content.classList.add('active');
+  if(tab==='notice') renderNotices();
+  if(tab==='edu') renderEduCal();
 }
 
 // ── 유형 색상
@@ -1889,6 +2128,292 @@ window.addEventListener('load',()=>{
     console.warn('세션 복원 실패:', e);
   }
 });
+
+// ══════════════════════════════════════
+//  📢 공지 시스템
+// ══════════════════════════════════════
+
+// 읽은 공지 ID 관리
+function getReadIds(){ try{return JSON.parse(localStorage.getItem('notice_read')||'[]')}catch{return[]} }
+function saveReadIds(ids){ try{localStorage.setItem('notice_read',JSON.stringify(ids))}catch{} }
+function markRead(id){ const ids=getReadIds(); if(!ids.includes(id)){ids.push(id);saveReadIds(ids);} }
+function markAllRead(notices){ const ids=[...new Set([...getReadIds(),...notices.map(n=>n.id)])]; saveReadIds(ids); }
+
+// 뱃지 업데이트
+function updateNoticeBadge(notices){
+  const readIds=getReadIds();
+  const unread=notices.filter(n=>n.isNew&&!readIds.includes(n.id));
+  const badge=document.getElementById('notice-badge');
+  if(!badge)return;
+  if(unread.length>0){ badge.style.display='inline-flex'; badge.textContent=unread.length; }
+  else badge.style.display='none';
+}
+
+// 공지 로드 (Firebase)
+let _allNotices=[];
+function loadNotices(cb){
+  if(!DB){cb([]);return;}
+  DB.ref('notices').orderByChild('createdAt').on('value',snap=>{
+    const data=snap.val()||{};
+    _allNotices=Object.entries(data).map(([id,n])=>({id,...n}))
+      .sort((a,b)=>{
+        if(a.pinned&&!b.pinned)return -1;
+        if(!a.pinned&&b.pinned)return 1;
+        return(b.createdAt||0)-(a.createdAt||0);
+      });
+    updateNoticeBadge(_allNotices);
+    cb(_allNotices);
+  });
+}
+
+// 공지 탭 렌더
+function renderNotices(){
+  const wrap=document.getElementById('notice-list');
+  if(!wrap)return;
+  loadNotices(notices=>{
+    if(!notices.length){
+      wrap.innerHTML='<div class="notice-empty-state">📢<br>등록된 공지가 없습니다</div>';
+      return;
+    }
+    const readIds=getReadIds();
+    wrap.innerHTML=notices.map(n=>{
+      const unread=n.isNew&&!readIds.includes(n.id);
+      const tagCls=n.tagStyle||'';
+      return `<div class="notice-item${n.pinned?' is-pinned':''}" id="ni-${n.id}" onclick="toggleNoticeItem('${n.id}')">
+        <div class="notice-item-top">
+          ${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}
+          <span class="notice-tag-chip ${tagCls}">${n.tag||'공지'}</span>
+          ${unread?'<span class="n-new">NEW</span>':''}
+          <span class="notice-item-date">${n.dateStr||''}</span>
+        </div>
+        <div class="notice-item-title">${n.title}</div>
+        <div class="notice-item-body">${(n.body||'').replace(/\n/g,'<br>')}</div>
+      </div>`;
+    }).join('');
+    markAllRead(notices);
+    updateNoticeBadge(notices);
+  });
+}
+
+function toggleNoticeItem(id){
+  const el=document.getElementById('ni-'+id);
+  if(el){el.classList.toggle('expanded');markRead(id);updateNoticeBadge(_allNotices);}
+}
+
+// 팝업 표시 (로그인 직후)
+function showNoticePopup(){
+  if(!DB)return;
+  loadNotices(notices=>{
+    const readIds=getReadIds();
+    const unread=notices.filter(n=>n.isNew&&!readIds.includes(n.id));
+    if(!unread.length)return;
+    const sub=document.getElementById('popup-sub');
+    if(sub)sub.textContent=`확인하지 않은 공지 ${unread.length}개`;
+    const items=document.getElementById('popup-items');
+    if(items){
+      items.innerHTML=unread.map(n=>`
+        <div class="notice-popup-item${n.pinned?' is-pinned':''}">
+          <div class="notice-popup-dot"></div>
+          <div class="notice-popup-ttl">${n.title}</div>
+          ${n.isNew?'<span class="n-new">NEW</span>':''}
+        </div>`).join('');
+    }
+    document.getElementById('notice-popup').classList.add('open');
+  });
+}
+function closeNoticePopup(markAsRead){
+  document.getElementById('notice-popup').classList.remove('open');
+  if(markAsRead){markAllRead(_allNotices.filter(n=>n.isNew));updateNoticeBadge(_allNotices);}
+}
+
+// switchTab 확장 (notice 탭 처리)
+
+// 관리자 공지 기능
+function adminSaveNotice(){
+  if(!DB){showToast('Firebase 연결 오류');return;}
+  const title=document.getElementById('adm-title').value.trim();
+  const body=document.getElementById('adm-body').value.trim();
+  if(!title){showToast('제목을 입력해주세요');return;}
+  const now=new Date();
+  const dateStr=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}`;
+  const notice={
+    title,body,
+    tag:document.getElementById('adm-tag').value,
+    tagStyle:document.getElementById('adm-tag-style').value,
+    pinned:document.getElementById('adm-pinned').checked,
+    isNew:document.getElementById('adm-isnew').checked,
+    dateStr,createdAt:Date.now()
+  };
+  DB.ref('notices').push(notice).then(()=>{
+    showToast('✅ 공지가 등록됐어요!');
+    document.getElementById('adm-title').value='';
+    document.getElementById('adm-body').value='';
+    document.getElementById('adm-pinned').checked=false;
+    document.getElementById('adm-isnew').checked=true;
+    loadAdminNotices();
+  }).catch(e=>showToast('오류: '+e.message));
+}
+function loadAdminNotices(){
+  if(!DB)return;
+  DB.ref('notices').orderByChild('createdAt').once('value',snap=>{
+    const data=snap.val()||{};
+    const list=Object.entries(data).map(([id,n])=>({id,...n}))
+      .sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+    const el=document.getElementById('admin-notice-list');
+    if(!list.length){el.innerHTML='<div class="notice-empty-state">등록된 공지가 없습니다</div>';return;}
+    el.innerHTML=list.map(n=>`
+      <div class="admin-ni">
+        <div class="anib">
+          <div class="anit">${n.pinned?'📌 ':''}${n.title}${n.isNew?' <span class="n-new">NEW</span>':''}</div>
+          <div class="anim">${n.tag||'공지'} · ${n.dateStr||''}</div>
+        </div>
+        <div class="ani-acts">
+          <button class="btn-tn${n.isNew?'':' off'}" onclick="adminToggleNew('${n.id}',${!n.isNew})">${n.isNew?'NEW끄기':'NEW켜기'}</button>
+          <button class="btn-dn" onclick="adminDelNotice('${n.id}')">삭제</button>
+        </div>
+      </div>`).join('');
+  });
+}
+function adminToggleNew(id,val){
+  if(!DB)return;
+  DB.ref('notices/'+id).update({isNew:val}).then(()=>loadAdminNotices());
+}
+function adminDelNotice(id){
+  if(!confirm('이 공지를 삭제할까요?'))return;
+  DB.ref('notices/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminNotices();});
+}
+
+// 초기 공지 로드 (뱃지용)
+if(DB) loadNotices(()=>{});
+
+
+// ══════════════════════════════════════
+//  📆 교육일정 시스템
+// ══════════════════════════════════════
+let _eduCalDate = new Date();
+const EDU_TYPE = {
+  off:      { label:'오프교육',       cls:'ev-off' },
+  zoom:     { label:'줌스터디/줌교육', cls:'ev-zoom' },
+  feedback: { label:'피드백만 진행',   cls:'ev-feedback' },
+  holiday:  { label:'휴일',           cls:'ev-holiday' },
+  etc:      { label:'기타',           cls:'ev-etc' },
+};
+
+function eduCalPrev(){ _eduCalDate = new Date(_eduCalDate.getFullYear(), _eduCalDate.getMonth()-1, 1); renderEduCal(); }
+function eduCalNext(){ _eduCalDate = new Date(_eduCalDate.getFullYear(), _eduCalDate.getMonth()+1, 1); renderEduCal(); }
+function eduCalToday(){ _eduCalDate = new Date(); renderEduCal(); }
+
+function renderEduCal(){
+  const year = _eduCalDate.getFullYear();
+  const month = _eduCalDate.getMonth();
+  const label = document.getElementById('edu-month-label');
+  if(label) label.textContent = year+'년 '+(month+1)+'월';
+
+  const firstDow = new Date(year, month, 1).getDay();
+  const lastDate = new Date(year, month+1, 0).getDate();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const monthKey = year+'-'+String(month+1).padStart(2,'0');
+
+  if(!DB){ renderEduGrid(year,month,firstDow,lastDate,todayStr,[]); return; }
+
+  DB.ref('eduEvents').orderByChild('date')
+    .startAt(monthKey+'-01').endAt(monthKey+'-31')
+    .once('value', snap=>{
+      const data = snap.val()||{};
+      const events = Object.entries(data).map(([id,e])=>({id,...e}));
+      renderEduGrid(year,month,firstDow,lastDate,todayStr,events);
+    });
+
+  // 노트 로드
+  DB.ref('eduNotes/'+monthKey).once('value', snap=>{
+    const note = snap.val()||'';
+    const el = document.getElementById('edu-note-content');
+    if(el){ el.textContent = note; el.className = 'edu-note-content'+(note?'':' empty'); if(!note) el.textContent='이달의 안내사항이 없습니다'; }
+  });
+}
+
+function renderEduGrid(year,month,firstDow,lastDate,todayStr,events){
+  const grid = document.getElementById('edu-cal-grid');
+  if(!grid) return;
+  let html='';
+  // 빈칸
+  for(let i=0;i<firstDow;i++) html+=`<div class="edu-cell edu-other"></div>`;
+  // 날짜
+  for(let d=1;d<=lastDate;d++){
+    const dateStr = year+'-'+String(month+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isToday = dateStr===todayStr;
+    const dayEvts = events.filter(e=>e.date===dateStr);
+    const isSun = (firstDow+d-1)%7===0;
+    const isSat = (firstDow+d-1)%7===6;
+    const dnColor = isSun?'color:#E05A5A':isSat?'color:#5A7AE0':'';
+    let evHtml = dayEvts.map(e=>{
+      const t = EDU_TYPE[e.type]||EDU_TYPE.etc;
+      return `<span class="edu-event ${t.cls}">${e.title||t.label}</span>`;
+    }).join('');
+    html+=`<div class="edu-cell${isToday?' edu-today':''}">
+      <div class="edu-dn" style="${dnColor}">${d}</div>
+      ${evHtml}
+    </div>`;
+  }
+  grid.innerHTML=html;
+}
+
+// 관리자: 일정 저장
+function adminSaveEdu(){
+  if(!DB){showToast('Firebase 연결 오류');return;}
+  const date = document.getElementById('edu-date').value;
+  const title = document.getElementById('edu-title').value.trim();
+  const type = document.getElementById('edu-type').value;
+  if(!date){showToast('날짜를 선택해주세요');return;}
+  if(!title){showToast('내용을 입력해주세요');return;}
+  DB.ref('eduEvents').push({date,title,type,createdAt:Date.now()}).then(()=>{
+    showToast('✅ 일정이 등록됐어요!');
+    document.getElementById('edu-date').value='';
+    document.getElementById('edu-title').value='';
+    loadAdminEdu();
+  }).catch(e=>showToast('오류: '+e.message));
+}
+
+// 관리자: 노트 저장
+function adminSaveEduNote(){
+  if(!DB){showToast('Firebase 연결 오류');return;}
+  const year = document.getElementById('edu-note-year').value||new Date().getFullYear();
+  const month = document.getElementById('edu-note-month').value||new Date().getMonth()+1;
+  const body = document.getElementById('edu-note-body').value.trim();
+  const key = year+'-'+String(month).padStart(2,'0');
+  DB.ref('eduNotes/'+key).set(body).then(()=>{
+    showToast('✅ 안내사항이 저장됐어요!');
+    document.getElementById('edu-note-body').value='';
+  });
+}
+
+// 관리자: 일정 목록
+function loadAdminEdu(){
+  if(!DB)return;
+  DB.ref('eduEvents').orderByChild('date').once('value', snap=>{
+    const data=snap.val()||{};
+    const list=Object.entries(data).map(([id,e])=>({id,...e}))
+      .sort((a,b)=>a.date>b.date?-1:1);
+    const el=document.getElementById('admin-edu-list');
+    if(!list.length){el.innerHTML='<div class="notice-empty-state">등록된 일정이 없습니다</div>';return;}
+    el.innerHTML=list.map(e=>{
+      const t=EDU_TYPE[e.type]||EDU_TYPE.etc;
+      return `<div class="edu-admin-item">
+        <div class="eab">
+          <div class="eat"><span class="edu-event ${t.cls}" style="display:inline-block;margin-bottom:3px">${t.label}</span> ${e.title}</div>
+          <div class="eam">${e.date}</div>
+        </div>
+        <button class="edu-del-btn" onclick="adminDelEdu('${e.id}')">삭제</button>
+      </div>`;
+    }).join('');
+  });
+}
+
+function adminDelEdu(id){
+  if(!confirm('이 일정을 삭제할까요?'))return;
+  DB.ref('eduEvents/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminEdu();});
+}
+
 </script>
 </body>
 </html>
