@@ -314,6 +314,13 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .edu-admin-item .eat{font-size:13px;font-weight:700;margin-bottom:2px;word-break:break-all}
 .edu-admin-item .eam{font-size:11px;color:var(--m)}
 .edu-del-btn{border:none;border-radius:8px;padding:5px 10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#FFF0EC;color:#E07A5F;flex-shrink:0;align-self:center}
+
+/* ── 관리자 탭 */
+.admin-tab-nav{display:flex;gap:6px;padding:10px 14px 0;position:sticky;top:0;background:var(--bg);z-index:50;padding-bottom:6px}
+.admin-tab-btn{flex:1;border:none;border-radius:var(--rs);padding:11px 4px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s}
+.admin-tab-btn.active{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff}
+.admin-tab-section{display:none}
+.admin-tab-section.active{display:block}
 </style>
 </head>
 <body>
@@ -812,100 +819,112 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
      S5: 관리자 대시보드
 ══════════════════════════════ -->
 <div id="sc-admin" class="screen">
-  <div class="admin-hdr">
-    <div>
-      <h2>📊 수강생 현황</h2>
-      <p id="admin-summary">로딩 중...</p>
-    </div>
-    <button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button>
+
+  <!-- 관리자 탭 네비 -->
+  <div class="admin-tab-nav">
+    <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생 현황</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육일정</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지관리</button>
   </div>
-  <div id="admin-list"><div class="loader">불러오는 중...</div></div>
-  <!-- 교육일정 관리 섹션 -->
-  <div class="admin-hdr" style="margin-top:12px">
-    <div><h2>📆 교육일정 관리</h2><p>교육일정을 등록하세요</p></div>
-    <button class="admin-refresh" onclick="loadAdminEdu()">🔄 새로고침</button>
-  </div>
-  <div class="edu-admin-form">
-    <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">📆 일정 추가</div>
-    <div class="field"><label>날짜</label><input type="date" id="edu-date"></div>
-    <div class="field"><label>내용</label><input type="text" id="edu-title" placeholder="예) 오프교육 (11-13시)" maxlength="30"></div>
-    <div class="field"><label>유형</label>
-      <select id="edu-type" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
-        <option value="off">🌸 오프교육</option>
-        <option value="zoom">💜 줌스터디/줌교육</option>
-        <option value="feedback">💛 피드백만 진행</option>
-        <option value="holiday">🩶 휴일</option>
-        <option value="etc">🩵 기타</option>
-      </select>
-    </div>
-    <button class="btn btn-dark" onclick="adminSaveEdu()" style="margin-top:4px">📤 일정 등록</button>
-  </div>
-  <!-- 월 안내사항 -->
-  <div class="edu-admin-form" style="margin-top:8px">
-    <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">📝 이달의 안내사항 수정</div>
-    <div class="field"><label>년/월</label>
-      <div style="display:flex;gap:8px">
-        <input type="number" id="edu-note-year" placeholder="2026" style="flex:1">
-        <input type="number" id="edu-note-month" placeholder="5" min="1" max="12" style="flex:1">
+
+  <!-- ── 탭1: 수강생 현황 -->
+  <div class="admin-tab-section active" id="admin-sec-students">
+    <div class="admin-hdr">
+      <div>
+        <h2>📊 수강생 현황</h2>
+        <p id="admin-summary">로딩 중...</p>
       </div>
+      <button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button>
     </div>
-    <div class="field"><label>안내사항 내용</label>
-      <textarea id="edu-note-body" style="min-height:100px" placeholder="참고사항, 필독 내용 등을 자유롭게 입력하세요"></textarea>
-    </div>
-    <button class="btn btn-dark" onclick="adminSaveEduNote()" style="margin-top:4px">💾 저장</button>
-  </div>
-  <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 교육일정</div>
-  <div id="admin-edu-list"><div class="notice-empty-state">등록된 일정이 없습니다</div></div>
-
-  <!-- 공지 관리 섹션 -->
-  <div class="admin-hdr" style="margin-top:12px">
-    <div>
-      <h2>📢 공지 관리</h2>
-      <p>수강생에게 공지를 보내세요</p>
-    </div>
-    <button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button>
+    <div id="admin-list"><div class="loader">불러오는 중...</div></div>
   </div>
 
-  <div class="admin-notice-form">
-    <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">✏️ 새 공지 작성</div>
-    <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
-    <div class="field"><label>내용</label><textarea id="adm-body" style="min-height:80px" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">
-      <div class="field" style="margin-bottom:0">
-        <label>태그</label>
-        <select id="adm-tag" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
-          <option value="공지">공지</option>
-          <option value="필독">필독</option>
-          <option value="교육신청">📝 교육신청</option>
-          <option value="일정">일정</option>
-          <option value="중요">중요</option>
-          <option value="안내">안내</option>
+  <!-- ── 탭2: 교육일정 -->
+  <div class="admin-tab-section" id="admin-sec-edu">
+    <div class="admin-hdr">
+      <div><h2>📆 교육일정 관리</h2><p>교육일정을 등록하세요</p></div>
+      <button class="admin-refresh" onclick="loadAdminEdu()">🔄 새로고침</button>
+    </div>
+    <div class="edu-admin-form">
+      <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">📆 일정 추가</div>
+      <div class="field"><label>날짜</label><input type="date" id="edu-date"></div>
+      <div class="field"><label>내용</label><input type="text" id="edu-title" placeholder="예) 오프교육 (11-13시)" maxlength="30"></div>
+      <div class="field"><label>유형</label>
+        <select id="edu-type" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+          <option value="off">🌸 오프교육</option>
+          <option value="zoom">💜 줌스터디/줌교육</option>
+          <option value="feedback">💛 피드백만 진행</option>
+          <option value="holiday">🩶 휴일</option>
+          <option value="etc">🩵 기타</option>
         </select>
       </div>
-      <div class="field" style="margin-bottom:0">
-        <label>색상</label>
-        <select id="adm-tag-style" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
-          <option value="">코랄 (기본)</option>
-          <option value="green">초록</option>
-          <option value="warm">주황</option>
-        </select>
+      <button class="btn btn-dark" onclick="adminSaveEdu()" style="margin-top:4px">📤 일정 등록</button>
+    </div>
+    <div class="edu-admin-form" style="margin-top:8px">
+      <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">📝 이달의 안내사항 수정</div>
+      <div class="field"><label>년/월</label>
+        <div style="display:flex;gap:8px">
+          <input type="number" id="edu-note-year" placeholder="2026" style="flex:1">
+          <input type="number" id="edu-note-month" placeholder="5" min="1" max="12" style="flex:1">
+        </div>
       </div>
+      <div class="field"><label>안내사항 내용</label>
+        <textarea id="edu-note-body" style="min-height:100px" placeholder="참고사항, 필독 내용 등을 자유롭게 입력하세요"></textarea>
+      </div>
+      <button class="btn btn-dark" onclick="adminSaveEduNote()" style="margin-top:4px">💾 저장</button>
     </div>
-    <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;letter-spacing:0;text-transform:none">
-        <input type="checkbox" id="adm-pinned" style="width:auto;margin:0">📌 상단 고정
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;letter-spacing:0;text-transform:none">
-        <input type="checkbox" id="adm-isnew" checked style="width:auto;margin:0">🆕 NEW 표시
-      </label>
-    </div>
-    <button class="btn btn-dark" onclick="adminSaveNotice()" style="margin-top:4px">📤 공지 등록</button>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 교육일정</div>
+    <div id="admin-edu-list"><div class="notice-empty-state">등록된 일정이 없습니다</div></div>
+    <div style="height:16px"></div>
   </div>
 
-  <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 공지</div>
-  <div id="admin-notice-list"><div class="notice-empty-state">등록된 공지가 없습니다</div></div>
+  <!-- ── 탭3: 공지관리 -->
+  <div class="admin-tab-section" id="admin-sec-notice">
+    <div class="admin-hdr">
+      <div><h2>📢 공지 관리</h2><p>수강생에게 공지를 보내세요</p></div>
+      <button class="admin-refresh" onclick="loadAdminNotices()">🔄 새로고침</button>
+    </div>
+    <div class="admin-notice-form">
+      <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">✏️ 새 공지 작성</div>
+      <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
+      <div class="field"><label>내용</label><textarea id="adm-body" style="min-height:80px" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">
+        <div class="field" style="margin-bottom:0">
+          <label>태그</label>
+          <select id="adm-tag" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+            <option value="공지">공지</option>
+            <option value="필독">필독</option>
+            <option value="교육신청">📝 교육신청</option>
+            <option value="일정">일정</option>
+            <option value="중요">중요</option>
+            <option value="안내">안내</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label>색상</label>
+          <select id="adm-tag-style" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+            <option value="">코랄 (기본)</option>
+            <option value="green">초록</option>
+            <option value="warm">주황</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;letter-spacing:0;text-transform:none">
+          <input type="checkbox" id="adm-pinned" style="width:auto;margin:0">📌 상단 고정
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--t);font-size:13px;letter-spacing:0;text-transform:none">
+          <input type="checkbox" id="adm-isnew" checked style="width:auto;margin:0">🆕 NEW 표시
+        </label>
+      </div>
+      <button class="btn btn-dark" onclick="adminSaveNotice()" style="margin-top:4px">📤 공지 등록</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:14px 14px 0">등록된 공지</div>
+    <div id="admin-notice-list"><div class="notice-empty-state">등록된 공지가 없습니다</div></div>
+    <div style="height:16px"></div>
+  </div>
 
-  <div class="center-row" style="padding-bottom:10px">
+  <div class="center-row" style="padding-bottom:20px">
     <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
   </div>
 </div>
@@ -1624,9 +1643,7 @@ function doAdminLogin(){
   const pw=document.getElementById('a-pw').value;
   if(pw!==ADMIN_PW){ showToast('비밀번호가 틀렸습니다'); return; }
   show('sc-admin');
-  loadAdmin();
-  loadAdminNotices();
-  loadAdminEdu();
+  switchAdminTab('students');
 }
 async function loadAdmin(){
   document.getElementById('admin-summary').textContent='로딩 중...';
@@ -2412,6 +2429,19 @@ function loadAdminEdu(){
 function adminDelEdu(id){
   if(!confirm('이 일정을 삭제할까요?'))return;
   DB.ref('eduEvents/'+id).remove().then(()=>{showToast('삭제됐어요');loadAdminEdu();});
+}
+
+
+// ── 관리자 탭 전환
+function switchAdminTab(tab){
+  document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', ['students','edu','notice'][i]===tab);
+  });
+  document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('admin-sec-'+tab).classList.add('active');
+  if(tab==='students') loadAdmin();
+  if(tab==='edu') loadAdminEdu();
+  if(tab==='notice') loadAdminNotices();
 }
 
 </script>
