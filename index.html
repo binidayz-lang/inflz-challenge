@@ -1157,10 +1157,9 @@ if (IS_CFG) {
 }
 
 // ── 날짜
-const today    = () => {
-  const now = new Date();
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  return kst.toISOString().split('T')[0];
+const today = () => {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 };
 const diffDays = (a,b) => Math.floor((new Date(b)-new Date(a))/86400000);
 const addDays  = (d,n) => { const dt=new Date(d); dt.setDate(dt.getDate()+n); return dt.toISOString().split('T')[0]; };
@@ -2422,8 +2421,8 @@ function renderEduCal(){
 
   const firstDow = new Date(year, month, 1).getDay();
   const lastDate = new Date(year, month+1, 0).getDate();
-  const _nt = new Date(); const _kt = new Date(_nt.getTime()+9*60*60*1000);
-  const todayStr = _kt.toISOString().split('T')[0];
+  const _td = new Date();
+  const todayStr = _td.getFullYear()+'-'+String(_td.getMonth()+1).padStart(2,'0')+'-'+String(_td.getDate()).padStart(2,'0');
   const monthKey = year+'-'+String(month+1).padStart(2,'0');
 
   if(!DB){ renderEduGrid(year,month,firstDow,lastDate,todayStr,[]); return; }
@@ -2563,9 +2562,8 @@ function adminEditEdu(id, date, title, type){
 // ── 당일 일정 배너
 function loadTodayBanner(){
   if(!DB)return;
-  const now = new Date();
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  const dateStr = kst.getUTCFullYear()+'-'+String(kst.getUTCMonth()+1).padStart(2,'0')+'-'+String(kst.getUTCDate()).padStart(2,'0');
+  const _n = new Date();
+  const dateStr = _n.getFullYear()+'-'+String(_n.getMonth()+1).padStart(2,'0')+'-'+String(_n.getDate()).padStart(2,'0');
   DB.ref('eduEvents').orderByChild('date').equalTo(dateStr).once('value', snap=>{
     const data = snap.val()||{};
     const allEvents = Object.values(data);
