@@ -1233,7 +1233,7 @@ function mkKey(name,pin) {
 }
 
 // ── 로그인
-async function doLogin() {
+async function doLogin(silent=false) {
   const name = document.getElementById('l-name').value.trim();
   const pin  = document.getElementById('l-pin').value.trim();
   if(!name) { showToast('이름을 입력해주세요!'); return; }
@@ -1269,9 +1269,9 @@ async function doLogin() {
       try { localStorage.setItem('inflz_s', JSON.stringify({name,pin})); } catch(e){}
       show('sc-main');
       renderAll();
-      showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
+      if(!silent) showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
       loadTodayBanner();
-      setTimeout(()=>showNoticePopup(), 800);
+      if(!silent) setTimeout(()=>showNoticePopup(), 800);
     }
   } catch(e) {
     showToast('연결 오류. Firebase 설정을 확인해주세요.');
@@ -2172,7 +2172,7 @@ window.addEventListener('load',()=>{
       const {name,pin} = JSON.parse(sess);
       document.getElementById('l-name').value = name;
       document.getElementById('l-pin').value = pin;
-      doLogin();
+      doLogin(true); // 자동로그인 = 토스트 없음
     }
   } catch(e) {
     // localStorage 차단돼도 웰컴 화면에서 정상 작동
