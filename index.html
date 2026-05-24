@@ -287,6 +287,8 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .notice-item-title{font-size:14px;font-weight:900;color:var(--t);padding-left:10px}
 .notice-item-body{display:none;font-size:13px;color:var(--t);line-height:1.8;padding:10px 10px 0;border-top:1px solid var(--bd);margin-top:10px;white-space:pre-wrap;word-break:break-all}
 .notice-item.expanded .notice-item-body{display:block}
+.notice-link{display:inline-block;background:var(--pl);color:var(--pd);border:1.5px solid rgba(200,149,108,.4);border-radius:8px;padding:6px 14px;font-size:13px;font-weight:700;text-decoration:none;margin:4px 0;word-break:break-all}
+.notice-link:active{background:var(--p);color:#fff}
 .notice-empty-state{text-align:center;padding:40px 20px;color:var(--m);font-size:13px;line-height:2}
 /* ── 관리자 공지 */
 .admin-notice-form{background:#fff;border-radius:var(--rs);padding:16px;margin:8px 14px 0;box-shadow:var(--sh)}
@@ -2241,7 +2243,7 @@ function renderNotices(){
           <span class="notice-item-date">${n.dateStr||''}</span>
         </div>
         <div class="notice-item-title">${n.title}</div>
-        <div class="notice-item-body">${(n.body||'').replace(/\n/g,'<br>')}</div>
+        <div class="notice-item-body">${linkify((n.body||''))}</div>
       </div>`;
     }
 
@@ -2588,6 +2590,15 @@ function loadTodayBanner(){
     itemsEl.innerHTML = html;
     banner.classList.add('show');
   });
+}
+
+
+// URL을 클릭 가능한 링크로 변환
+function linkify(text){
+  const urlRegex = /(https?:\/\/[^\s\n]+)/g;
+  return text
+    .replace(/\n/g,'<br>')
+    .replace(urlRegex, (url)=>`<a class="notice-link" href="${url}" target="_blank" rel="noopener">🔗 ${url}</a>`);
 }
 
 </script>
