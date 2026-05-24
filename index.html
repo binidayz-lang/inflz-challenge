@@ -170,8 +170,9 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .center-row{text-align:center;padding:12px 14px 0}
 .logout-btn{background:none;border:1.5px solid var(--bd);color:var(--m);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:11px;cursor:pointer}
 /* TABS */
-.tab-nav{display:flex;gap:6px;padding:10px 14px 0}
-.tab-btn{flex:1;border:none;border-radius:var(--rs);padding:10px 4px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s}
+.tab-nav{display:flex;gap:6px;padding:10px 14px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;border:none;border-radius:var(--rs);padding:10px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s;white-space:nowrap}
 .tab-btn.active{background:var(--p);color:#fff}
 .tab-content{display:none}.tab-content.active{display:block}
 
@@ -232,6 +233,24 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .log-empty{font-size:12px;color:var(--m);text-align:center;padding:20px 0}
 .day-cell.has-log::before{content:'📝';position:absolute;bottom:2px;font-size:7px;line-height:1}
 
+
+/* ── 당일 일정 배너 */
+.today-banner{
+  display:none;
+  margin:10px 14px 0;
+  background:linear-gradient(135deg,#2C1A0E,#9D6744);
+  border-radius:var(--rs);
+  padding:11px 16px;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.6;
+}
+.today-banner.show{display:block}
+.today-banner-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.6);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.today-banner-item{display:flex;align-items:center;gap:8px;margin-top:3px}
+.today-banner-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
 /* ── 공지 뱃지 */
 .notice-dot{display:inline-flex;align-items:center;justify-content:center;background:#E07A5F;color:#fff;font-size:9px;font-weight:900;min-width:16px;height:16px;padding:0 4px;border-radius:10px;margin-left:4px;line-height:1;vertical-align:middle}
 .tab-btn.active .notice-dot{background:rgba(255,255,255,.9);color:var(--p)}
@@ -286,7 +305,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .edu-cal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0}
 .edu-cal-title{font-size:17px;font-weight:900;color:var(--t)}
 .edu-cal-nav{display:flex;gap:6px}
-.edu-cal-nav button{background:#F0E6DD;border:none;border-radius:8px;width:32px;height:32px;font-size:16px;cursor:pointer;color:var(--m);display:flex;align-items:center;justify-content:center;font-family:inherit}
+.edu-cal-nav button{background:#F0E6DD;border:none;border-radius:8px;min-width:32px;height:32px;padding:0 10px;font-size:13px;cursor:pointer;color:var(--m);display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:700}
 .edu-cal-nav button:active{background:var(--pl);color:var(--pd)}
 .edu-cal-grid-wrap{padding:10px 14px 0}
 .edu-dow-row{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
@@ -568,6 +587,11 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <button class="tab-btn" data-tab="ipjum" onclick="switchTab('ipjum')">🏪 입점</button>
     <button class="tab-btn" data-tab="notice" onclick="switchTab('notice')">📢 공지<span class="notice-dot" id="notice-badge" style="display:none">0</span></button>
     <button class="tab-btn" data-tab="edu" onclick="switchTab('edu')">📆 교육일정</button>
+  </div>
+  <!-- 당일 일정 배너 -->
+  <div class="today-banner" id="today-banner">
+    <div class="today-banner-label">📢 오늘의 교육일정</div>
+    <div id="today-banner-items"></div>
   </div>
 
   <!-- ── 탭1: 캘린더 ── -->
@@ -1246,6 +1270,7 @@ async function doLogin() {
       show('sc-main');
       renderAll();
       showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
+      loadTodayBanner();
       setTimeout(()=>showNoticePopup(), 800);
     }
   } catch(e) {
@@ -2119,11 +2144,14 @@ function renderIpjum() {
 
 // ── 유틸
 function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-let _tt;
-function showToast(msg){
+let _tt = null;
+function showToast(msg, duration=3000){
   const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2500);
+  if(!el)return;
+  el.textContent=msg;
+  el.classList.add('show');
+  if(_tt){ clearTimeout(_tt); _tt=null; }
+  _tt=setTimeout(()=>{ el.classList.remove('show'); _tt=null; }, duration);
 }
 
 // ── 초기화
@@ -2522,6 +2550,44 @@ function adminEditEdu(id, date, title, type){
       document.getElementById('edu-title').scrollIntoView({behavior:'smooth', block:'center'});
     });
   }
+}
+
+
+// ── 당일 일정 배너
+function loadTodayBanner(){
+  if(!DB)return;
+  const today = new Date();
+  const dateStr = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  DB.ref('eduEvents').orderByChild('date').equalTo(dateStr).once('value', snap=>{
+    const data = snap.val()||{};
+    const allEvents = Object.values(data);
+    const holidays = allEvents.filter(e=>e.type==='holiday');
+    const events = allEvents.filter(e=>e.type!=='holiday');
+    const banner = document.getElementById('today-banner');
+    const itemsEl = document.getElementById('today-banner-items');
+    if(!banner||!itemsEl)return;
+    if(!events.length && !holidays.length){ banner.classList.remove('show'); return; }
+    const typeColor = {off:'#FFCDD2',zoom:'#E1BEE7',feedback:'#FFF9C4',holiday:'#ECEFF1',etc:'#B2DFDB'};
+
+    // 휴일만 있을 때
+    if(!events.length && holidays.length){
+      itemsEl.innerHTML = `<div class="today-banner-item"><div class="today-banner-dot" style="background:#ECEFF1"></div><span>오늘은 교육 휴무입니다 🩶</span></div>`;
+      banner.classList.add('show');
+      return;
+    }
+
+    // 교육 일정 + 혹시 휴일도 있으면 함께
+    let html = events.map(e=>`
+      <div class="today-banner-item">
+        <div class="today-banner-dot" style="background:${typeColor[e.type]||'#fff'}"></div>
+        <span>${e.title}</span>
+      </div>`).join('');
+    if(holidays.length){
+      html += `<div class="today-banner-item"><div class="today-banner-dot" style="background:#ECEFF1"></div><span>긴급 피드백 외 교육 휴무</span></div>`;
+    }
+    itemsEl.innerHTML = html;
+    banner.classList.add('show');
+  });
 }
 
 </script>
