@@ -857,6 +857,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생 현황</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육일정</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지관리</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('ipjum')" id="admin-ipjum-btn">🏪 입점현황<span id="admin-ipjum-badge" style="display:none;background:#E74C3C;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle"></span></button>
   </div>
 
   <!-- ── 탭1: 수강생 현황 -->
@@ -956,8 +957,40 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div style="height:16px"></div>
   </div>
 
+  <!-- ── 탭4: 입점현황 -->
+  <div class="admin-tab-section" id="admin-sec-ipjum">
+    <div class="admin-hdr">
+      <div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjum-summary">로딩 중...</p></div>
+      <button class="admin-refresh" onclick="loadAdminIpjum()">🔄 새로고침</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 10px">
+      <button class="filter-btn active" id="aif-all" onclick="filterAdminIpjum('all',this)">전체</button>
+      <button class="filter-btn" id="aif-issue" onclick="filterAdminIpjum('issue',this)" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB">⚠ 이슈만</button>
+      <button class="filter-btn" id="aif-ok" onclick="filterAdminIpjum('ok',this)">정상만</button>
+    </div>
+    <div id="admin-ipjum-list"><div class="loader">불러오는 중...</div></div>
+    <div style="height:16px"></div>
+  </div>
+
   <div class="center-row" style="padding-bottom:20px">
     <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
+  </div>
+</div>
+
+<!-- 이슈 신고 모달 -->
+<div class="modal-wrap" id="issue-report-modal" onclick="if(event.target===this)closeIssueModal()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">⚠ 이슈 신고</div>
+      <button class="modal-close" onclick="closeIssueModal()">✕</button>
+    </div>
+    <input type="hidden" id="issue-ipjum-id">
+    <div class="field">
+      <label>어떤 이슈가 발생했나요?</label>
+      <textarea id="issue-report-text" style="min-height:100px" placeholder="이슈 내용을 자세히 적어주세요. (예: 입금 지연, 상품 불량, 연락 두절 등)"></textarea>
+    </div>
+    <button class="btn btn-dark" onclick="submitIssueReport()" style="background:#C0392B;border-color:#C0392B">📤 메리님께 전달</button>
+    <button class="btn" onclick="closeIssueModal()" style="margin-top:6px">취소</button>
   </div>
 </div>
 
@@ -2144,6 +2177,14 @@ function renderIpjum() {
       </div>
       ${i.type==='입점연락 옴'?
         `<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리에게 공유!</button>`:''}
+      ${i.type==='입점완료'?
+        `<div style="margin-top:6px">
+          ${i.issueReport?
+            `<div style="background:#FDE8E8;border:1px solid #F5C6CB;border-radius:8px;padding:7px 10px;font-size:11px;color:#A93226;margin-bottom:5px"><span style='font-size:10px;font-weight:700;display:block;margin-bottom:2px'>⚠ 내가 신고한 이슈</span>${esc(i.issueReport.text)}</div>
+            <button class="share-btn" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB" onclick="openIssueModal(${i.id})">✏ 이슈 수정</button>` :
+            `<button class="share-btn" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB" onclick="openIssueModal(${i.id})">⚠ 이슈 발생 신고</button>`
+          }
+        </div>`:''}
     </div>`).join('');
 }
 
@@ -2532,17 +2573,138 @@ function adminDelEdu(id){
 // ── 관리자 탭 전환
 function switchAdminTab(tab){
   document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active', ['students','edu','notice'][i]===tab);
+    b.classList.toggle('active', ['students','edu','notice','ipjum'][i]===tab);
   });
   document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));
   document.getElementById('admin-sec-'+tab).classList.add('active');
   if(tab==='students') loadAdmin();
   if(tab==='edu') loadAdminEdu();
   if(tab==='notice') loadAdminNotices();
+  if(tab==='ipjum') loadAdminIpjum();
 }
 
 
 
+
+
+// ══════════════════════════════════════
+//  🏪 이슈 신고 (수강생)
+// ══════════════════════════════════════
+function openIssueModal(id) {
+  document.getElementById('issue-ipjum-id').value = id;
+  const item = (S.ipjumItems||[]).find(i=>i.id===id);
+  document.getElementById('issue-report-text').value = item?.issueReport?.text || '';
+  document.getElementById('issue-report-modal').classList.add('open');
+}
+function closeIssueModal() {
+  document.getElementById('issue-report-modal').classList.remove('open');
+}
+async function submitIssueReport() {
+  const id = parseInt(document.getElementById('issue-ipjum-id').value);
+  const text = document.getElementById('issue-report-text').value.trim();
+  if(!text){ showToast('이슈 내용을 입력해주세요!'); return; }
+  const idx = (S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0) return;
+  S.ipjumItems[idx].issueReport = { text, date: today() };
+  await fbSave();
+  closeIssueModal();
+  renderIpjum();
+  showToast('⚠ 이슈가 메리 선생님께 전달됐어요!');
+}
+
+// ══════════════════════════════════════
+//  🏪 관리자 입점현황
+// ══════════════════════════════════════
+let _adminIpjumData = [];
+let _adminIpjumFilter = 'all';
+
+async function loadAdminIpjum() {
+  const listEl = document.getElementById('admin-ipjum-list');
+  const summEl = document.getElementById('admin-ipjum-summary');
+  if(!listEl) return;
+  listEl.innerHTML = '<div class="loader">불러오는 중...</div>';
+  try {
+    const snap = await DB.ref('students').once('value');
+    const all = snap.val() || {};
+    _adminIpjumData = [];
+    Object.values(all).forEach(stu => {
+      const items = stu.ipjumItems || [];
+      items.filter(i=>i.type==='입점완료').forEach(item=>{
+        _adminIpjumData.push({ ...item, stuName: stu.name||'알수없음' });
+      });
+    });
+    // 이슈 뱃지 업데이트
+    const issueCount = _adminIpjumData.filter(i=>i.issueReport).length;
+    const badge = document.getElementById('admin-ipjum-badge');
+    if(badge){ badge.textContent=issueCount; badge.style.display=issueCount>0?'inline':'none'; }
+    summEl.textContent = `전체 ${_adminIpjumData.length}건 · 이슈 ${issueCount}건`;
+    renderAdminIpjum();
+  } catch(e){
+    listEl.innerHTML='<div style="padding:16px;color:#999;font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';
+  }
+}
+
+function filterAdminIpjum(f, btn) {
+  _adminIpjumFilter = f;
+  document.querySelectorAll('#admin-sec-ipjum .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderAdminIpjum();
+}
+
+async function saveAdminIpjumMemo(stuName, itemId, memoText) {
+  // 해당 수강생의 ipjumItems 에서 adminMemo 저장
+  const snap = await DB.ref('students').once('value');
+  const all = snap.val()||{};
+  for(const [key,stu] of Object.entries(all)){
+    if(stu.name===stuName){
+      const items = stu.ipjumItems||[];
+      const idx = items.findIndex(i=>i.id===itemId);
+      if(idx>=0){
+        items[idx].adminMemo = memoText;
+        await DB.ref('students/'+key+'/ipjumItems').set(items);
+        showToast('✅ 메모 저장됐어요!');
+        loadAdminIpjum();
+        return;
+      }
+    }
+  }
+  showToast('저장 실패. 새로고침 후 다시 시도해주세요.');
+}
+
+function renderAdminIpjum() {
+  const listEl = document.getElementById('admin-ipjum-list');
+  if(!listEl) return;
+  let items = [..._adminIpjumData];
+  if(_adminIpjumFilter==='issue') items = items.filter(i=>i.issueReport);
+  if(_adminIpjumFilter==='ok')    items = items.filter(i=>!i.issueReport);
+  if(items.length===0){
+    listEl.innerHTML='<div style="padding:2rem;text-align:center;color:#bbb;font-size:13px">해당 항목이 없어요 🏪</div>';
+    return;
+  }
+  listEl.innerHTML = items.map(item=>`
+    <div class="sch-card" style="${item.issueReport?'border-left:3px solid #E74C3C;':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span>
+        <span style="background:${item.issueReport?'#FDE8E8':'#E8F7EE'};color:${item.issueReport?'#A93226':'#5BAD7F'};border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700">${item.issueReport?'⚠ 이슈':'정상 ✓'}</span>
+      </div>
+      <div class="sch-title">${esc(item.product)}</div>
+      <div class="sch-detail">
+        ${item.company?`🔗 ${esc(item.company)}<br>`:''}
+        ${item.completionDate?`✅ 완료일: ${item.completionDate}<br>`:''}
+        ${item.applyDate?`📅 신청일: ${item.applyDate}`:''}
+      </div>
+      ${item.issueReport?`
+        <div style="background:#FDE8E8;border:1px solid #F5C6CB;border-radius:8px;padding:8px 10px;margin-top:8px">
+          <div style="font-size:10px;font-weight:700;color:#A93226;margin-bottom:3px">⚠ 수강생 이슈 신고 (${item.issueReport.date||''})</div>
+          <div style="font-size:12px;color:#7B2020">${esc(item.issueReport.text)}</div>
+        </div>`:''}
+      <div style="margin-top:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:4px">📝 관리자 메모</div>
+        <textarea id="adm-memo-${item.id}" style="width:100%;min-height:55px;padding:6px 8px;border-radius:8px;border:1.5px solid var(--bd);font-family:inherit;font-size:12px;resize:none" placeholder="이슈 내용, 처리 현황 메모...">${esc(item.adminMemo||'')}</textarea>
+        <button class="share-btn" style="margin-top:4px" onclick="saveAdminIpjumMemo('${esc(item.stuName)}',${item.id},document.getElementById('adm-memo-${item.id}').value)">💾 메모 저장</button>
+      </div>
+    </div>`).join('');
+}
 
 // ── 교육일정 수정
 function adminEditEdu(id, date, title, type){
