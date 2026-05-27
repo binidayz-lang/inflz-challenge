@@ -963,7 +963,19 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjum-summary">로딩 중...</p></div>
       <button class="admin-refresh" onclick="loadAdminIpjum()">🔄 새로고침</button>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 10px">
+    <!-- 통계 -->
+    <div id="admin-ipjum-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
+    <!-- 검색 -->
+    <div style="padding:0 14px 10px">
+      <div style="position:relative">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px">🔍</span>
+        <input type="text" id="admin-ipjum-search" placeholder="이름 또는 상품명 검색..."
+          oninput="renderAdminIpjum()"
+          style="width:100%;padding:9px 10px 9px 32px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;background:#FDFAF7">
+      </div>
+    </div>
+    <!-- 필터 -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px">
       <button class="filter-btn active" id="aif-all" onclick="filterAdminIpjum('all',this)">전체</button>
       <button class="filter-btn" id="aif-issue" onclick="filterAdminIpjum('issue',this)" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB">⚠ 이슈만</button>
       <button class="filter-btn" id="aif-ok" onclick="filterAdminIpjum('ok',this)">정상만</button>
@@ -2175,6 +2187,8 @@ function renderIpjum() {
         <button class="sch-edit" onclick="openIpjumModal(${i.id})">✏️ 수정</button>
         <button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button>
       </div>
+      ${i.type!=='입점완료'?
+        `<button class="share-btn" style="background:#E8F7EE;color:#2E7D32;border-color:#A5D6A7;margin-top:6px" onclick="quickCompleteIpjum(${i.id})">✅ 입점완료로 변경</button>`:''}
       ${i.type==='입점연락 옴'?
         `<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리에게 공유!</button>`:''}
       ${i.type==='입점완료'?
@@ -2590,6 +2604,17 @@ function switchAdminTab(tab){
 // ══════════════════════════════════════
 //  🏪 이슈 신고 (수강생)
 // ══════════════════════════════════════
+async function quickCompleteIpjum(id) {
+  if(!confirm('입점완료로 변경할까요?\n완료일은 오늘 날짜로 저장돼요.')) return;
+  const idx = (S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0) return;
+  S.ipjumItems[idx].type = '입점완료';
+  S.ipjumItems[idx].completionDate = today();
+  await fbSave();
+  renderIpjum();
+  showToast('🎉 입점완료로 변경됐어요! 메리 선생님께 자동 전달돼요.');
+}
+
 function openIssueModal(id) {
   document.getElementById('issue-ipjum-id').value = id;
   const item = (S.ipjumItems||[]).find(i=>i.id===id);
@@ -2638,6 +2663,21 @@ async function loadAdminIpjum() {
     const badge = document.getElementById('admin-ipjum-badge');
     if(badge){ badge.textContent=issueCount; badge.style.display=issueCount>0?'inline':'none'; }
     summEl.textContent = `전체 ${_adminIpjumData.length}건 · 이슈 ${issueCount}건`;
+    // 통계 카드
+    const statsEl = document.getElementById('admin-ipjum-stats');
+    if(statsEl){
+      const total = _adminIpjumData.length;
+      const ok = total - issueCount;
+      statsEl.innerHTML = [
+        ['전체 완료', total, 'var(--m)', '#F0E6DD'],
+        ['⚠ 이슈', issueCount, '#A93226', '#FDE8E8'],
+        ['정상 운영', ok, '#2E7D32', '#E8F5E9']
+      ].map(([l,n,c,bg])=>`
+        <div style="background:${bg};border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:${c}">${n}</div>
+          <div style="font-size:10px;color:${c};margin-top:2px;opacity:.8">${l}</div>
+        </div>`).join('');
+    }
     renderAdminIpjum();
   } catch(e){
     listEl.innerHTML='<div style="padding:16px;color:#999;font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';
@@ -2674,34 +2714,53 @@ async function saveAdminIpjumMemo(stuName, itemId, memoText) {
 function renderAdminIpjum() {
   const listEl = document.getElementById('admin-ipjum-list');
   if(!listEl) return;
+  const q = (document.getElementById('admin-ipjum-search')?.value||'').toLowerCase();
   let items = [..._adminIpjumData];
   if(_adminIpjumFilter==='issue') items = items.filter(i=>i.issueReport);
   if(_adminIpjumFilter==='ok')    items = items.filter(i=>!i.issueReport);
+  if(q) items = items.filter(i=>
+    (i.stuName||'').toLowerCase().includes(q) ||
+    (i.product||'').toLowerCase().includes(q) ||
+    (i.company||'').toLowerCase().includes(q)
+  );
   if(items.length===0){
-    listEl.innerHTML='<div style="padding:2rem;text-align:center;color:#bbb;font-size:13px">해당 항목이 없어요 🏪</div>';
+    listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:#bbb;font-size:13px">
+      <div style="font-size:28px;margin-bottom:8px">🏪</div>
+      ${q ? '검색 결과가 없어요' : '해당 항목이 없어요'}
+    </div>`;
     return;
   }
   listEl.innerHTML = items.map(item=>`
-    <div class="sch-card" style="${item.issueReport?'border-left:3px solid #E74C3C;':''}">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:13px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span>
-        <span style="background:${item.issueReport?'#FDE8E8':'#E8F7EE'};color:${item.issueReport?'#A93226':'#5BAD7F'};border-radius:20px;padding:2px 10px;font-size:10px;font-weight:700">${item.issueReport?'⚠ 이슈':'정상 ✓'}</span>
+    <div style="background:#fff;border-radius:14px;padding:14px;margin:0 14px 10px;border:1px solid ${item.issueReport?'#F5C6CB':'#EDE0D8'};${item.issueReport?'border-left:3px solid #E74C3C;':'border-left:3px solid #5BAD7F;'}">
+      <!-- 상단: 이름 + 상태 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:14px;font-weight:700;color:var(--m)">${esc(item.stuName)}</span>
+        <span style="background:${item.issueReport?'#FDE8E8':'#E8F7EE'};color:${item.issueReport?'#A93226':'#2E7D32'};border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">${item.issueReport?'⚠ 이슈':'정상 ✓'}</span>
       </div>
-      <div class="sch-title">${esc(item.product)}</div>
-      <div class="sch-detail">
+      <!-- 상품명 -->
+      <div style="font-size:13px;font-weight:600;color:#3d2314;margin-bottom:4px">${esc(item.product)}</div>
+      <!-- 상세 -->
+      <div style="font-size:11px;color:#9a7a6a;line-height:1.8">
         ${item.company?`🔗 ${esc(item.company)}<br>`:''}
-        ${item.completionDate?`✅ 완료일: ${item.completionDate}<br>`:''}
+        ${item.completionDate?`✅ 완료일: ${item.completionDate}　`:''}
         ${item.applyDate?`📅 신청일: ${item.applyDate}`:''}
       </div>
+      <!-- 이슈 신고 내용 -->
       ${item.issueReport?`
-        <div style="background:#FDE8E8;border:1px solid #F5C6CB;border-radius:8px;padding:8px 10px;margin-top:8px">
-          <div style="font-size:10px;font-weight:700;color:#A93226;margin-bottom:3px">⚠ 수강생 이슈 신고 (${item.issueReport.date||''})</div>
-          <div style="font-size:12px;color:#7B2020">${esc(item.issueReport.text)}</div>
+        <div style="background:#FDE8E8;border:1px solid #F5C6CB;border-radius:10px;padding:10px 12px;margin-top:10px">
+          <div style="font-size:10px;font-weight:700;color:#A93226;margin-bottom:4px">⚠ 수강생 이슈 신고 · ${item.issueReport.date||''}</div>
+          <div style="font-size:12px;color:#7B2020;line-height:1.6">${esc(item.issueReport.text)}</div>
         </div>`:''}
-      <div style="margin-top:8px">
-        <div style="font-size:11px;font-weight:700;color:var(--m);margin-bottom:4px">📝 관리자 메모</div>
-        <textarea id="adm-memo-${item.id}" style="width:100%;min-height:55px;padding:6px 8px;border-radius:8px;border:1.5px solid var(--bd);font-family:inherit;font-size:12px;resize:none" placeholder="이슈 내용, 처리 현황 메모...">${esc(item.adminMemo||'')}</textarea>
-        <button class="share-btn" style="margin-top:4px" onclick="saveAdminIpjumMemo('${esc(item.stuName)}',${item.id},document.getElementById('adm-memo-${item.id}').value)">💾 메모 저장</button>
+      <!-- 관리자 메모 -->
+      <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #EDE0D8">
+        <div style="font-size:10px;font-weight:700;color:var(--m);margin-bottom:5px;letter-spacing:.3px">📝 관리자 메모</div>
+        <textarea id="adm-memo-${item.id}"
+          style="width:100%;min-height:52px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--bd);font-family:inherit;font-size:12px;resize:none;background:#FDFAF7"
+          placeholder="이슈 내용, 처리 현황 메모...">${esc(item.adminMemo||'')}</textarea>
+        <button onclick="saveAdminIpjumMemo('${esc(item.stuName)}',${item.id},document.getElementById('adm-memo-${item.id}').value)"
+          style="margin-top:6px;padding:7px 16px;border-radius:8px;border:none;background:var(--p);color:#fff;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;width:100%">
+          💾 메모 저장
+        </button>
       </div>
     </div>`).join('');
 }
