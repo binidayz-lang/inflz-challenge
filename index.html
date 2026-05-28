@@ -344,7 +344,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
 /* ── 관리자 탭 */
 .admin-tab-nav{display:flex;gap:6px;padding:10px 14px 6px;position:sticky;top:0;background:var(--bg);z-index:50;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.admin-tab-nav::-webkit-scrollbar{display:none}
-.admin-tab-btn{flex:0 0 auto;border:none;border-radius:var(--rs);padding:9px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s;white-space:nowrap}
+.admin-tab-btn{flex:1 1 0;min-width:0;border:none;border-radius:var(--rs);padding:9px 6px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .admin-tab-btn.active{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff}
 .admin-tab-section{display:none}
 .admin-tab-section.active{display:block}
@@ -854,11 +854,11 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- 관리자 탭 네비 -->
   <div class="admin-tab-nav">
-    <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생 현황</button>
-    <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육일정</button>
-    <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지관리</button>
-    <button class="admin-tab-btn" onclick="switchAdminTab('ipjum')" id="admin-ipjum-btn">🏪 입점현황<span id="admin-ipjum-badge" style="display:none;background:#E74C3C;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle"></span></button>
-    <button class="admin-tab-btn" onclick="switchAdminTab('gongu')">🛒 공구현황</button>
+    <button class="admin-tab-btn active" onclick="switchAdminTab('students')">👥 수강생</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지</button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('ipjum')" id="admin-ipjum-btn">🏪 입점<span id="admin-ipjum-badge" style="display:none;background:#E74C3C;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle"></span></button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('gongu')">🛒 공구</button>
   </div>
 
   <!-- ── 탭1: 수강생 현황 -->
