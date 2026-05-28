@@ -343,8 +343,8 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .edu-del-btn{border:none;border-radius:8px;padding:5px 10px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#FFF0EC;color:#E07A5F;flex-shrink:0;align-self:center}
 
 /* ── 관리자 탭 */
-.admin-tab-nav{display:flex;gap:6px;padding:10px 14px 0;position:sticky;top:0;background:var(--bg);z-index:50;padding-bottom:6px}
-.admin-tab-btn{flex:1;border:none;border-radius:var(--rs);padding:11px 4px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s}
+.admin-tab-nav{display:flex;gap:6px;padding:10px 14px 6px;position:sticky;top:0;background:var(--bg);z-index:50;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}.admin-tab-nav::-webkit-scrollbar{display:none}
+.admin-tab-btn{flex:0 0 auto;border:none;border-radius:var(--rs);padding:9px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:#F0E6DD;color:var(--m);transition:all .2s;white-space:nowrap}
 .admin-tab-btn.active{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff}
 .admin-tab-section{display:none}
 .admin-tab-section.active{display:block}
