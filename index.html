@@ -858,6 +858,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <button class="admin-tab-btn" onclick="switchAdminTab('edu')">📆 교육일정</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('notice')">📢 공지관리</button>
     <button class="admin-tab-btn" onclick="switchAdminTab('ipjum')" id="admin-ipjum-btn">🏪 입점현황<span id="admin-ipjum-badge" style="display:none;background:#E74C3C;color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle"></span></button>
+    <button class="admin-tab-btn" onclick="switchAdminTab('gongu')">🛒 공구현황</button>
   </div>
 
   <!-- ── 탭1: 수강생 현황 -->
@@ -981,6 +982,27 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <button class="filter-btn" id="aif-ok" onclick="filterAdminIpjum('ok',this)">정상만</button>
     </div>
     <div id="admin-ipjum-list"><div class="loader">불러오는 중...</div></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- ── 탭5: 공구현황 -->
+  <div class="admin-tab-section" id="admin-sec-gongu">
+    <div class="admin-hdr">
+      <div><h2>🛒 공구 확정 현황</h2><p id="admin-gongu-summary">로딩 중...</p></div>
+      <button class="admin-refresh" onclick="loadAdminGongu()">🔄 새로고침</button>
+    </div>
+    <!-- 통계 -->
+    <div id="admin-gongu-stats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 14px 12px"></div>
+    <!-- 검색 -->
+    <div style="padding:0 14px 12px">
+      <div style="position:relative">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px">🔍</span>
+        <input type="text" id="admin-gongu-search" placeholder="이름 또는 상품명 검색..."
+          oninput="renderAdminGongu()"
+          style="width:100%;padding:9px 10px 9px 32px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;background:#FDFAF7">
+      </div>
+    </div>
+    <div id="admin-gongu-list"><div class="loader">불러오는 중...</div></div>
     <div style="height:16px"></div>
   </div>
 
@@ -2647,7 +2669,7 @@ function adminDelEdu(id){
 // ── 관리자 탭 전환
 function switchAdminTab(tab){
   document.querySelectorAll('.admin-tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active', ['students','edu','notice','ipjum'][i]===tab);
+    b.classList.toggle('active', ['students','edu','notice','ipjum','gongu'][i]===tab);
   });
   document.querySelectorAll('.admin-tab-section').forEach(s=>s.classList.remove('active'));
   document.getElementById('admin-sec-'+tab).classList.add('active');
@@ -2655,11 +2677,100 @@ function switchAdminTab(tab){
   if(tab==='edu') loadAdminEdu();
   if(tab==='notice') loadAdminNotices();
   if(tab==='ipjum') loadAdminIpjum();
+  if(tab==='gongu') loadAdminGongu();
 }
 
 
 
 
+
+
+// ══════════════════════════════════════
+//  🛒 관리자 공구현황
+// ══════════════════════════════════════
+let _adminGonguData = [];
+
+async function loadAdminGongu() {
+  const listEl = document.getElementById('admin-gongu-list');
+  const summEl = document.getElementById('admin-gongu-summary');
+  if(!listEl) return;
+  listEl.innerHTML = '<div class="loader">불러오는 중...</div>';
+  try {
+    const snap = await DB.ref('students').once('value');
+    const all = snap.val() || {};
+    _adminGonguData = [];
+    Object.values(all).forEach(stu => {
+      const items = stu.gonguSchedules || [];
+      items.filter(g => g.type === '공구일정 확정').forEach(g => {
+        _adminGonguData.push({ ...g, stuName: stu.name || '알수없음' });
+      });
+    });
+    // 날짜순 정렬
+    _adminGonguData.sort((a,b) => (a.startDate||'').localeCompare(b.startDate||''));
+    // 통계
+    const total = _adminGonguData.length;
+    summEl.textContent = `확정된 공구 총 ${total}건`;
+    const statsEl = document.getElementById('admin-gongu-stats');
+    if(statsEl){
+      // 이번달 공구 수
+      const now = new Date();
+      const thisMonth = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+      const thisMonthCount = _adminGonguData.filter(g=>(g.startDate||'').startsWith(thisMonth)).length;
+      statsEl.innerHTML = [
+        ['전체 확정', total, 'var(--m)', '#F0E6DD'],
+        ['이번 달', thisMonthCount, '#185FA5', '#E6F1FB']
+      ].map(([l,n,c,bg])=>`
+        <div style="background:${bg};border-radius:10px;padding:10px;text-align:center">
+          <div style="font-size:20px;font-weight:700;color:${c}">${n}</div>
+          <div style="font-size:10px;color:${c};margin-top:2px;opacity:.85">${l}</div>
+        </div>`).join('');
+    }
+    renderAdminGongu();
+  } catch(e) {
+    listEl.innerHTML = '<div style="padding:16px;color:#999;font-size:13px">불러오기 실패. 새로고침 해주세요.</div>';
+  }
+}
+
+function renderAdminGongu() {
+  const listEl = document.getElementById('admin-gongu-list');
+  if(!listEl) return;
+  const q = (document.getElementById('admin-gongu-search')?.value||'').toLowerCase();
+  let items = [..._adminGonguData];
+  if(q) items = items.filter(i =>
+    (i.stuName||'').toLowerCase().includes(q) ||
+    (i.product||'').toLowerCase().includes(q) ||
+    (i.seller||'').toLowerCase().includes(q)
+  );
+  if(items.length===0){
+    listEl.innerHTML=`<div style="padding:2.5rem;text-align:center;color:#bbb;font-size:13px">
+      <div style="font-size:28px;margin-bottom:8px">🛒</div>
+      ${q?'검색 결과가 없어요':'확정된 공구 일정이 없어요'}
+    </div>`;
+    return;
+  }
+  listEl.innerHTML = items.map(g => {
+    // 날짜 포맷
+    let dateLabel = '';
+    if(g.startDate && g.endDate && g.startDate!==g.endDate){
+      dateLabel = `${g.startDate} ~ ${g.endDate}`;
+    } else if(g.startDate){
+      dateLabel = g.startDate;
+    }
+    return `
+    <div style="background:#fff;border-radius:14px;padding:14px;margin:0 14px 10px;border:1px solid var(--bd);border-left:3px solid #6DB6F0">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:14px;font-weight:700;color:var(--m)">${esc(g.stuName)}</span>
+        <span style="background:#E8F7EE;color:#2E7D32;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700">✅ 확정</span>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:#3d2314;margin-bottom:4px">${esc(g.product||'-')}</div>
+      <div style="font-size:11px;color:#9a7a6a;line-height:1.9">
+        ${g.seller?`🏢 ${esc(g.seller)}<br>`:''}
+        ${dateLabel?`📅 공구 일정: <strong style="color:var(--t)">${dateLabel}</strong>`:''}
+        ${g.memo?`<br>📝 ${esc(g.memo)}`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
 
 // ══════════════════════════════════════
 //  🏪 이슈 신고 (수강생)
