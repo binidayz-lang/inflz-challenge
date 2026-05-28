@@ -2467,6 +2467,7 @@ if(DB) loadNotices(()=>{});
 //  📆 교육일정 시스템
 // ══════════════════════════════════════
 let _eduCalDate = new Date();
+let _eduDetailCache = {}; // 교육일정 상세 캐시
 const EDU_TYPE = {
   off:      { label:'오프교육',       cls:'ev-off' },
   zoom:     { label:'줌스터디/줌교육', cls:'ev-zoom' },
@@ -2523,10 +2524,11 @@ function renderEduGrid(year,month,firstDow,lastDate,todayStr,events){
     const isSun = (firstDow+d-1)%7===0;
     const isSat = (firstDow+d-1)%7===6;
     const dnColor = isSun?'color:#E05A5A':isSat?'color:#5A7AE0':'';
+    // 이벤트 캐시에 저장 (클릭 시 id로 조회)
+    dayEvts.forEach(e=>{ _eduDetailCache[e.id]=e; });
     let evHtml = dayEvts.map(e=>{
       const t = EDU_TYPE[e.type]||EDU_TYPE.etc;
-      const safe = JSON.stringify({title:e.title,type:e.type,date:e.date}).replace(/'/g,"\'");
-      return `<span class="edu-event ${t.cls}" style="cursor:pointer" onclick="showEduDetail('${safe}')">${e.title||t.label}</span>`;
+      return `<span class="edu-event ${t.cls}" style="cursor:pointer" onclick="showEduDetail('${e.id}')">${e.title||t.label}</span>`;
     }).join('');
     html+=`<div class="edu-cell${isToday?' edu-today':''}">
       <div class="edu-dn" style="${dnColor}">${d}</div>
@@ -2537,9 +2539,9 @@ function renderEduGrid(year,month,firstDow,lastDate,todayStr,events){
 }
 
 // 교육일정 상세 보기 (수강생)
-function showEduDetail(safe) {
-  let e;
-  try { e = JSON.parse(safe); } catch(err) { return; }
+function showEduDetail(id) {
+  const e = _eduDetailCache[id];
+  if(!e) return;
   const t = EDU_TYPE[e.type] || EDU_TYPE.etc;
   const typeLabel = {
     off: '🌸 오프교육',
