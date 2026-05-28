@@ -1006,6 +1006,17 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   </div>
 </div>
 
+<!-- 교육일정 상세 모달 -->
+<div class="modal-wrap" id="edu-detail-modal" onclick="if(event.target===this)closeEduDetail()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title" id="edu-detail-title">일정 상세</div>
+      <button class="modal-close" onclick="closeEduDetail()">✕</button>
+    </div>
+    <div id="edu-detail-body" style="padding-top:4px"></div>
+  </div>
+</div>
+
 <!-- 공구일정 모달 -->
 <div class="modal-wrap" id="gongu-modal" onclick="if(event.target===this)closeGonguModal()">
   <div class="modal-box">
@@ -2514,7 +2525,8 @@ function renderEduGrid(year,month,firstDow,lastDate,todayStr,events){
     const dnColor = isSun?'color:#E05A5A':isSat?'color:#5A7AE0':'';
     let evHtml = dayEvts.map(e=>{
       const t = EDU_TYPE[e.type]||EDU_TYPE.etc;
-      return `<span class="edu-event ${t.cls}">${e.title||t.label}</span>`;
+      const safe = JSON.stringify({title:e.title,type:e.type,date:e.date}).replace(/'/g,"\'");
+      return `<span class="edu-event ${t.cls}" style="cursor:pointer" onclick="showEduDetail('${safe}')">${e.title||t.label}</span>`;
     }).join('');
     html+=`<div class="edu-cell${isToday?' edu-today':''}">
       <div class="edu-dn" style="${dnColor}">${d}</div>
@@ -2522,6 +2534,52 @@ function renderEduGrid(year,month,firstDow,lastDate,todayStr,events){
     </div>`;
   }
   grid.innerHTML=html;
+}
+
+// 교육일정 상세 보기 (수강생)
+function showEduDetail(safe) {
+  let e;
+  try { e = JSON.parse(safe); } catch(err) { return; }
+  const t = EDU_TYPE[e.type] || EDU_TYPE.etc;
+  const typeLabel = {
+    off: '🌸 오프교육',
+    zoom: '💜 줌스터디/줌교육',
+    feedback: '💛 피드백만',
+    holiday: '🩵 휴일',
+    etc: '🩵 기타'
+  }[e.type] || e.type;
+
+  // 날짜 포맷
+  let dateLabel = e.date || '';
+  if(e.date) {
+    const [y,m,d] = e.date.split('-');
+    const days = ['일','월','화','수','목','금','토'];
+    const dow = new Date(e.date).getDay();
+    dateLabel = `${y}년 ${parseInt(m)}월 ${parseInt(d)}일 (${days[dow]})`;
+  }
+
+  document.getElementById('edu-detail-title').textContent = e.title || typeLabel;
+  document.getElementById('edu-detail-body').innerHTML = `
+    <div style="margin-bottom:12px">
+      <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;background:var(--pl);color:var(--pd)">${typeLabel}</span>
+    </div>
+    <div style="background:#FDFAF7;border-radius:10px;padding:12px 14px;border:1px solid var(--bd)">
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px">
+        <span style="font-size:13px;color:#9a7a6a;min-width:36px">📅 날짜</span>
+        <span style="font-size:13px;font-weight:600;color:var(--t)">${dateLabel}</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:13px;color:#9a7a6a;min-width:36px">📌 내용</span>
+        <span style="font-size:13px;font-weight:600;color:var(--t);line-height:1.6">${e.title || typeLabel}</span>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:#bbb;text-align:center">
+      일정 관련 문의는 메리 선생님께 카카오톡으로 연락해주세요 😊
+    </div>`;
+  document.getElementById('edu-detail-modal').classList.add('open');
+}
+function closeEduDetail() {
+  document.getElementById('edu-detail-modal').classList.remove('open');
 }
 
 // 관리자: 일정 저장
