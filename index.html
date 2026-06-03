@@ -1431,6 +1431,7 @@ async function doLogin(silent=false) {
       try { localStorage.setItem('inflz_s', JSON.stringify({name,pin})); } catch(e){}
       show('sc-main');
       renderAll();
+      loadCommBackground(); // 소통방 데이터 백그라운드 미리 로드
       if(!silent) showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
       loadTodayBanner();
       if(!silent) setTimeout(()=>showNoticePopup(), 800);
@@ -3128,6 +3129,17 @@ function switchIpjumSub(tab) {
 
 // ── 소통방: 불러오기 & 렌더
 let _commCache = [];
+
+// 로그인 직후 백그라운드에서 캐시만 채움 (화면 렌더 안 함)
+function loadCommBackground() {
+  if (!DB) return;
+  DB.ref('shared/rejectList').once('value', snap => {
+    const items = [];
+    snap.forEach(c => items.push({id: c.key, ...c.val()}));
+    items.sort((a,b) => (b.ts||0) - (a.ts||0));
+    _commCache = items;
+  });
+}
 
 function loadComm() {
   if (!DB) { renderComm(); return; }
