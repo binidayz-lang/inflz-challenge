@@ -3130,14 +3130,18 @@ function switchIpjumSub(tab) {
 // ── 소통방: 불러오기 & 렌더
 let _commCache = [];
 
-// 로그인 직후 백그라운드에서 캐시만 채움 (화면 렌더 안 함)
+// 로그인 직후 백그라운드에서 캐시만 채움
 function loadCommBackground() {
   if (!DB) return;
   DB.ref('shared/rejectList').once('value', snap => {
     const items = [];
-    snap.forEach(c => items.push({id: c.key, ...c.val()}));
+    snap.forEach(c => {
+      const v = c.val();
+      if (v && v.company) items.push({id: c.key, ...v});
+    });
     items.sort((a,b) => (b.ts||0) - (a.ts||0));
     _commCache = items;
+    console.log('소통방 캐시 로드:', items.length, '개');
   });
 }
 
@@ -3147,10 +3151,13 @@ function loadComm() {
   if (el) el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
   DB.ref('shared/rejectList').once('value', snap => {
     const items = [];
-    snap.forEach(c => items.push({id: c.key, ...c.val()}));
-    // ts 기준 내림차순 정렬 (없으면 맨 뒤)
+    snap.forEach(c => {
+      const v = c.val();
+      if (v && v.company) items.push({id: c.key, ...v});
+    });
     items.sort((a,b) => (b.ts||0) - (a.ts||0));
     _commCache = items;
+    console.log('loadComm 결과:', items.length, '개');
     renderComm();
   });
 }
