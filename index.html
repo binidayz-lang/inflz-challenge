@@ -1007,37 +1007,46 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- ── 탭4: 입점현황 -->
   <div class="admin-tab-section" id="admin-sec-ipjum">
-    <div class="admin-hdr">
-      <div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjum-summary">로딩 중...</p></div>
-      <button class="admin-refresh" onclick="loadAdminIpjum()">🔄 새로고침</button>
+    <!-- 소메뉴 -->
+    <div style="display:flex;gap:6px;padding:10px 14px 0">
+      <button class="admin-tab-btn active" id="aisub-status" onclick="switchAdminIpjumSub('status')" style="flex:1">🏪 입점완료 현황</button>
+      <button class="admin-tab-btn" id="aisub-comm" onclick="switchAdminIpjumSub('comm')" style="flex:1">🤝 소통방 관리</button>
     </div>
+
+    <!-- 입점완료 현황 -->
+    <div id="admin-ipjum-sec-status">
+      <div class="admin-hdr">
+        <div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjum-summary">로딩 중...</p></div>
+        <button class="admin-refresh" onclick="loadAdminIpjum()">🔄 새로고침</button>
+      </div>
+      <div id="admin-ipjum-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
+      <div style="padding:0 14px 10px">
+        <div style="position:relative">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px">🔍</span>
+          <input type="text" id="admin-ipjum-search" placeholder="이름 또는 상품명 검색..."
+            oninput="renderAdminIpjum()"
+            style="width:100%;padding:9px 10px 9px 32px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;background:#FDFAF7">
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px">
+        <button class="filter-btn active" id="aif-all" onclick="filterAdminIpjum('all',this)">전체</button>
+        <button class="filter-btn" id="aif-issue" onclick="filterAdminIpjum('issue',this)" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB">⚠ 이슈만</button>
+        <button class="filter-btn" id="aif-ok" onclick="filterAdminIpjum('ok',this)">정상만</button>
+      </div>
+      <div id="admin-ipjum-list"><div class="loader">불러오는 중...</div></div>
+      <div style="height:16px"></div>
+    </div>
+
     <!-- 소통방 관리 -->
-    <div style="margin:0 14px 14px;background:#FFF5F5;border-radius:var(--r);padding:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:700;color:#C0392B">🤝 입점소통방 관리</span>
-        <button class="admin-refresh" onclick="loadAdminComm()">🔄</button>
+    <div id="admin-ipjum-sec-comm" style="display:none">
+      <div class="admin-hdr">
+        <div><h2>🤝 입점소통방 관리</h2><p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">실제 등록자 확인 · 삭제 가능</p></div>
+        <button class="admin-refresh" onclick="loadAdminComm()">🔄 새로고침</button>
       </div>
-      <div id="admin-comm-list" style="font-size:13px;color:var(--m)">불러오는 중...</div>
-    </div>
-    <!-- 통계 -->
-    <div id="admin-ipjum-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
-    <!-- 검색 -->
-    <div style="padding:0 14px 10px">
-      <div style="position:relative">
-        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px">🔍</span>
-        <input type="text" id="admin-ipjum-search" placeholder="이름 또는 상품명 검색..."
-          oninput="renderAdminIpjum()"
-          style="width:100%;padding:9px 10px 9px 32px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;background:#FDFAF7">
+      <div style="padding:14px">
+        <div id="admin-comm-list" style="font-size:13px;color:var(--m)">불러오는 중...</div>
       </div>
     </div>
-    <!-- 필터 -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px">
-      <button class="filter-btn active" id="aif-all" onclick="filterAdminIpjum('all',this)">전체</button>
-      <button class="filter-btn" id="aif-issue" onclick="filterAdminIpjum('issue',this)" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB">⚠ 이슈만</button>
-      <button class="filter-btn" id="aif-ok" onclick="filterAdminIpjum('ok',this)">정상만</button>
-    </div>
-    <div id="admin-ipjum-list"><div class="loader">불러오는 중...</div></div>
-    <div style="height:16px"></div>
   </div>
 
   <!-- ── 탭5: 공구현황 -->
@@ -3076,15 +3085,29 @@ function loadTodayBanner(){
 }
 
 
+// ── 관리자: 입점탭 소메뉴 전환
+function switchAdminIpjumSub(tab) {
+  document.getElementById('admin-ipjum-sec-status').style.display = tab === 'status' ? 'block' : 'none';
+  document.getElementById('admin-ipjum-sec-comm').style.display   = tab === 'comm'   ? 'block' : 'none';
+  document.getElementById('aisub-status').classList.toggle('active', tab === 'status');
+  document.getElementById('aisub-comm').classList.toggle('active',   tab === 'comm');
+  if (tab === 'comm') loadAdminComm();
+  if (tab === 'status') loadAdminIpjum();
+}
+
 // ── 관리자: 소통방 불러오기 & 삭제
 async function loadAdminComm() {
   const el = document.getElementById('admin-comm-list');
   if (!el) return;
   if (!DB) { el.innerHTML = 'Firebase 연결 없음'; return; }
   el.innerHTML = '불러오는 중...';
-  const snap = await DB.ref('shared/rejectList').orderByChild('ts').once('value');
+  const snap = await DB.ref('shared/rejectList').once('value');
   const items = [];
-  snap.forEach(c => items.unshift({id: c.key, ...c.val()}));
+  snap.forEach(c => {
+    const v = c.val();
+    items.push({id: c.key, company: v.company||'', product: v.product||'', reason: v.reason||'', who: v.who||'', whoReal: v.whoReal||'', dateStr: v.dateStr||'', ts: v.ts||0});
+  });
+  items.reverse();
   if (!items.length) { el.innerHTML = '<div style="color:var(--m);font-size:12px;padding:8px 0">등록된 항목이 없어요</div>'; return; }
   el.innerHTML = items.map(d => `
     <div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid #FFCDD2;display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
