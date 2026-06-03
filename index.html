@@ -3111,14 +3111,12 @@ function switchIpjumSub(tab) {
 
 // ── 소통방: 불러오기 & 렌더
 let _commCache = [];
-let _commListenerOn = false;
 
 function loadComm() {
   if (!DB) { renderComm(); return; }
-  // 중복 리스너 방지
-  if (_commListenerOn) { renderComm(); return; }
-  _commListenerOn = true;
-  DB.ref('shared/rejectList').orderByChild('ts').on('value', snap => {
+  const el = document.getElementById('comm-list');
+  if (el) el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';
+  DB.ref('shared/rejectList').orderByChild('ts').once('value', snap => {
     const items = [];
     snap.forEach(c => items.unshift({id: c.key, ...c.val()}));
     _commCache = items;
@@ -3202,6 +3200,7 @@ async function saveCommReject() {
     await DB.ref('shared/rejectList').push(entry);
     closeCommModal();
     showToast('✅ 등록됐어요! 수강생 모두에게 공유됩니다 🙌');
+    loadComm(); // 목록 즉시 새로고침
   } catch(e) {
     console.error('소통방 저장 오류:', e);
     showToast('저장 오류: ' + (e.message || e));
