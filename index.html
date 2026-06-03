@@ -3200,7 +3200,9 @@ async function saveCommReject() {
     await DB.ref('shared/rejectList').push(entry);
     closeCommModal();
     showToast('✅ 등록됐어요! 수강생 모두에게 공유됩니다 🙌');
-    loadComm(); // 목록 즉시 새로고침
+    // 캐시에 직접 추가해서 즉시 화면 반영 (Firebase 재조회 없이)
+    _commCache.unshift({id: 'temp_'+Date.now(), ...entry});
+    renderComm();
   } catch(e) {
     console.error('소통방 저장 오류:', e);
     showToast('저장 오류: ' + (e.message || e));
