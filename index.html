@@ -3118,13 +3118,7 @@ function switchIpjumSub(tab) {
   document.getElementById('ipjum-sec-community').style.display = tab === 'community' ? 'block' : 'none';
   document.getElementById('isub-my').classList.toggle('active',        tab === 'my');
   document.getElementById('isub-community').classList.toggle('active', tab === 'community');
-  if (tab === 'community') {
-    if (_commCache.length > 0) {
-      renderComm(); // 캐시 있으면 즉시 렌더
-    } else {
-      loadComm();   // 캐시 없으면 Firebase에서 불러오기
-    }
-  }
+  if (tab === 'community') loadComm(); // 항상 Firebase에서 새로 불러오기
 }
 
 // ── 소통방: 불러오기 & 렌더
@@ -3137,11 +3131,10 @@ function loadCommBackground() {
     const items = [];
     snap.forEach(c => {
       const v = c.val();
-      if (v && v.company) items.push({id: c.key, ...v});
+      items.push({id: c.key, company: v.company||'', product: v.product||'', reason: v.reason||'', who: v.who||'', dateStr: v.dateStr||'', ts: v.ts||0});
     });
-    items.sort((a,b) => (b.ts||0) - (a.ts||0));
+    items.reverse();
     _commCache = items;
-    console.log('소통방 캐시 로드:', items.length, '개');
   });
 }
 
@@ -3153,11 +3146,10 @@ function loadComm() {
     const items = [];
     snap.forEach(c => {
       const v = c.val();
-      if (v && v.company) items.push({id: c.key, ...v});
+      items.push({id: c.key, company: v.company||'', product: v.product||'', reason: v.reason||'', who: v.who||'', dateStr: v.dateStr||'', ts: v.ts||0});
     });
-    items.sort((a,b) => (b.ts||0) - (a.ts||0));
+    items.reverse(); // 최신이 위로
     _commCache = items;
-    console.log('loadComm 결과:', items.length, '개');
     renderComm();
   });
 }
