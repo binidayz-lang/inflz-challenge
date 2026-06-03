@@ -2035,7 +2035,17 @@ function switchTab(tab) {
   if(content) content.classList.add('active');
   if(tab==='notice') renderNotices();
   if(tab==='edu') renderEduCal();
-  if(tab==='ipjum') loadComm();
+  if(tab==='ipjum') {
+    // 소통방이 보이는 상태일 때만 렌더, 아니면 캐시만 업데이트
+    DB && DB.ref('shared/rejectList').once('value', snap => {
+      const items = [];
+      snap.forEach(c => items.push({id: c.key, ...c.val()}));
+      items.sort((a,b) => (b.ts||0) - (a.ts||0));
+      _commCache = items;
+      const sec = document.getElementById('ipjum-sec-community');
+      if (sec && sec.style.display !== 'none') renderComm();
+    });
+  }
 }
 
 // ── 유형 색상
@@ -3107,7 +3117,13 @@ function switchIpjumSub(tab) {
   document.getElementById('ipjum-sec-community').style.display = tab === 'community' ? 'block' : 'none';
   document.getElementById('isub-my').classList.toggle('active',        tab === 'my');
   document.getElementById('isub-community').classList.toggle('active', tab === 'community');
-  if (tab === 'community') loadComm();
+  if (tab === 'community') {
+    if (_commCache.length > 0) {
+      renderComm(); // 캐시 있으면 즉시 렌더
+    } else {
+      loadComm();   // 캐시 없으면 Firebase에서 불러오기
+    }
+  }
 }
 
 // ── 소통방: 불러오기 & 렌더
