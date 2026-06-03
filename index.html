@@ -178,6 +178,19 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
 /* FILTER */
 .filter-row{display:flex;gap:5px;flex-wrap:wrap}
+/* 입점 소메뉴 */
+.ipjum-sub-btn{flex:1;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 6px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:#FDFAF7;color:var(--m);transition:all .2s}
+.ipjum-sub-btn.active{background:var(--p);border-color:var(--p);color:#fff}
+/* 소통방 카드 */
+.comm-card{background:var(--w);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;box-shadow:var(--sh);border-left:4px solid #E74C3C}
+.comm-badge{display:inline-flex;align-items:center;gap:3px;background:#FDECEC;color:#E74C3C;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700}
+.comm-company{font-size:15px;font-weight:900;color:var(--t);margin-left:6px}
+.comm-product{font-size:12px;color:var(--m);margin:5px 0}
+.comm-reason{background:#FFF5F5;border-radius:8px;padding:8px 11px;font-size:12px;color:#C0392B;line-height:1.5;margin-bottom:8px}
+.comm-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--m)}
+/* 소통방 모달 */
+.comm-dup{display:none;background:#FFF5F5;border:1.5px solid #FFCDD2;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#C0392B;line-height:1.5}
+.comm-dup.show{display:block}
 .filter-btn{border:1.5px solid var(--bd);background:#fff;border-radius:20px;padding:5px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;color:var(--m);transition:all .2s;white-space:nowrap}
 .filter-btn.active{background:var(--p);border-color:var(--p);color:#fff}
 
@@ -356,7 +369,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 <div class="hdr">
   <div class="hdr-badge">✦ 인플즈메리네 ✦</div>
   <h1>챌린지 <em>캘린더</em></h1>
-  <p class="hdr-sub">매일 기록하고, 결과로 증명하세요 🔥</p>
+  <p class="hdr-sub">메리네가 함께하는 모든 것, 한 곳에서</p>
 </div>
 
 <!-- ══════════════════════════════
@@ -679,21 +692,55 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- ── 탭3: 입점 ── -->
   <div class="tab-content" id="tab-ipjum">
-    <div class="card" style="padding:14px 18px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:700">🏪 입점 관리</span>
-        <button class="btn-add" onclick="openIpjumModal()">+ 추가</button>
+    <!-- 소메뉴 -->
+    <div style="display:flex;gap:6px;padding:12px 14px 0">
+      <button class="ipjum-sub-btn active" id="isub-my" onclick="switchIpjumSub('my')">📋 내 입점관리</button>
+      <button class="ipjum-sub-btn" id="isub-community" onclick="switchIpjumSub('community')">🤝 입점소통방</button>
+    </div>
+
+    <!-- 내 입점관리 -->
+    <div id="ipjum-sec-my">
+      <div class="card" style="padding:14px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:700">🏪 입점 관리</span>
+          <button class="btn-add" onclick="openIpjumModal()">+ 추가</button>
+        </div>
+        <div class="filter-row" id="ipjum-filter">
+          <button class="filter-btn active" onclick="filterIpjum('all',this)">전체</button>
+          <button class="filter-btn" onclick="filterIpjum('입점제안완료',this)">제안완료</button>
+          <button class="filter-btn" onclick="filterIpjum('입점연락 옴',this)">연락옴</button>
+          <button class="filter-btn" onclick="filterIpjum('입점진행중',this)">진행중</button>
+          <button class="filter-btn" onclick="filterIpjum('신청완료',this)">신청완료</button>
+          <button class="filter-btn" onclick="filterIpjum('입점완료',this)">완료</button>
+        </div>
       </div>
-      <div class="filter-row" id="ipjum-filter">
-        <button class="filter-btn active" onclick="filterIpjum('all',this)">전체</button>
-        <button class="filter-btn" onclick="filterIpjum('입점제안완료',this)">제안완료</button>
-        <button class="filter-btn" onclick="filterIpjum('입점연락 옴',this)">연락옴</button>
-        <button class="filter-btn" onclick="filterIpjum('입점진행중',this)">진행중</button>
-        <button class="filter-btn" onclick="filterIpjum('신청완료',this)">신청완료</button>
-        <button class="filter-btn" onclick="filterIpjum('입점완료',this)">완료</button>
+      <div id="ipjum-list"></div>
+    </div>
+
+    <!-- 입점소통방 -->
+    <div id="ipjum-sec-community" style="display:none">
+      <!-- 검색 -->
+      <div style="padding:12px 14px 0">
+        <div style="position:relative">
+          <input type="text" id="comm-search" placeholder="🔍 업체명 또는 제품명 검색..."
+            oninput="renderComm()"
+            style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:11px 14px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7;transition:border .2s"
+            onfocus="this.style.borderColor='var(--p)';this.style.background='#fff'"
+            onblur="this.style.borderColor='var(--bd)';this.style.background='#FDFAF7'">
+        </div>
+      </div>
+      <!-- 헤더 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px 4px">
+        <span id="comm-count" style="font-size:11px;color:var(--m);font-weight:700">불러오는 중...</span>
+        <span style="font-size:10px;color:#C4A882">🔒 수강생 전용</span>
+      </div>
+      <!-- 리스트 -->
+      <div id="comm-list" style="padding:0 14px"></div>
+      <!-- 등록 버튼 -->
+      <div style="padding:12px 14px 0">
+        <button class="btn btn-dark" onclick="openCommModal()" style="margin-top:0">🔴 거절 업체 등록하기</button>
       </div>
     </div>
-    <div id="ipjum-list"></div>
   </div>
 
   <!-- ── 탭4: 교육일정 ── -->
@@ -964,6 +1011,14 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <div><h2>🏪 입점 완료 현황</h2><p id="admin-ipjum-summary">로딩 중...</p></div>
       <button class="admin-refresh" onclick="loadAdminIpjum()">🔄 새로고침</button>
     </div>
+    <!-- 소통방 관리 -->
+    <div style="margin:0 14px 14px;background:#FFF5F5;border-radius:var(--r);padding:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-size:13px;font-weight:700;color:#C0392B">🤝 입점소통방 관리</span>
+        <button class="admin-refresh" onclick="loadAdminComm()">🔄</button>
+      </div>
+      <div id="admin-comm-list" style="font-size:13px;color:var(--m)">불러오는 중...</div>
+    </div>
     <!-- 통계 -->
     <div id="admin-ipjum-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 14px 12px"></div>
     <!-- 검색 -->
@@ -1118,6 +1173,30 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <textarea id="i-memo" placeholder="수수료, 조건, 메모" style="min-height:60px;font-size:13px"></textarea>
     </div>
     <button class="btn btn-dark" onclick="saveIpjum()" style="margin-top:4px">저장하기</button>
+  </div>
+</div>
+
+<!-- 입점소통방 등록 모달 -->
+<div class="modal-wrap" id="comm-modal" onclick="if(event.target===this)closeCommModal()">
+  <div class="modal-box">
+    <div class="modal-top">
+      <div class="modal-title">🔴 거절 업체 등록</div>
+      <button class="modal-close" onclick="closeCommModal()">×</button>
+    </div>
+    <div class="comm-dup" id="comm-dup-warn"></div>
+    <div class="field">
+      <label>업체명 *</label>
+      <input type="text" id="c-company" placeholder="예) ○○화장품" maxlength="50" oninput="checkCommDup(this.value)">
+    </div>
+    <div class="field">
+      <label>제품명 / 카테고리 *</label>
+      <input type="text" id="c-product" placeholder="예) 선크림, 스킨케어" maxlength="50">
+    </div>
+    <div class="field">
+      <label>거절 이유 (선택)</label>
+      <textarea id="c-reason" placeholder="예) 자체공구만 진행&#10;담당자 연락두절&#10;단가 맞지 않음" style="min-height:72px;font-size:13px"></textarea>
+    </div>
+    <button class="btn btn-dark" onclick="saveCommReject()" style="margin-top:4px">등록하기</button>
   </div>
 </div>
 
@@ -2676,7 +2755,7 @@ function switchAdminTab(tab){
   if(tab==='students') loadAdmin();
   if(tab==='edu') loadAdminEdu();
   if(tab==='notice') loadAdminNotices();
-  if(tab==='ipjum') loadAdminIpjum();
+  if(tab==='ipjum') { loadAdminIpjum(); loadAdminComm(); }
   if(tab==='gongu') loadAdminGongu();
 }
 
@@ -2988,6 +3067,142 @@ function loadTodayBanner(){
   });
 }
 
+
+// ── 관리자: 소통방 불러오기 & 삭제
+async function loadAdminComm() {
+  const el = document.getElementById('admin-comm-list');
+  if (!el) return;
+  if (!DB) { el.innerHTML = 'Firebase 연결 없음'; return; }
+  el.innerHTML = '불러오는 중...';
+  const snap = await DB.ref('shared/rejectList').orderByChild('ts').once('value');
+  const items = [];
+  snap.forEach(c => items.unshift({id: c.key, ...c.val()}));
+  if (!items.length) { el.innerHTML = '<div style="color:var(--m);font-size:12px;padding:8px 0">등록된 항목이 없어요</div>'; return; }
+  el.innerHTML = items.map(d => `
+    <div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid #FFCDD2;display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13px">${d.company} · ${d.product}</div>
+        ${d.reason ? `<div style="font-size:11px;color:#C0392B;margin-top:3px">${d.reason}</div>` : ''}
+        <div style="font-size:10px;color:var(--m);margin-top:4px">실제 등록자: <strong>${d.whoReal||d.who}</strong> · ${d.dateStr}</div>
+      </div>
+      <button onclick="deleteCommItem('${d.id}')"
+        style="flex-shrink:0;border:none;background:#E74C3C;color:#fff;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">삭제</button>
+    </div>
+  `).join('');
+}
+
+async function deleteCommItem(id) {
+  if (!confirm('이 항목을 삭제할까요?')) return;
+  await DB.ref('shared/rejectList/' + id).remove();
+  _commCache = _commCache.filter(d => d.id !== id);
+  renderComm();
+  loadAdminComm();
+  showToast('🗑️ 삭제됐어요');
+}
+
+// ── 입점 소메뉴 전환
+function switchIpjumSub(tab) {
+  document.getElementById('ipjum-sec-my').style.display        = tab === 'my'        ? 'block' : 'none';
+  document.getElementById('ipjum-sec-community').style.display = tab === 'community' ? 'block' : 'none';
+  document.getElementById('isub-my').classList.toggle('active',        tab === 'my');
+  document.getElementById('isub-community').classList.toggle('active', tab === 'community');
+  if (tab === 'community') loadComm();
+}
+
+// ── 소통방: 불러오기 & 렌더
+function loadComm() {
+  if (!DB) { renderComm([]); return; }
+  DB.ref('shared/rejectList').orderByChild('ts').once('value', snap => {
+    const items = [];
+    snap.forEach(c => items.unshift({id: c.key, ...c.val()}));
+    renderComm(items);
+  });
+}
+
+function renderComm(items) {
+  // 검색어 필터
+  const q = (document.getElementById('comm-search')?.value || '').trim().toLowerCase();
+  let data = items !== undefined ? items : _commCache;
+  if (items !== undefined) _commCache = items;
+  if (q) data = (_commCache||[]).filter(d =>
+    (d.company||'').toLowerCase().includes(q) ||
+    (d.product||'').toLowerCase().includes(q)
+  );
+  document.getElementById('comm-count').textContent = `총 ${data.length}건 등록됨`;
+  const el = document.getElementById('comm-list');
+  if (!data.length) {
+    el.innerHTML = `<div style="text-align:center;padding:36px 0;color:var(--m)">
+      <div style="font-size:36px;margin-bottom:10px">${q ? '🔍' : '🎉'}</div>
+      <div style="font-size:13px;line-height:1.6">${q ? `"${q}" 검색 결과가 없어요` : '아직 등록된 거절 업체가 없어요<br>첫 번째로 등록해보세요!'}</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = data.map(d => `
+    <div class="comm-card">
+      <div style="display:flex;align-items:center;margin-bottom:6px">
+        <span class="comm-badge">🔴 거절</span>
+        <span class="comm-company">${d.company}</span>
+      </div>
+      <div class="comm-product">📦 ${d.product}</div>
+      ${d.reason ? `<div class="comm-reason">💬 ${d.reason}</div>` : ''}
+      <div class="comm-meta">
+        <span>👤 ${d.who}</span>
+        <span style="font-size:10px;color:#C4A882">${d.dateStr}</span>
+      </div>
+    </div>
+  `).join('');
+}
+let _commCache = [];
+
+// ── 소통방: 중복 체크
+function checkCommDup(v) {
+  const q = v.trim().toLowerCase();
+  const warn = document.getElementById('comm-dup-warn');
+  if (!q || !_commCache.length) { warn.classList.remove('show'); return; }
+  const found = _commCache.find(d => (d.company||'').toLowerCase().includes(q));
+  if (found) {
+    warn.innerHTML = `⚠️ 이미 등록된 업체예요!<br><strong>${found.company}</strong> — ${found.who} 등록 · ${found.dateStr}`;
+    warn.classList.add('show');
+  } else {
+    warn.classList.remove('show');
+  }
+}
+
+// ── 소통방: 모달
+function openCommModal() {
+  document.getElementById('c-company').value = '';
+  document.getElementById('c-product').value = '';
+  document.getElementById('c-reason').value = '';
+  document.getElementById('comm-dup-warn').classList.remove('show');
+  document.getElementById('comm-modal').classList.add('open');
+}
+function closeCommModal() {
+  document.getElementById('comm-modal').classList.remove('open');
+}
+
+// ── 소통방: 저장
+async function saveCommReject() {
+  const company = document.getElementById('c-company').value.trim();
+  const product = document.getElementById('c-product').value.trim();
+  const reason  = document.getElementById('c-reason').value.trim();
+  if (!company || !product) { showToast('⚠️ 업체명과 제품명을 입력해주세요'); return; }
+  if (!DB) { showToast('연결 오류'); return; }
+  const d = new Date();
+  const dateStr = `${d.getMonth()+1}/${d.getDate()}`;
+  // 화면엔 김○○, Firebase엔 실명 저장
+  const fullName = S.name || '수강생';
+  const maskedName = fullName.length >= 2 ? fullName[0] + '○'.repeat(fullName.length - 1) : fullName;
+  const entry = { company, product, reason, who: maskedName, whoReal: fullName, dateStr, ts: Date.now() };
+  try {
+    await DB.ref('shared/rejectList').push(entry);
+    _commCache.unshift({id: Date.now(), ...entry});
+    closeCommModal();
+    renderComm();
+    showToast('✅ 등록됐어요! 수강생 모두에게 공유됩니다 🙌');
+  } catch(e) {
+    showToast('저장 오류. 다시 시도해주세요.');
+  }
+}
 
 // URL을 클릭 가능한 링크로 변환
 function linkify(text){
