@@ -3110,26 +3110,29 @@ function switchIpjumSub(tab) {
 }
 
 // ── 소통방: 불러오기 & 렌더
+let _commCache = [];
+
 function loadComm() {
   if (!DB) { renderComm([]); return; }
-  DB.ref('shared/rejectList').orderByChild('ts').once('value', snap => {
+  // 실시간 리스너로 변경 → 등록 즉시 반영
+  DB.ref('shared/rejectList').orderByChild('ts').on('value', snap => {
     const items = [];
     snap.forEach(c => items.unshift({id: c.key, ...c.val()}));
-    renderComm(items);
+    _commCache = items;
+    renderComm();
   });
 }
 
-function renderComm(items) {
-  // 검색어 필터
+function renderComm() {
   const q = (document.getElementById('comm-search')?.value || '').trim().toLowerCase();
-  let data = items !== undefined ? items : _commCache;
-  if (items !== undefined) _commCache = items;
-  if (q) data = (_commCache||[]).filter(d =>
+  let data = q ? _commCache.filter(d =>
     (d.company||'').toLowerCase().includes(q) ||
     (d.product||'').toLowerCase().includes(q)
-  );
-  document.getElementById('comm-count').textContent = `총 ${data.length}건 등록됨`;
+  ) : _commCache;
+  const countEl = document.getElementById('comm-count');
+  if (countEl) countEl.textContent = `총 ${data.length}건 등록됨`;
   const el = document.getElementById('comm-list');
+  if (!el) return;
   if (!data.length) {
     el.innerHTML = `<div style="text-align:center;padding:36px 0;color:var(--m)">
       <div style="font-size:36px;margin-bottom:10px">${q ? '🔍' : '🎉'}</div>
@@ -3152,7 +3155,6 @@ function renderComm(items) {
     </div>
   `).join('');
 }
-let _commCache = [];
 
 // ── 소통방: 중복 체크
 function checkCommDup(v) {
@@ -3195,9 +3197,8 @@ async function saveCommReject() {
   const entry = { company, product, reason, who: maskedName, whoReal: fullName, dateStr, ts: Date.now() };
   try {
     await DB.ref('shared/rejectList').push(entry);
-    _commCache.unshift({id: Date.now(), ...entry});
+    // 실시간 리스너가 자동으로 _commCache 업데이트하고 renderComm() 호출함
     closeCommModal();
-    renderComm();
     showToast('✅ 등록됐어요! 수강생 모두에게 공유됩니다 🙌');
   } catch(e) {
     showToast('저장 오류. 다시 시도해주세요.');
