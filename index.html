@@ -699,7 +699,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
 
     <!-- 내 입점관리 -->
-    <div id="ipjum-sec-my">
+    <div id="ipjum-sec-my" style="display:block">
       <div class="card" style="padding:14px 18px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <span style="font-size:13px;font-weight:700">🏪 입점 관리</span>
@@ -2037,15 +2037,11 @@ function switchTab(tab) {
   if(tab==='notice') renderNotices();
   if(tab==='edu') renderEduCal();
   if(tab==='ipjum') {
-    // 소통방이 보이는 상태일 때만 렌더, 아니면 캐시만 업데이트
-    DB && DB.ref('shared/rejectList').once('value', snap => {
-      const items = [];
-      snap.forEach(c => items.push({id: c.key, ...c.val()}));
-      items.sort((a,b) => (b.ts||0) - (a.ts||0));
-      _commCache = items;
-      const sec = document.getElementById('ipjum-sec-community');
-      if (sec && sec.style.display !== 'none') renderComm();
-    });
+    // 입점탭 진입 시 항상 내 입점관리로 초기화
+    document.getElementById('ipjum-sec-my').style.display = 'block';
+    document.getElementById('ipjum-sec-community').style.display = 'none';
+    document.getElementById('isub-my').classList.add('active');
+    document.getElementById('isub-community').classList.remove('active');
   }
 }
 
