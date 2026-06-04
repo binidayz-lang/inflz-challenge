@@ -675,7 +675,18 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
   <!-- ── 탭2: 공구일정 ── -->
   <div class="tab-content" id="tab-gongu">
-    <div class="card" style="padding:14px 18px">
+    <!-- 도구 바로가기 -->
+    <div style="display:flex;gap:8px;padding:12px 14px 0">
+      <a href="https://marryz.co.kr/29" target="_blank"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#FFB5C8,#FF8FAB);color:#fff;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(255,143,171,.3)">
+        ⚡ 5분자동화
+      </a>
+      <a href="https://marryz.co.kr/36" target="_blank"
+        style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,#A8E6CF,#5BAD8F);color:#fff;border-radius:var(--rs);padding:11px 8px;font-family:inherit;font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(91,173,143,.3)">
+        🃏 공구카드
+      </a>
+    </div>
+    <div class="card" style="padding:14px 18px;margin-top:10px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <span style="font-size:13px;font-weight:700">🛒 공구일정</span>
         <button class="btn-add" onclick="openGonguModal()">+ 추가</button>
