@@ -1063,10 +1063,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     <div id="admin-ipjum-sec-comm" style="display:none">
       <div class="admin-hdr">
         <div><h2>🤝 입점소통방 관리</h2><p style="font-size:11px;color:rgba(255,255,255,.5);margin-top:3px">실제 등록자 확인 · 삭제 가능</p></div>
-        <div style="display:flex;gap:6px">
-          <button class="admin-refresh" onclick="loadAdminComm()">🔄 새로고침</button>
-          <button class="admin-refresh" onclick="downloadCommCSV()" style="background:rgba(91,173,127,.2);color:#5BAD7F;border-color:rgba(91,173,127,.4)">⬇ CSV 다운로드</button>
-        </div>
+        <button class="admin-refresh" onclick="loadAdminComm()">🔄 새로고침</button>
       </div>
       <div style="padding:14px">
         <div id="admin-comm-list" style="font-size:13px;color:var(--m)">불러오는 중...</div>
@@ -3111,11 +3108,7 @@ function loadTodayBanner(){
 
 
 // ── 관리자: 소통방 CSV 다운로드
-function downloadCommCSV() {
-  if (!_commCache || _commCache.length === 0) {
-    showToast('다운로드할 데이터가 없어요');
-    return;
-  }
+
   const header = ['업체명', '제품명/카테고리', '거절이유', '등록자(화면)', '실제등록자', '날짜'];
   const rows = _commCache.map(d => [
     d.company || '',
