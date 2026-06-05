@@ -3120,8 +3120,7 @@ function downloadCommCSV() {
   const rows = _commCache.map(d => [
     d.company || '',
     d.product || '',
-    (d.reason || '').replace(/
-/g, ' '),
+    (d.reason || '').replace(/\n/g, ' ').replace(/\r/g, ' '),
     d.who || '',
     d.whoReal || '',
     d.dateStr || ''
