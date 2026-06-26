@@ -572,7 +572,17 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
       <div class="field"><label>제목</label><input type="text" id="adm-title" placeholder="공지 제목"></div>
       <div class="field"><label>내용</label><textarea id="adm-body" style="min-height:80px" placeholder="공지 내용을 자세히 적어주세요"></textarea></div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">
-        <div class="field" style="margin-bottom:0"><label>태그</label><select id="adm-tag" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7"><option value="공지">공지</option><option value="필독">필독</option><option value="교육신청">📝 교육신청</option><option value="일정">일정</option><option value="중요">중요</option><option value="안내">안내</option></select></div>
+        <div class="field" style="margin-bottom:0"><label>태그</label><select id="adm-tag" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7">
+                <option value="📢 공지">📢 공지</option>
+                <option value="🚀 업데이트">🚀 업데이트</option>
+                <option value="🔥 필독">🔥 필독</option>
+                <option value="📅 일정">📅 일정</option>
+                <option value="🎁 이벤트">🎁 이벤트</option>
+                <option value="📚 신규자료">📚 신규자료</option>
+                <option value="🛠 수정사항">🛠 수정사항</option>
+                <option value="💡 활용팁">💡 활용팁</option>
+                <option value="🏆 우수사례">🏆 우수사례</option>
+              </select></div>
         <div class="field" style="margin-bottom:0"><label>색상</label><select id="adm-tag-style" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFAF7"><option value="">코랄 (기본)</option><option value="green">초록</option><option value="warm">주황</option></select></div>
       </div>
       <div style="display:flex;gap:16px;margin-bottom:12px;font-size:13px">
@@ -643,8 +653,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
   </div>
 
-  <div class="center-row" style="padding-bottom:20px;display:flex;flex-direction:column;gap:8px;align-items:center">
-    <button onclick="migrateIssueReports()" style="background:#FFF0EC;border:1.5px solid #E07A5F;color:#C0392B;border-radius:8px;padding:8px 18px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">⚠️ 기존 이슈신고 공구탭으로 마이그레이션 (1회용)</button>
+  <div class="center-row" style="padding-bottom:20px">
     <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
   </div>
 </div>
@@ -1229,14 +1238,24 @@ window.addEventListener('load',()=>{
 });
 
 // ══════════ 공지 시스템
-function getReadIds(){try{return JSON.parse(localStorage.getItem('notice_read')||'[]')}catch{return[]}}
+function getTagStyle(tag){
+  if(tag.includes('필독'))    return 'background:#FDE8E8;color:#C0392B';
+  if(tag.includes('업데이트')) return 'background:#E8F7EE;color:#2E7D32';
+  if(tag.includes('일정'))    return 'background:#EBF5FD;color:#1565C0';
+  if(tag.includes('이벤트'))  return 'background:#FFF0EC;color:#E07A5F';
+  if(tag.includes('신규자료')) return 'background:#F3E5F5;color:#6A1B9A';
+  if(tag.includes('수정사항')) return 'background:#FFF8E1;color:#F57F17';
+  if(tag.includes('활용팁'))  return 'background:#E8F7EE;color:#2E7D32';
+  if(tag.includes('우수사례')) return 'background:#FFF8E1;color:#E65100';
+  return 'background:var(--pl);color:var(--pd)';
+}try{return JSON.parse(localStorage.getItem('notice_read')||'[]')}catch{return[]}}
 function saveReadIds(ids){try{localStorage.setItem('notice_read',JSON.stringify(ids))}catch{}}
 function markRead(id){const ids=getReadIds();if(!ids.includes(id)){ids.push(id);saveReadIds(ids);}}
 function markAllRead(notices){const ids=[...new Set([...getReadIds(),...notices.map(n=>n.id)])];saveReadIds(ids);}
 function updateNoticeBadge(notices){const readIds=getReadIds();const unread=notices.filter(n=>n.isNew&&!readIds.includes(n.id));const badge=document.getElementById('notice-badge');if(!badge)return;if(unread.length>0){badge.style.display='inline-flex';badge.textContent=unread.length;}else badge.style.display='none';}
 let _allNotices=[];
 function loadNotices(cb){if(!DB){cb([]);return;}DB.ref('notices').orderByChild('createdAt').on('value',snap=>{const data=snap.val()||{};_allNotices=Object.entries(data).map(([id,n])=>({id,...n})).sort((a,b)=>{if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return(b.createdAt||0)-(a.createdAt||0);});updateNoticeBadge(_allNotices);cb(_allNotices);});}
-function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap)return;loadNotices(notices=>{if(!notices.length){wrap.innerHTML='<div class="notice-empty-state">📢<br>등록된 공지가 없습니다</div>';return;}const readIds=getReadIds();const pinned=notices.filter(n=>n.pinned);const normal=notices.filter(n=>!n.pinned);function renderItem(n){const unread=n.isNew&&!readIds.includes(n.id);const tagCls=n.tagStyle||'';return`<div class="notice-item${n.pinned?' is-pinned':''}" id="ni-${n.id}" onclick="toggleNoticeItem('${n.id}')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}<span class="notice-tag-chip ${tagCls}">${n.tag||'공지'}</span>${unread?'<span class="n-new">NEW</span>':''}<span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${n.title}</div><div class="notice-item-body">${linkify((n.body||''))}</div></div>`;}let html='';if(pinned.length){html+=`<div class="notice-section-label">📌 고정 공지</div>`;html+=pinned.map(renderItem).join('');}if(normal.length){html+=`<div class="notice-section-label" style="margin-top:${pinned.length?8:0}px">📋 공지사항</div>`;html+=normal.map(renderItem).join('');}wrap.innerHTML=html;markAllRead(notices);updateNoticeBadge(notices);});}
+function renderNotices(){const wrap=document.getElementById('notice-list');if(!wrap)return;loadNotices(notices=>{if(!notices.length){wrap.innerHTML='<div class="notice-empty-state">📢<br>등록된 공지가 없습니다</div>';return;}const readIds=getReadIds();const pinned=notices.filter(n=>n.pinned);const normal=notices.filter(n=>!n.pinned);function renderItem(n){const unread=n.isNew&&!readIds.includes(n.id);return`<div class="notice-item${n.pinned?' is-pinned':''}" id="ni-${n.id}" onclick="toggleNoticeItem('${n.id}')"><div class="notice-item-top">${n.pinned?'<span class="notice-tag-chip">📌 고정</span>':''}<span class="notice-tag-chip" style="${getTagStyle(n.tag||'')}">${n.tag||'📢 공지'}</span>${unread?'<span class="n-new">NEW</span>':''}<span class="notice-item-date">${n.dateStr||''}</span></div><div class="notice-item-title">${n.title}</div><div class="notice-item-body">${linkify((n.body||''))}</div></div>`;}let html='';if(pinned.length){html+=`<div class="notice-section-label">📌 고정 공지</div>`;html+=pinned.map(renderItem).join('');}if(normal.length){html+=`<div class="notice-section-label" style="margin-top:${pinned.length?8:0}px">📋 공지사항</div>`;html+=normal.map(renderItem).join('');}wrap.innerHTML=html;markAllRead(notices);updateNoticeBadge(notices);});}
 function toggleNoticeItem(id){const el=document.getElementById('ni-'+id);if(el){el.classList.toggle('expanded');markRead(id);updateNoticeBadge(_allNotices);}}
 function showNoticePopup(){if(!DB)return;loadNotices(notices=>{const readIds=getReadIds();const unread=notices.filter(n=>n.isNew&&!readIds.includes(n.id));if(!unread.length)return;const sub=document.getElementById('popup-sub');if(sub)sub.textContent=`확인하지 않은 공지 ${unread.length}개`;const items=document.getElementById('popup-items');if(items){items.innerHTML=unread.map(n=>`<div class="notice-popup-item${n.pinned?' is-pinned':''}"><div class="notice-popup-dot"></div><div class="notice-popup-ttl">${n.title}</div>${n.isNew?'<span class="n-new">NEW</span>':''}</div>`).join('');}document.getElementById('notice-popup').classList.add('open');});}
 function closeNoticePopup(markAsRead){document.getElementById('notice-popup').classList.remove('open');if(markAsRead){markAllRead(_allNotices.filter(n=>n.isNew));updateNoticeBadge(_allNotices);}}
