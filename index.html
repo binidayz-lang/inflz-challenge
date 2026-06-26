@@ -529,6 +529,17 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   <!-- 수강생 탭 -->
   <div class="admin-tab-section active" id="admin-sec-students">
     <div class="admin-hdr"><div><h2>📊 수강생 현황</h2><p id="admin-summary">로딩 중...</p></div><button class="admin-refresh" onclick="loadAdmin()">🔄 새로고침</button></div>
+    <!-- 현황 대시보드 카드 -->
+    <div id="admin-dashboard" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 14px 0"></div>
+    <!-- 필터 버튼 -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0">
+      <button class="filter-btn active" id="af-all" onclick="filterAdmin('all',this)">전체</button>
+      <button class="filter-btn" id="af-submit" onclick="filterAdmin('submit',this)">✅ 오늘 제출</button>
+      <button class="filter-btn" id="af-nosub" onclick="filterAdmin('nosub',this)">⬜ 미제출</button>
+      <button class="filter-btn" id="af-stop" onclick="filterAdmin('stop',this)" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB">🔴 3일이상 멈춤</button>
+      <button class="filter-btn" id="af-todo" onclick="filterAdmin('todo',this)">⚠️ 투두미완료</button>
+      <button class="filter-btn" id="af-inactive" onclick="filterAdmin('inactive',this)">😴 활동없음</button>
+    </div>
     <div id="admin-list"><div class="loader">불러오는 중...</div></div>
   </div>
 
@@ -936,29 +947,96 @@ function copySubmit(){
 
 function doAdminLogin(){const pw=document.getElementById('a-pw').value;if(pw!==ADMIN_PW){showToast('비밀번호가 틀렸습니다');return;}show('sc-admin');switchAdminTab('students');}
 
+let _adminAllList=[], _adminFilter='all';
+
+function filterAdmin(f, btn){
+  _adminFilter=f;
+  document.querySelectorAll('#admin-sec-students .filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderAdminList();
+}
+
+function renderAdminList(){
+  const td=today();
+  const threeDaysAgo=addDays(td,-3);
+  let list=[..._adminAllList];
+
+  if(_adminFilter==='submit')   list=list.filter(s=>s.resultDate===td);
+  if(_adminFilter==='nosub')    list=list.filter(s=>s.resultDate!==td);
+  if(_adminFilter==='stop')     list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+  if(_adminFilter==='todo')     list=list.filter(s=>{
+    const todos=s.todos||[];
+    return s.resultDate===td && todos.some(t=>!t.done);
+  });
+  if(_adminFilter==='inactive') list=list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo);
+
+  const container=document.getElementById('admin-list');
+  if(!list.length){container.innerHTML=`<div style="padding:32px;text-align:center;color:var(--m);font-size:13px">해당하는 수강생이 없어요 😊</div>`;return;}
+  container.innerHTML='';
+  list.forEach(s=>{
+    const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||''; const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
+    const isResult=s.resultDate===td; const isActive=s.lastActive===td;
+    const isStopped=!s.lastActive||s.lastActive<addDays(td,-3);
+    const hasTodoLeft=(s.todos||[]).some(t=>!t.done);
+    const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
+    const card=document.createElement('div'); card.className='stu-card';
+    const logs=s.dailyLogs||{}; const logDates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,7);
+    const gonguList=(s.gonguSchedules||[]).slice(0,3); const ipjumList=(s.ipjumItems||[]).slice(0,3);
+
+    // 상태 태그
+    let statusTag='';
+    if(isStopped) statusTag='<span class="tag-no">🔴 3일이상멈춤</span>';
+    else if(isResult && hasTodoLeft) statusTag='<span class="tag-on">⚠️ 투두미완료</span>';
+    else if(isResult) statusTag='<span class="tag-ok">✅ 결과제출</span>';
+    else if(isActive) statusTag='<span class="tag-on">🕐 접속만</span>';
+    else statusTag='<span class="tag-no">⬜ 미제출</span>';
+
+    card.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div class="sc-av" style="background:${LV_BG[lv]}">${LV_EMOJI[lv]}</div><div class="sc-info"><div class="sc-name">${esc(s.name)}</div><div class="sc-detail">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div><div class="sc-right"><div class="sc-day">${dayNum}</div><div class="sc-day-lbl">/ 30일차</div><div>${statusTag}</div></div></div>
+    <div class="stu-detail" id="detail-${esc(s.name)}">${logDates.length>0?`<div class="stu-detail-ttl">📅 최근 기록</div>${logDates.map(date=>{const log=logs[date];const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');const result=log.result||'';return`<div class="stu-log-item"><div class="stu-log-date">${fmtDate(date)}</div><div class="stu-log-content">${doneTodos?`✅ ${esc(doneTodos)}<br>`:''}${result?`✨ ${esc(result)}`:(!doneTodos?'<span style="color:var(--m)">기록 없음</span>':'')}</div></div>`;}).join('')}`:'<div style="font-size:12px;color:var(--m);padding:8px 0">아직 기록이 없어요</div>'}${gonguList.length>0?`<div class="stu-detail-ttl">🛒 공구일정 (최근 ${gonguList.length}건)</div>${gonguList.map(g=>`<div class="stu-log-item"><div class="stu-log-date" style="min-width:60px">${typeBadge(g.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div><div class="stu-log-content">${esc(g.product)} ${g.startDate?'· '+g.startDate:''}</div></div>`).join('')}`:''}${ipjumList.length>0?`<div class="stu-detail-ttl">🏪 입점 (최근 ${ipjumList.length}건)</div>${ipjumList.map(i=>`<div class="stu-log-item"><div class="stu-log-date" style="min-width:60px">${typeBadge(i.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div><div class="stu-log-content">${esc(i.product)} ${i.company?'· '+esc(i.company):''}</div></div>`).join('')}`:''}
+    </div>`;
+    card.addEventListener('click',()=>{const detail=document.getElementById(`detail-${esc(s.name)}`);if(detail)detail.classList.toggle('open');});
+    container.appendChild(card);
+  });
+}
+
 async function loadAdmin(){
   document.getElementById('admin-summary').textContent='로딩 중...'; document.getElementById('admin-list').innerHTML='<div class="loader">불러오는 중...</div>';
   try{
     const snap=await DB.ref('students').once('value'); const data=snap.val();
     if(!data){document.getElementById('admin-summary').textContent='등록된 수강생이 없습니다';document.getElementById('admin-list').innerHTML='';return;}
     const list=Object.values(data); const td=today();
-    const subCnt=list.filter(s=>s.resultDate===td).length; const activeCnt=list.filter(s=>s.lastActive===td).length;
-    document.getElementById('admin-summary').textContent=`총 ${list.length}명 · 오늘 결과제출 ${subCnt}명 · 접속 ${activeCnt}명`;
-    list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
+    const threeDaysAgo=addDays(td,-3);
+
+    // 통계 계산
+    const subCnt    = list.filter(s=>s.resultDate===td).length;
+    const nosubCnt  = list.filter(s=>s.resultDate!==td).length;
+    const stopCnt   = list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+    const todoCnt   = list.filter(s=>s.resultDate===td&&(s.todos||[]).some(t=>!t.done)).length;
+    const inactCnt  = list.filter(s=>!s.lastActive||s.lastActive<threeDaysAgo).length;
+
+    document.getElementById('admin-summary').textContent=`총 ${list.length}명 · 오늘 제출 ${subCnt}명 · 미제출 ${nosubCnt}명`;
+
+    // 대시보드 카드
+    const dash=document.getElementById('admin-dashboard');
+    if(dash){
+      const cards=[
+        ['✅ 오늘 제출',  subCnt,  '#E8F7EE','#2E7D32','submit'],
+        ['⬜ 미제출',     nosubCnt,'#FDE8E8','#C0392B','nosub'],
+        ['🔴 3일이상 멈춤',stopCnt, '#FDE8E8','#A93226','stop'],
+        ['⚠️ 투두 미완료', todoCnt, '#FFF8E1','#F57F17','todo'],
+        ['😴 활동 없음',  inactCnt,'#F5F5F5','#757575','inactive'],
+        ['👥 전체',       list.length,'#EDE7F6','#6A1B9A','all'],
+      ];
+      dash.innerHTML=cards.map(([label,cnt,bg,color,f])=>`
+        <div onclick="filterAdmin('${f}',document.getElementById('af-${f}'))" style="background:${bg};border-radius:12px;padding:12px;text-align:center;cursor:pointer;transition:opacity .2s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+          <div style="font-size:22px;font-weight:900;color:${color};line-height:1">${cnt}</div>
+          <div style="font-size:10px;color:${color};margin-top:4px;font-weight:700;opacity:.85">${label}</div>
+        </div>`).join('');
+    }
+
+    _adminAllList=list.sort((a,b)=>(b.lastActive||'').localeCompare(a.lastActive||''));
     const container=document.getElementById('admin-list'); container.innerHTML='';
-    list.forEach(s=>{
-      const lv=s.currentLevel||'초급'; const sd=s.levels?.[lv]?.startDate||''; const dayNum=sd?Math.min(Math.max(diffDays(sd,td)+1,1),30):0;
-      const isResult=s.resultDate===td; const isActive=s.lastActive===td;
-      const doneLvs=LEVELS.filter(l=>s.levels?.[l]?.done).map(l=>LV_EMOJI[l]).join('');
-      const card=document.createElement('div'); card.className='stu-card';
-      const logs=s.dailyLogs||{}; const logDates=Object.keys(logs).sort((a,b)=>b.localeCompare(a)).slice(0,7);
-      const gonguList=(s.gonguSchedules||[]).slice(0,3); const ipjumList=(s.ipjumItems||[]).slice(0,3);
-      card.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div class="sc-av" style="background:${LV_BG[lv]}">${LV_EMOJI[lv]}</div><div class="sc-info"><div class="sc-name">${esc(s.name)}</div><div class="sc-detail">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div><div class="sc-right"><div class="sc-day">${dayNum}</div><div class="sc-day-lbl">/ 30일차</div>${isResult?'<div><span class="tag-ok">✅ 결과제출</span></div>':isActive?'<div><span class="tag-on">🕐 접속만</span></div>':'<div><span class="tag-no">미제출</span></div>'}</div></div>
-      <div class="stu-detail" id="detail-${esc(s.name)}">${logDates.length>0?`<div class="stu-detail-ttl">📅 최근 기록</div>${logDates.map(date=>{const log=logs[date];const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');const result=log.result||'';return`<div class="stu-log-item"><div class="stu-log-date">${fmtDate(date)}</div><div class="stu-log-content">${doneTodos?`✅ ${esc(doneTodos)}<br>`:''}${result?`✨ ${esc(result)}`:(!doneTodos?'<span style="color:var(--m)">기록 없음</span>':'')}</div></div>`;}).join('')}`:'<div style="font-size:12px;color:var(--m);padding:8px 0">아직 기록이 없어요</div>'}${gonguList.length>0?`<div class="stu-detail-ttl">🛒 공구일정 (최근 ${gonguList.length}건)</div>${gonguList.map(g=>`<div class="stu-log-item"><div class="stu-log-date" style="min-width:60px">${typeBadge(g.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div><div class="stu-log-content">${esc(g.product)} ${g.startDate?'· '+g.startDate:''}</div></div>`).join('')}`:''}${ipjumList.length>0?`<div class="stu-detail-ttl">🏪 입점 (최근 ${ipjumList.length}건)</div>${ipjumList.map(i=>`<div class="stu-log-item"><div class="stu-log-date" style="min-width:60px">${typeBadge(i.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div><div class="stu-log-content">${esc(i.product)} ${i.company?'· '+esc(i.company):''}</div></div>`).join('')}`:''}
-      </div>`;
-      card.addEventListener('click',()=>{const detail=document.getElementById(`detail-${esc(s.name)}`);if(detail)detail.classList.toggle('open');});
-      container.appendChild(card);
-    });
+    renderAdminList();
   }catch(e){document.getElementById('admin-summary').textContent='오류 발생';document.getElementById('admin-list').innerHTML='';console.error(e);}
 }
 
