@@ -1248,7 +1248,8 @@ function getTagStyle(tag){
   if(tag.includes('활용팁'))  return 'background:#E8F7EE;color:#2E7D32';
   if(tag.includes('우수사례')) return 'background:#FFF8E1;color:#E65100';
   return 'background:var(--pl);color:var(--pd)';
-}try{return JSON.parse(localStorage.getItem('notice_read')||'[]')}catch{return[]}}
+}
+function getReadIds(){try{return JSON.parse(localStorage.getItem('notice_read')||'[]')}catch{return[]}}
 function saveReadIds(ids){try{localStorage.setItem('notice_read',JSON.stringify(ids))}catch{}}
 function markRead(id){const ids=getReadIds();if(!ids.includes(id)){ids.push(id);saveReadIds(ids);}}
 function markAllRead(notices){const ids=[...new Set([...getReadIds(),...notices.map(n=>n.id)])];saveReadIds(ids);}
