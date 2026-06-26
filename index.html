@@ -632,7 +632,10 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
   </div>
 
-  <div class="center-row" style="padding-bottom:20px"><button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button></div>
+  <div class="center-row" style="padding-bottom:20px;display:flex;flex-direction:column;gap:8px;align-items:center">
+    <button onclick="migrateIssueReports()" style="background:#FFF0EC;border:1.5px solid #E07A5F;color:#C0392B;border-radius:8px;padding:8px 18px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">⚠️ 기존 이슈신고 공구탭으로 마이그레이션 (1회용)</button>
+    <button class="logout-btn" onclick="show('sc-admin-login')">로그아웃</button>
+  </div>
 </div>
 
 <!-- 모달들 (기존 그대로) -->
@@ -1293,6 +1296,52 @@ function renderAdminIpjum(){const listEl=document.getElementById('admin-ipjum-li
 
 function downloadCommCSV(){if(!_commCache||_commCache.length===0){showToast('다운로드할 데이터가 없어요');return;}const header=['업체명','제품명/카테고리','거절이유','등록자','실제등록자','날짜'];const rows=_commCache.map(function(d){return[d.company||'',d.product||'',(d.reason||'').split('\n').join(' '),d.who||'',d.whoReal||'',d.dateStr||''];});const lines=[header].concat(rows).map(function(row){return row.map(function(cell){return'"'+String(cell).split('"').join('""')+'"';}).join(',');});const csvContent='\uFEFF'+lines.join('\r\n');const blob=new Blob([csvContent],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;const today2=new Date();a.download='입점소통방_'+today2.getFullYear()+'_'+(today2.getMonth()+1)+'_'+today2.getDate()+'.csv';a.click();URL.revokeObjectURL(url);showToast('✅ CSV 다운로드 완료!');}
 function linkify(text){const urlRegex=/(https?:\/\/[a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+)/g;return text.replace(/\n/g,'<br>').replace(urlRegex,(url)=>`<a class="notice-link" href="${url}" target="_blank" rel="noopener">${url}</a>`);}
+// ══ 기존 issueReport 마이그레이션 (1회용)
+async function migrateIssueReports(){
+  if(!DB){showToast('Firebase 연결 오류');return;}
+  if(!confirm('모든 수강생의 기존 이슈신고를 공구탭 제품이슈로 옮길게요.\n한 번만 실행하면 돼요! 진행할까요?'))return;
+
+  showToast('⏳ 마이그레이션 중...',10000);
+  try{
+    const snap=await DB.ref('students').once('value');
+    const all=snap.val()||{};
+    let count=0;
+    const tasks=[];
+
+    Object.values(all).forEach(stu=>{
+      const items=stu.ipjumItems||[];
+      items.forEach(item=>{
+        if(item.issueReport&&item.issueReport.text){
+          // 날짜 파싱
+          let dateStr='';
+          if(item.issueReport.date){
+            const d=new Date(item.issueReport.date);
+            if(!isNaN(d)) dateStr=(d.getMonth()+1)+'/'+d.getDate();
+            else dateStr=item.issueReport.date;
+          }
+          tasks.push(
+            DB.ref('shared/productIssues').push({
+              brand: item.product||'',
+              product: '',
+              body: item.issueReport.text,
+              dateStr: dateStr,
+              from: 'student',
+              ts: item.issueReport.date ? new Date(item.issueReport.date).getTime()||Date.now() : Date.now()
+            })
+          );
+          count++;
+        }
+      });
+    });
+
+    await Promise.all(tasks);
+    showToast(`✅ 완료! 총 ${count}건 이슈가 공구탭으로 옮겨졌어요!`,4000);
+  }catch(e){
+    showToast('오류: '+e.message);
+    console.error(e);
+  }
+}
+
 </script>
 </body>
 </html>
