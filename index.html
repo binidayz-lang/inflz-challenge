@@ -435,6 +435,15 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 
     <!-- 제품이슈 섹션 -->
     <div id="gongu-sec-issue" style="display:none">
+      <!-- 수강생 자유 등록 폼 (내 상품 아니어도 OK) -->
+      <div style="background:#fff;border-radius:var(--rs);padding:16px;margin:10px 14px 0;box-shadow:var(--sh)">
+        <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">✏️ 이슈 등록하기</div>
+        <div style="font-size:11px;color:var(--m);margin-bottom:12px">내가 입점하지 않은 상품이어도 알고 있는 이슈라면 등록해주세요!</div>
+        <div class="field"><label>브랜드명</label><input type="text" id="si-brand" placeholder="예) 코드니처" maxlength="30"></div>
+        <div class="field"><label>제품명 (선택)</label><input type="text" id="si-product" placeholder="예) 하수구세정서버" maxlength="50"></div>
+        <div class="field"><label>이슈 내용</label><textarea id="si-body" style="min-height:70px" placeholder="예) 물량 수급중, 공구후 일괄발송 안내"></textarea></div>
+        <button class="btn btn-dark" onclick="submitStudentProductIssue()" style="margin-top:4px;background:linear-gradient(135deg,#C0392B,#E74C3C)">📤 이슈 등록</button>
+      </div>
       <div style="padding:10px 14px 0;display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:11px;color:var(--m);font-weight:700">수강생 및 메리가 등록한 이슈예요</span>
         <span id="issue-count" style="font-size:11px;color:var(--m)"></span>
@@ -1126,7 +1135,7 @@ function loadProductIssues(){
     if(!items.length){listEl.innerHTML='<div class="issue-empty">⚠️<br>등록된 이슈가 없어요</div>';return;}
     listEl.innerHTML=items.map(item=>`
       <div class="issue-card">
-        <div class="issue-date">📅 ${item.dateStr||''}</div>
+        <div class="issue-date">📅 ${item.dateStr||''}${item.who?' · '+esc(item.who)+' 님 제보':(item.from==='admin'?' · 메리':'')}</div>
         <div class="issue-brand">${esc(item.brand||'')}${item.product?' - '+esc(item.product):''}</div>
         <div class="issue-body">${esc(item.body||'')}</div>
       </div>`).join('');
@@ -1134,6 +1143,24 @@ function loadProductIssues(){
     if(listEl)listEl.innerHTML='<div class="issue-empty">⚠️<br>불러오기 실패. 새로고침해주세요.</div>';
     console.error('이슈 로드 오류:',err);
   });
+}
+
+// ══ 수강생: 제품이슈 직접 등록 (내 상품 아니어도 등록 가능)
+function submitStudentProductIssue(){
+  if(!DB){showToast('Firebase 연결 오류');return;}
+  const brand=document.getElementById('si-brand').value.trim();
+  const product=document.getElementById('si-product').value.trim();
+  const body=document.getElementById('si-body').value.trim();
+  if(!brand){showToast('브랜드명을 입력해주세요');return;}
+  if(!body){showToast('이슈 내용을 입력해주세요');return;}
+  const now=new Date(); const dateStr=(now.getMonth()+1)+'/'+now.getDate();
+  const fullName=S.name||'수강생';
+  const maskedName=fullName.length>=2?fullName[0]+'○'.repeat(fullName.length-1):fullName;
+  DB.ref('shared/productIssues').push({brand,product,body,dateStr,from:'student',who:maskedName,whoReal:fullName,ts:Date.now()}).then(()=>{
+    showToast('✅ 이슈가 등록됐어요! 전체 수강생에게 공개됩니다.');
+    document.getElementById('si-brand').value=''; document.getElementById('si-product').value=''; document.getElementById('si-body').value='';
+    loadProductIssues();
+  }).catch(e=>showToast('오류: '+e.message));
 }
 
 // ══ 관리자: 이슈 직접 등록
@@ -1166,7 +1193,7 @@ function loadAdminProductIssues(){
       <div style="background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid #FFCDD2;border-left:3px solid #E07A5F">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
           <span style="font-size:12px;font-weight:700;color:var(--m)">📅 ${item.dateStr||''}</span>
-          <span style="font-size:10px;background:${item.from==='admin'?'#FDF2EA':'#FFF5F5'};color:${item.from==='admin'?'var(--p)':'#C0392B'};border-radius:20px;padding:2px 8px;font-weight:700">${item.from==='admin'?'메리 등록':'수강생 신고'}</span>
+          <span style="font-size:10px;background:${item.from==='admin'?'#FDF2EA':'#FFF5F5'};color:${item.from==='admin'?'var(--p)':'#C0392B'};border-radius:20px;padding:2px 8px;font-weight:700">${item.from==='admin'?'메리 등록':('수강생 신고'+(item.whoReal?' · '+esc(item.whoReal):''))}</span>
         </div>
         <div style="font-size:13px;font-weight:700;color:var(--t);margin-bottom:4px">${esc(item.brand||'')}${item.product?' - '+esc(item.product):''}</div>
         <div style="font-size:12px;color:#C0392B;background:#FFF5F5;border-radius:8px;padding:7px 10px;line-height:1.6">${esc(item.body||'')}</div>
