@@ -247,7 +247,7 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 .edu-dow{text-align:center;font-size:10px;font-weight:700;color:var(--m);padding:4px 0}
 .edu-dow.sun{color:#E05A5A}.edu-dow.sat{color:#5A7AE0}
 .edu-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;grid-auto-rows:62px}
-.edu-cell{height:62px;border-radius:7px;padding:4px 3px;border:1.5px solid var(--bd);background:#FDFAF7;position:relative;cursor:default;overflow:hidden;box-sizing:border-box}
+.edu-cell{height:62px;border-radius:7px;padding:4px 3px;border:1.5px solid var(--bd);background:#FDFAF7;position:relative;overflow:hidden;box-sizing:border-box}
 .edu-cell.edu-other{opacity:.3}
 .edu-cell.edu-today{border-color:var(--p);box-shadow:0 0 0 2px rgba(200,149,108,.2)}
 .edu-cell .edu-dn{font-size:11px;font-weight:700;color:#C5A892;line-height:1;margin-bottom:2px}
@@ -455,16 +455,14 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
     </div>
   </div>
 
-  <!-- 입점 탭 (기존 그대로) -->
+  <!-- 입점 탭 -->
   <div class="tab-content" id="tab-ipjum">
     <div style="display:flex;gap:6px;padding:12px 14px 0">
-      <button class="ipjum-sub-btn active" id="isub-my" onclick="switchIpjumSub('my')">📋 내 입점관리</button>
+      <button class="ipjum-sub-btn active" id="isub-search" onclick="switchIpjumSub('search')">🔍 입점서치 메모</button>
+      <button class="ipjum-sub-btn" id="isub-my" onclick="switchIpjumSub('my')">📋 내 입점관리</button>
       <button class="ipjum-sub-btn" id="isub-community" onclick="switchIpjumSub('community')">🤝 입점소통방</button>
     </div>
-    <div id="ipjum-sec-my" style="display:block">
-      <div style="padding:12px 14px 0">
-        <a href="https://marryz.co.kr/39" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#2C1A0E,#9D6744);color:#fff;border-radius:var(--rs);padding:13px 16px;font-family:inherit;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(44,26,14,.25)">✉️ 메일 생성기 <span style="font-size:11px;opacity:.75;font-weight:500">입점제안 메일 자동완성 →</span></a>
-      </div>
+    <div id="ipjum-sec-my" style="display:none">
       <div class="card" style="padding:14px 18px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:13px;font-weight:700">🏪 입점 관리</span><button class="btn-add" onclick="openIpjumModal()">+ 추가</button></div>
         <div class="filter-row" id="ipjum-filter">
@@ -474,9 +472,40 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
           <button class="filter-btn" onclick="filterIpjum('입점진행중',this)">진행중</button>
           <button class="filter-btn" onclick="filterIpjum('신청완료',this)">신청완료</button>
           <button class="filter-btn" onclick="filterIpjum('입점완료',this)">완료</button>
+          <button class="filter-btn" onclick="filterIpjum('거절',this)" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB">거절</button>
+          <button class="filter-btn" onclick="filterIpjum('__followup',this)" style="background:#FFF3E0;color:#c4956a;border-color:#F0D0A0">⚠️ 팔로업</button>
         </div>
       </div>
       <div id="ipjum-list"></div>
+    </div>
+    <div id="ipjum-sec-search" style="display:block">
+      <div style="padding:12px 14px 0">
+        <a href="https://marryz.co.kr/39" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#2C1A0E,#9D6744);color:#fff;border-radius:var(--rs);padding:13px 16px;font-family:inherit;font-size:14px;font-weight:700;text-decoration:none;box-shadow:0 4px 14px rgba(44,26,14,.25)">✉️ 메일 생성기 <span style="font-size:11px;opacity:.75;font-weight:500">입점제안 메일 자동완성 →</span></a>
+      </div>
+      <div style="background:#fff;border-radius:var(--rs);padding:16px;margin:10px 14px 0;box-shadow:var(--sh)">
+        <div style="font-size:12px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">✏️ 새 업체 메모하기</div>
+        <div style="font-size:11px;color:var(--m);margin-bottom:12px">서치하다 발견한 곳, 아직 연락 안 했어도 여기 적어두세요</div>
+        <div class="field">
+          <label>회사명</label>
+          <input type="text" id="sm-company" placeholder="예) 헬씨코" onblur="checkSearchMemoReject()">
+          <div id="sm-reject-alert" style="display:none;margin-top:8px;background:#FFF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+          <div id="sm-check-status" style="font-size:10.5px;color:#bbb;margin-top:4px"></div>
+        </div>
+        <div class="field"><label>홈페이지주소 (선택)</label><input type="text" id="sm-url" placeholder="예) https://company.com"></div>
+        <div class="field"><label>제안방법</label>
+          <select id="sm-method" onchange="toggleSmEmail()" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7">
+            <option value="메일">메일</option>
+            <option value="협찬게시판">협찬게시판</option>
+          </select>
+        </div>
+        <div class="field" id="sm-email-wrap"><label>메일주소</label><input type="text" id="sm-email" placeholder="예) md@company.com"></div>
+        <div class="field"><label>제품명 (선택)</label><input type="text" id="sm-product" placeholder="예) 이염방지 세탁볼"></div>
+        <div class="field"><label>메모 (선택)</label><input type="text" id="sm-note" placeholder="예) 팔로워 3만~5만대 셀러 위주 진행, 리뷰 3천+, 3차 진행템"></div>
+        <button class="btn btn-dark" onclick="addSearchMemo()" style="margin-top:4px">📌 메모로 저장</button>
+      </div>
+      <div id="search-memo-list" style="margin-top:4px"></div>
+      <div id="search-memo-empty" class="empty-state">아직 메모한 업체가 없어요 🔍</div>
+      <div style="height:12px"></div>
     </div>
     <div id="ipjum-sec-community" style="display:none">
       <!-- 등록 버튼 상단 고정 -->
@@ -697,11 +726,26 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
 <div class="modal-wrap" id="ipjum-modal" onclick="if(event.target===this)closeIpjumModal()">
   <div class="modal-box">
     <div class="modal-top"><div class="modal-title" id="ipjum-modal-title">🏪 입점 추가</div><button class="modal-close" onclick="closeIpjumModal()">×</button></div>
-    <div class="field"><label>유형</label><select id="i-type" onchange="toggleCompletionDate()" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7"><option value="입점제안완료">📤 입점제안완료</option><option value="입점연락 옴">📞 입점연락 옴</option><option value="입점진행중">⚙️ 입점진행중</option><option value="신청완료">✅ 신청완료</option><option value="입점완료">🎉 입점완료</option></select></div>
+    <div class="field"><label>유형</label><select id="i-type" onchange="toggleCompletionDate()" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7"><option value="입점제안완료">📤 입점제안완료</option><option value="입점연락 옴">📞 입점연락 옴</option><option value="입점진행중">⚙️ 입점진행중</option><option value="신청완료">✅ 신청완료</option><option value="입점완료">🎉 입점완료</option><option value="거절">🔴 거절</option></select></div>
+    <div class="field">
+      <label>회사명</label>
+      <input type="text" id="i-companyname" placeholder="예) 헬씨코" onblur="checkIpjumReject()">
+      <div id="i-reject-alert" style="display:none;margin-top:8px;background:#FFF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6"></div>
+    </div>
     <div class="field"><label>제품명</label><input type="text" id="i-product" placeholder="제품명" maxlength="50"></div>
-    <div class="field"><label>해당 회사 주소 (URL)</label><input type="text" id="i-company" placeholder="https://company.com" maxlength="100"></div>
+    <div class="field"><label>해당 회사 주소 (URL, 선택)</label><input type="text" id="i-company" placeholder="https://company.com" maxlength="100"></div>
+    <div class="field"><label>제안방법</label><select id="i-method" onchange="toggleIEmail()" style="width:100%;border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 13px;font-family:inherit;font-size:14px;color:var(--t);outline:none;background:#FDFAF7"><option value="메일">메일</option><option value="협찬게시판">협찬게시판</option></select></div>
+    <div class="field" id="i-email-wrap"><label>대표메일</label><input type="text" id="i-email" placeholder="예) md@company.com" maxlength="100"></div>
     <div class="field"><label>신청일</label><input type="date" id="i-apply"></div>
+    <div class="field"><label>제안발송일 (팔로업 자동계산용, 선택)</label><input type="date" id="i-sentdate"></div>
     <div class="field" id="i-completion-wrap" style="display:none"><label>입점완료일</label><input type="date" id="i-completion"></div>
+    <div class="field">
+      <label>진행 체크리스트</label>
+      <div style="display:flex;gap:20px;padding:6px 0">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t);font-weight:600;text-transform:none;letter-spacing:0;margin:0;cursor:pointer"><input type="checkbox" id="i-listchecked" style="width:auto;margin:0">입점사목록 체크</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t);font-weight:600;text-transform:none;letter-spacing:0;margin:0;cursor:pointer"><input type="checkbox" id="i-roomlogged" style="width:auto;margin:0">입점소통방 기록</label>
+      </div>
+    </div>
     <div class="field"><label>메모 (선택)</label><textarea id="i-memo" placeholder="수수료, 조건, 메모" style="min-height:60px;font-size:13px"></textarea></div>
     <button class="btn btn-dark" onclick="saveIpjum()" style="margin-top:4px">저장하기</button>
   </div>
@@ -792,7 +836,7 @@ function show(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.
 function chooseType(type) { _userType=type; show('sc-login'); }
 
 function blankState(name,pin) {
-  return { name,pin,currentLevel:'',levels:{초급:{startDate:'',checked:{},done:false},중급:{startDate:'',checked:{},done:false},고급:{startDate:'',checked:{},done:false},심화:{startDate:'',checked:{},done:false},기존수강생:{startDate:'',checked:{},done:false,baseDay:1}},todos:[],todosDate:'',result:'',resultDate:'',lastActive:today(),dailyLogs:{},gonguSchedules:[],ipjumItems:[] };
+  return { name,pin,currentLevel:'',levels:{초급:{startDate:'',checked:{},done:false},중급:{startDate:'',checked:{},done:false},고급:{startDate:'',checked:{},done:false},심화:{startDate:'',checked:{},done:false},기존수강생:{startDate:'',checked:{},done:false,baseDay:1}},todos:[],todosDate:'',result:'',resultDate:'',lastActive:today(),dailyLogs:{},gonguSchedules:[],ipjumItems:[],searchMemos:[] };
 }
 
 function selLvBtn(btn) {
@@ -827,9 +871,10 @@ async function doLogin(silent=false) {
       if(dateInput&&!dateInput._listenerAdded){dateInput.addEventListener('change',updateBasedayPreview);dateInput._listenerAdded=true;}
       show('sc-register');
     } else {
-      S=data; try{localStorage.setItem('inflz_s',JSON.stringify({name,pin}));}catch(e){}
+      S=data; if(!S.ipjumItems)S.ipjumItems=[]; if(!S.searchMemos)S.searchMemos=[]; try{localStorage.setItem('inflz_s',JSON.stringify({name,pin}));}catch(e){}
       show('sc-main'); renderAll(); if(!silent)showToast(`👋 ${name}님, 다시 오셨네요! 반가워요 😊`);
       loadTodayBanner(); if(!silent)setTimeout(()=>showNoticePopup(),800);
+      ensureRejectCache();
     }
   } catch(e){showToast('연결 오류. Firebase 설정을 확인해주세요.');console.error(e);}
 }
@@ -850,6 +895,7 @@ async function doRegister() {
   await fbSave(); try{localStorage.setItem('inflz_s',JSON.stringify({name:S.name,pin:S.pin}));}catch(e){}
   show('sc-main'); renderAll(); setTimeout(()=>showNoticePopup(),1200);
   showToast(`🎉 ${S.name}님, ${_selLv==='기존수강생'?'함께 계속 달려봐요!':_selLv+' 챌린지 시작해요!'}`);
+  ensureRejectCache();
 }
 
 function openFixDateModal() {
@@ -902,7 +948,7 @@ function renderAll(){
   }
   renderCal(dayInBlock,lv,baseDay); syncTodos(); renderTodos();
   const ri=document.getElementById('result-inp'); if(ri)ri.value=(S.resultDate===today()?S.result:'')||'';
-  renderGongu(); renderIpjum(); renderGonguCalendar();
+  renderGongu(); renderIpjum(); renderGonguCalendar(); renderSearchMemos();
 }
 
 function renderCal(todayNum,lv,baseDay){
@@ -1011,10 +1057,23 @@ function renderAdminList(){
 
     card.innerHTML=`<div style="display:flex;align-items:center;gap:12px"><div class="sc-av" style="background:${LV_BG[lv]}">${LV_EMOJI[lv]}</div><div class="sc-info"><div class="sc-name">${esc(s.name)}</div><div class="sc-detail">${lv} · ${sd?fmtDate(sd)+' 시작':'-'} ${doneLvs}</div><div class="sc-detail">마지막 접속: ${s.lastActive||'-'}</div></div><div class="sc-right"><div class="sc-day">${dayNum}</div><div class="sc-day-lbl">/ 30일차</div><div>${statusTag}</div></div></div>
     <div class="stu-detail" id="detail-${esc(s.name)}">${logDates.length>0?`<div class="stu-detail-ttl">📅 최근 기록</div>${logDates.map(date=>{const log=logs[date];const doneTodos=(log.todos||[]).filter(t=>t.done).map(t=>t.text).join(', ');const result=log.result||'';return`<div class="stu-log-item"><div class="stu-log-date">${fmtDate(date)}</div><div class="stu-log-content">${doneTodos?`✅ ${esc(doneTodos)}<br>`:''}${result?`✨ ${esc(result)}`:(!doneTodos?'<span style="color:var(--m)">기록 없음</span>':'')}</div></div>`;}).join('')}`:'<div style="font-size:12px;color:var(--m);padding:8px 0">아직 기록이 없어요</div>'}${gonguList.length>0?`<div class="stu-detail-ttl">🛒 공구일정 (최근 ${gonguList.length}건)</div>${gonguList.map(g=>`<div class="stu-log-item"><div class="stu-log-date" style="min-width:60px">${typeBadge(g.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div><div class="stu-log-content">${esc(g.product)} ${g.startDate?'· '+g.startDate:''}</div></div>`).join('')}`:''}${ipjumList.length>0?`<div class="stu-detail-ttl">🏪 입점 (최근 ${ipjumList.length}건)</div>${ipjumList.map(i=>`<div class="stu-log-item"><div class="stu-log-date" style="min-width:60px">${typeBadge(i.type).replace(/class="sch-type"/,'style="display:inline-block;border-radius:10px;padding:1px 7px;font-size:9px;font-weight:700"')}</div><div class="stu-log-content">${esc(i.product)} ${i.company?'· '+esc(i.company):''}</div></div>`).join('')}`:''}
+    <div style="padding-top:10px;margin-top:10px;border-top:1px solid var(--bd)">
+      <button onclick="event.stopPropagation();deleteStudent('${s._key}','${esc(s.name)}')" style="width:100%;border:none;background:#FFF0EC;color:#E07A5F;border-radius:8px;padding:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">🗑 이 수강생 완전히 삭제</button>
+    </div>
     </div>`;
     card.addEventListener('click',()=>{const detail=document.getElementById(`detail-${esc(s.name)}`);if(detail)detail.classList.toggle('open');});
     container.appendChild(card);
   });
+}
+
+async function deleteStudent(key,name){
+  if(!confirm(`정말 "${name}" 수강생을 삭제할까요?\n캘린더 기록, 입점, 공구일정 등 모든 데이터가 영구적으로 사라져요.`))return;
+  if(!confirm(`한 번 더 확인할게요.\n"${name}" 수강생 데이터를 완전히 삭제하시겠어요? 되돌릴 수 없어요.`))return;
+  try{
+    await DB.ref('students/'+key).remove();
+    showToast(`🗑 "${name}" 수강생이 삭제됐어요`);
+    loadAdmin();
+  }catch(e){showToast('삭제 오류: '+(e.message||e));}
 }
 
 async function loadAdmin(){
@@ -1022,7 +1081,7 @@ async function loadAdmin(){
   try{
     const snap=await DB.ref('students').once('value'); const data=snap.val();
     if(!data){document.getElementById('admin-summary').textContent='등록된 수강생이 없습니다';document.getElementById('admin-list').innerHTML='';return;}
-    const list=Object.values(data); const td=today();
+    const list=Object.entries(data).map(([key,s])=>({...s,_key:key})); const td=today();
     const threeDaysAgo=addDays(td,-3);
 
     // 통계 계산
@@ -1087,7 +1146,7 @@ function switchTab(tab){
   const content=document.getElementById('tab-'+tab); if(content)content.classList.add('active');
   if(tab==='notice')renderNotices();
   if(tab==='edu')renderEduCal();
-  if(tab==='ipjum'){document.getElementById('ipjum-sec-my').style.display='block';document.getElementById('ipjum-sec-community').style.display='none';document.getElementById('isub-my').classList.add('active');document.getElementById('isub-community').classList.remove('active');}
+  if(tab==='ipjum'){document.getElementById('ipjum-sec-search').style.display='block';document.getElementById('ipjum-sec-my').style.display='none';document.getElementById('ipjum-sec-community').style.display='none';document.getElementById('isub-search').classList.add('active');document.getElementById('isub-my').classList.remove('active');document.getElementById('isub-community').classList.remove('active');ensureRejectCache(()=>renderSearchMemos());}
   if(tab==='gongu'){
     // 공구탭 전환 시 항상 공구일정 서브탭 기본으로
     switchGonguSub('schedule');
@@ -1215,7 +1274,7 @@ function adminDelProductIssue(id){
   });
 }
 
-const TYPE_CLR={'협찬':{bg:'#FFF0EC',c:'#E07A5F'},'공구예정':{bg:'#EBF5FD',c:'#6DB6F0'},'공구일정 확정':{bg:'#E8F7EE',c:'#5BAD7F'},'입점제안완료':{bg:'#EBF5FD',c:'#6DB6F0'},'입점연락 옴':{bg:'#FFF8E1',c:'#C8956C'},'입점진행중':{bg:'#FDF2EA',c:'#C8956C'},'신청완료':{bg:'#EBF7F1',c:'#5BAD7F'},'입점완료':{bg:'#E8F7EE',c:'#5BAD7F'}};
+const TYPE_CLR={'협찬':{bg:'#FFF0EC',c:'#E07A5F'},'공구예정':{bg:'#EBF5FD',c:'#6DB6F0'},'공구일정 확정':{bg:'#E8F7EE',c:'#5BAD7F'},'입점제안완료':{bg:'#EBF5FD',c:'#6DB6F0'},'입점연락 옴':{bg:'#FFF8E1',c:'#C8956C'},'입점진행중':{bg:'#FDF2EA',c:'#C8956C'},'신청완료':{bg:'#EBF7F1',c:'#5BAD7F'},'입점완료':{bg:'#E8F7EE',c:'#5BAD7F'},'거절':{bg:'#FDE8E8',c:'#C0392B'}};
 function typeBadge(t){const c=TYPE_CLR[t]||{bg:'#F0E6DD',c:'#8B6B52'};return`<span class="sch-type" style="background:${c.bg};color:${c.c}">${t}</span>`;}
 
 let _gonguId=null; let _gonguFilter='all';
@@ -1241,15 +1300,253 @@ function shareGongu(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(!g)
 function renderGongu(){const list=document.getElementById('gongu-list');if(!list)return;let items=(S.gonguSchedules||[]);if(_gonguFilter!=='all')items=items.filter(g=>g.type===_gonguFilter);if(items.length===0){list.innerHTML=`<div class="empty-state">아직 공구일정이 없어요 🛒<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}list.innerHTML=items.map(g=>`<div class="sch-card">${typeBadge(g.type)}<div class="sch-title">${esc(g.product)}</div><div class="sch-detail">${g.seller?`📱 ${esc(g.seller)}<br>`:''}${g.startDate?`📅 ${g.startDate}${g.endDate?' ~ '+g.endDate:''}<br>`:''}${g.memo?`📝 ${esc(g.memo)}`:''}</div><div class="sch-actions"><button class="sch-edit" onclick="openGonguModal(${g.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button></div>${(g.type==='공구일정 확정'||g.type==='협찬')?`<button class="share-btn" onclick="shareGongu(${g.id})">💬 메리에게 공유!</button>`:''}</div>`).join('');}
 function renderGonguCalendar(){const confirmed=(S.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정'&&g.startDate);const card=document.getElementById('gongu-cal-card');const calList=document.getElementById('gongu-cal-list');if(!card||!calList)return;if(confirmed.length===0){card.style.display='none';return;}card.style.display='block';calList.innerHTML=confirmed.map(g=>`<div class="gongu-cal-item"><div class="gongu-dot"></div><div><div style="font-size:13px;font-weight:700">${esc(g.product)}</div><div style="font-size:11px;color:var(--m)">${g.startDate}${g.endDate?' ~ '+g.endDate:''} ${g.seller?'· '+esc(g.seller):''}</div></div></div>`).join('');}
 
+/* ══════════ 입점소통방 캐시 (모듈 전역) — 모달/서치메모 검색용 ══════════ */
+let _commCache=[]; let _commCacheLoaded=false;
+function ensureRejectCache(cb){
+  if(!DB)return;
+  if(_commCacheLoaded){if(cb)cb();return;}
+  DB.ref('shared/rejectList').once('value').then(snap=>{
+    const items=[]; snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||'',ts:v.ts||0});});
+    items.reverse(); _commCache=items; _commCacheLoaded=true;
+    if(cb)cb();
+  }).catch(e=>console.error('입점소통방 캐시 로드 실패',e));
+}
+function findRejectMatches(company){
+  const q=(company||'').trim();
+  if(!q||q.length<2)return [];
+  return _commCache.filter(r=>r.company&&(r.company.includes(q)||q.includes(r.company)));
+}
+function renderRejectAlertHtml(matches){
+  if(!matches.length)return '';
+  return `🚫 <b>입점소통방에 이력 있음</b> (${matches.length}건)<br>`+matches.slice(0,2).map(m=>`· ${esc(m.product||'')} — ${esc(m.reason||'')}<div style="font-size:10.5px;color:#c48080;margin-top:2px">${esc(m.dateStr||'')} · ${esc(m.who||'')}</div>`).join('')+
+    `<button onclick="goToCommTab(this.closest('.field, .sch-card').querySelector('input,[data-company]')?.value || '')" style="margin-top:8px;background:#d64545;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer">🔎 입점소통방에서 자세히 보기 →</button>`;
+}
+function goToCommTab(company){
+  switchIpjumSub('community');
+  const inp=document.getElementById('comm-search');
+  if(inp){inp.value=company||'';commSearchChanged();}
+  document.getElementById('tab-ipjum').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ══════════ 입점 추가 모달: 회사명 blur 체크 ══════════ */
+function checkIpjumReject(){
+  const val=document.getElementById('i-companyname').value;
+  const alertEl=document.getElementById('i-reject-alert');
+  if(!val.trim()){alertEl.style.display='none';alertEl.innerHTML='';return;}
+  ensureRejectCache(()=>{
+    const matches=findRejectMatches(val);
+    if(matches.length){alertEl.style.display='block';alertEl.innerHTML=renderRejectAlertHtml(matches);}
+    else{alertEl.style.display='none';alertEl.innerHTML='';}
+  });
+}
+
+/* ══════════ 입점서치 메모 ══════════ */
+function checkSearchMemoReject(){
+  const val=document.getElementById('sm-company').value;
+  const alertEl=document.getElementById('sm-reject-alert');
+  const statusEl=document.getElementById('sm-check-status');
+  if(!val.trim()){alertEl.style.display='none';alertEl.innerHTML='';statusEl.textContent='';return;}
+  ensureRejectCache(()=>{
+    const matches=findRejectMatches(val);
+    if(matches.length){alertEl.style.display='block';alertEl.innerHTML=renderRejectAlertHtml(matches);statusEl.textContent='';}
+    else{alertEl.style.display='none';alertEl.innerHTML='';statusEl.textContent='✓ 입점소통방에 이력 없음';}
+  });
+}
+function toggleSmEmail(){
+  const method=document.getElementById('sm-method').value;
+  const wrap=document.getElementById('sm-email-wrap');
+  if(wrap)wrap.style.display=method==='메일'?'block':'none';
+}
+async function addSearchMemo(){
+  const company=document.getElementById('sm-company').value.trim();
+  const url=document.getElementById('sm-url').value.trim();
+  const method=document.getElementById('sm-method').value;
+  const email=method==='메일'?document.getElementById('sm-email').value.trim():'';
+  const product=document.getElementById('sm-product').value.trim();
+  const note=document.getElementById('sm-note').value.trim();
+  if(!company){showToast('회사명을 입력해주세요!');return;}
+  if(!S.searchMemos)S.searchMemos=[];
+  S.searchMemos.unshift({id:Date.now(),company,url,method,email,product,note});
+  await fbSave();
+  document.getElementById('sm-company').value='';document.getElementById('sm-url').value='';document.getElementById('sm-product').value='';document.getElementById('sm-note').value='';document.getElementById('sm-email').value='';document.getElementById('sm-method').value='메일';toggleSmEmail();
+  document.getElementById('sm-reject-alert').style.display='none';document.getElementById('sm-check-status').textContent='';
+  renderSearchMemos();
+  showToast('📌 메모로 저장됐어요!');
+}
+async function deleteSearchMemo(id){
+  if(!confirm('이 메모를 삭제할까요?'))return;
+  S.searchMemos=(S.searchMemos||[]).filter(m=>m.id!==id);
+  await fbSave(); renderSearchMemos(); showToast('삭제됐어요');
+}
+async function moveSearchMemoToIpjum(id){
+  const memo=(S.searchMemos||[]).find(m=>m.id===id);
+  if(!memo)return;
+  S.searchMemos=(S.searchMemos||[]).filter(m=>m.id!==id);
+  if(!S.ipjumItems)S.ipjumItems=[];
+  S.ipjumItems.unshift({
+    id:Date.now(), type:'입점제안완료', product:memo.product||'', companyName:memo.company||'',
+    company:memo.url||'', method:memo.method||'메일', email:memo.email||'', applyDate:today(), sentDate:today(), completionDate:'',
+    listChecked:false, roomLogged:false, memo:memo.note||''
+  });
+  await fbSave(); renderSearchMemos(); renderIpjum();
+  showToast('🏪 입점관리로 옮겼어요! "입점제안완료" 상태로 등록됐어요');
+}
+function renderSearchMemos(){
+  const list=document.getElementById('search-memo-list'); const empty=document.getElementById('search-memo-empty');
+  if(!list||!empty)return;
+  const memos=S.searchMemos||[];
+  if(memos.length===0){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=memos.map(m=>{
+    const matches=findRejectMatches(m.company);
+    return `<div class="sch-card" style="background:#F5FAFF;border:1.5px solid #D5E8FA">
+      <span class="sch-type" style="background:#4A90D9;color:#fff">📌 서치</span>
+      <div class="sch-title">${esc(m.company)}</div>
+      <div class="sch-detail">${m.url?`🔗 ${esc(m.url)}<br>`:''}${m.method?`📧 제안방법: ${esc(m.method)}${m.method==='메일'&&m.email?' — '+esc(m.email):''}`:''}</div>
+      ${m.product?`<div class="sch-detail">📦 ${esc(m.product)}</div>`:''}
+      ${m.note?`<div style="font-size:12px;color:var(--t);background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6">${esc(m.note)}</div>`:''}
+      ${matches.length?`<div style="margin-top:8px;background:#FFF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6">${renderRejectAlertHtml(matches)}</div>`:''}
+      <div class="sch-actions">
+        <button class="sch-edit" onclick="moveSearchMemoToIpjum(${m.id})">🏪 입점관리로 옮기기</button>
+        <button class="sch-del-btn" onclick="deleteSearchMemo(${m.id})">🗑 삭제</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 let _ipjumId=null; let _ipjumFilter='all';
 function toggleCompletionDate(){const t=document.getElementById('i-type').value;const wrap=document.getElementById('i-completion-wrap');if(wrap)wrap.style.display=t==='입점완료'?'block':'none';}
-function openIpjumModal(id=null){_ipjumId=id;document.getElementById('ipjum-modal-title').textContent=id?'🏪 입점 수정':'🏪 입점 추가';if(id){const i=(S.ipjumItems||[]).find(x=>x.id===id);if(i){document.getElementById('i-type').value=i.type||'입점제안완료';document.getElementById('i-product').value=i.product||'';document.getElementById('i-company').value=i.company||'';document.getElementById('i-apply').value=i.applyDate||'';document.getElementById('i-completion').value=i.completionDate||'';document.getElementById('i-memo').value=i.memo||'';toggleCompletionDate();}}else{document.getElementById('i-type').value='입점제안완료';['i-product','i-company','i-memo'].forEach(x=>document.getElementById(x).value='');document.getElementById('i-apply').value=today();document.getElementById('i-completion').value='';toggleCompletionDate();}document.getElementById('ipjum-modal').classList.add('open');}
+function toggleIEmail(){const m=document.getElementById('i-method').value;const wrap=document.getElementById('i-email-wrap');if(wrap)wrap.style.display=m==='메일'?'block':'none';}
+function openIpjumModal(id=null){
+  _ipjumId=id;document.getElementById('ipjum-modal-title').textContent=id?'🏪 입점 수정':'🏪 입점 추가';
+  document.getElementById('i-reject-alert').style.display='none'; document.getElementById('i-reject-alert').innerHTML='';
+  ensureRejectCache();
+  if(id){
+    const i=(S.ipjumItems||[]).find(x=>x.id===id);
+    if(i){
+      document.getElementById('i-type').value=i.type||'입점제안완료';
+      document.getElementById('i-companyname').value=i.companyName||'';
+      document.getElementById('i-product').value=i.product||'';
+      document.getElementById('i-company').value=i.company||'';
+      document.getElementById('i-method').value=i.method||'메일';
+      document.getElementById('i-email').value=i.email||'';
+      document.getElementById('i-apply').value=i.applyDate||'';
+      document.getElementById('i-sentdate').value=i.sentDate||'';
+      document.getElementById('i-completion').value=i.completionDate||'';
+      document.getElementById('i-listchecked').checked=!!i.listChecked;
+      document.getElementById('i-roomlogged').checked=!!i.roomLogged;
+      document.getElementById('i-memo').value=i.memo||'';
+      toggleCompletionDate(); toggleIEmail();
+    }
+  }else{
+    document.getElementById('i-type').value='입점제안완료';
+    ['i-companyname','i-product','i-company','i-memo','i-email'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('i-method').value='메일';
+    document.getElementById('i-apply').value=today();
+    document.getElementById('i-sentdate').value='';
+    document.getElementById('i-completion').value='';
+    document.getElementById('i-listchecked').checked=false;
+    document.getElementById('i-roomlogged').checked=false;
+    toggleCompletionDate(); toggleIEmail();
+  }
+  document.getElementById('ipjum-modal').classList.add('open');
+}
 function closeIpjumModal(){document.getElementById('ipjum-modal').classList.remove('open');_ipjumId=null;}
-async function saveIpjum(){const type=document.getElementById('i-type').value;const product=document.getElementById('i-product').value.trim();const company=document.getElementById('i-company').value.trim();const applyDate=document.getElementById('i-apply').value;const completionDate=type==='입점완료'?document.getElementById('i-completion').value:'';const memo=document.getElementById('i-memo').value.trim();if(!product){showToast('제품명을 입력해주세요!');return;}if(!S.ipjumItems)S.ipjumItems=[];if(_ipjumId){const idx=S.ipjumItems.findIndex(i=>i.id===_ipjumId);if(idx>=0)S.ipjumItems[idx]={...S.ipjumItems[idx],type,product,company,applyDate,completionDate,memo};}else{S.ipjumItems.unshift({id:Date.now(),type,product,company,applyDate,completionDate,memo});}await fbSave();closeIpjumModal();renderIpjum();showToast(_ipjumId?'✅ 수정됐어요!':'🏪 입점 항목 추가됐어요!');}
+async function saveIpjum(){
+  const type=document.getElementById('i-type').value;
+  const companyName=document.getElementById('i-companyname').value.trim();
+  const product=document.getElementById('i-product').value.trim();
+  const company=document.getElementById('i-company').value.trim();
+  const method=document.getElementById('i-method').value;
+  const email=method==='메일'?document.getElementById('i-email').value.trim():'';
+  const applyDate=document.getElementById('i-apply').value;
+  const sentDate=document.getElementById('i-sentdate').value;
+  const completionDate=type==='입점완료'?document.getElementById('i-completion').value:'';
+  const listChecked=document.getElementById('i-listchecked').checked;
+  const roomLogged=document.getElementById('i-roomlogged').checked;
+  const memo=document.getElementById('i-memo').value.trim();
+  if(!product){showToast('제품명을 입력해주세요!');return;}
+  if(!S.ipjumItems)S.ipjumItems=[];
+  if(_ipjumId){
+    const idx=S.ipjumItems.findIndex(i=>i.id===_ipjumId);
+    if(idx>=0)S.ipjumItems[idx]={...S.ipjumItems[idx],type,companyName,product,company,method,email,applyDate,sentDate,completionDate,listChecked,roomLogged,memo};
+  }else{
+    S.ipjumItems.unshift({id:Date.now(),type,companyName,product,company,method,email,applyDate,sentDate,completionDate,listChecked,roomLogged,memo});
+  }
+  await fbSave();closeIpjumModal();renderIpjum();showToast(_ipjumId?'✅ 수정됐어요!':'🏪 입점 항목 추가됐어요!');
+}
 async function delIpjum(id){if(!confirm('삭제할까요?'))return;S.ipjumItems=(S.ipjumItems||[]).filter(i=>i.id!==id);await fbSave();renderIpjum();showToast('삭제됐어요');}
 function filterIpjum(f,btn){_ipjumFilter=f;document.querySelectorAll('#ipjum-filter .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderIpjum();}
 function shareIpjum(id){const i=(S.ipjumItems||[]).find(x=>x.id===id);if(!i)return;const msg=`🏪 [${i.type}] 공유드려요!\n\n제품: ${i.product}\n회사: ${i.company||'-'}${i.memo?'\n메모: '+i.memo:''}`;navigator.clipboard.writeText(msg).then(()=>{showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'),1000);}).catch(()=>{const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 복사됐어요!');setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'),1000);});}
-function renderIpjum(){const list=document.getElementById('ipjum-list');if(!list)return;let items=(S.ipjumItems||[]);if(_ipjumFilter!=='all')items=items.filter(i=>i.type===_ipjumFilter);if(items.length===0){list.innerHTML=`<div class="empty-state">아직 입점 항목이 없어요 🏪<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}list.innerHTML=items.map(i=>`<div class="sch-card">${typeBadge(i.type)}<div class="sch-title">${esc(i.product)}</div><div class="sch-detail">${i.company?`🔗 ${esc(i.company)}<br>`:''}${i.applyDate?`📅 신청일: ${i.applyDate}<br>`:''}${i.completionDate?`✅ 완료일: ${i.completionDate}<br>`:''}${i.memo?`📝 ${esc(i.memo)}`:''}</div><div class="sch-actions"><button class="sch-edit" onclick="openIpjumModal(${i.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button></div>${i.type!=='입점완료'?`<button class="share-btn" style="background:#E8F7EE;color:#2E7D32;border-color:#A5D6A7;margin-top:6px" onclick="quickCompleteIpjum(${i.id})">✅ 입점완료로 변경</button>`:''}${i.type==='입점연락 옴'?`<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리에게 공유!</button>`:''}${i.type==='입점완료'?`<div style="margin-top:6px">${i.issueReport?`<div style="background:#FDE8E8;border:1px solid #F5C6CB;border-radius:8px;padding:7px 10px;font-size:11px;color:#A93226;margin-bottom:5px"><span style='font-size:10px;font-weight:700;display:block;margin-bottom:2px'>⚠ 내가 신고한 이슈</span>${esc(i.issueReport.text)}</div><button class="share-btn" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB" onclick="openIssueModal(${i.id})">✏ 이슈 수정</button>`:`<button class="share-btn" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB" onclick="openIssueModal(${i.id})">⚠ 이슈 발생 신고</button>`}</div>`:''}</div>`).join('');}
+
+function daysBetween(dateStr){const then=new Date(dateStr);const now=new Date();return Math.floor((now-then)/86400000);}
+function followupStatusIpjum(item){
+  if(!item.sentDate||item.type==='거절'||item.type==='입점완료')return null;
+  const days=daysBetween(item.sentDate);
+  if(days>=7)return {text:`⚠️ ${days}일 경과 — 팔로업 필요`,cls:'due'};
+  return {text:`대기 (${days}일)`,cls:'wait'};
+}
+
+function toggleRejectInlineForm(id){
+  const form=document.getElementById('ipjum-reject-form-'+id);
+  if(form)form.style.display=form.style.display==='none'?'block':'none';
+}
+async function registerIpjumReject(id){
+  const reasonEl=document.getElementById('ipjum-reject-reason-'+id);
+  const reason=reasonEl?reasonEl.value.trim():'';
+  if(!reason){showToast('거절 사유를 입력해주세요!');return;}
+  const idx=(S.ipjumItems||[]).findIndex(i=>i.id===id);
+  if(idx<0)return;
+  const item=S.ipjumItems[idx];
+  if(!DB){showToast('연결 오류');return;}
+  const d=new Date(); const dateStr=`${d.getMonth()+1}/${d.getDate()}`;
+  const fullName=S.name||'수강생'; const maskedName=fullName.length>=2?fullName[0]+'○'.repeat(fullName.length-1):fullName;
+  const entry={company:item.companyName||'',product:item.product||'',reason,who:maskedName,whoReal:fullName,dateStr,ts:Date.now()};
+  try{
+    await DB.ref('shared/rejectList').push(entry);
+    _commCache.unshift({id:'temp_'+Date.now(),...entry});
+    item.type='거절'; item.rejectReason=reason;
+    await fbSave();
+    renderIpjum();
+    showToast('✅ 거절 등록 + 입점소통방에 자동 공유됐어요!');
+  }catch(e){showToast('저장 오류: '+(e.message||e));}
+}
+
+function renderIpjum(){
+  const list=document.getElementById('ipjum-list');if(!list)return;
+  let items=(S.ipjumItems||[]);
+  if(_ipjumFilter==='__followup') items=items.filter(i=>{const fu=followupStatusIpjum(i);return fu&&fu.cls==='due';});
+  else if(_ipjumFilter!=='all') items=items.filter(i=>i.type===_ipjumFilter);
+  if(items.length===0){list.innerHTML=`<div class="empty-state">아직 입점 항목이 없어요 🏪<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}
+  list.innerHTML=items.map(i=>{
+    const fu=followupStatusIpjum(i);
+    const matches=i.companyName?findRejectMatches(i.companyName):[];
+    const isRejected=i.type==='거절';
+    return `<div class="sch-card">${typeBadge(i.type)}<div class="sch-title">${esc(i.product)}</div>
+    ${i.companyName?`<div style="font-size:12.5px;color:var(--m);font-weight:700;margin-bottom:4px">🏢 ${esc(i.companyName)}</div>`:''}
+    <div class="sch-detail">${i.method?`📧 제안방법: ${esc(i.method)}${i.method==='메일'&&i.email?' — '+esc(i.email):''}<br>`:''}${i.company?`🔗 ${esc(i.company)}<br>`:''}${i.applyDate?`📅 신청일: ${i.applyDate}<br>`:''}${i.sentDate?`📤 제안발송일: ${i.sentDate}<br>`:''}${i.completionDate?`✅ 완료일: ${i.completionDate}<br>`:''}${i.memo?`📝 ${esc(i.memo)}`:''}</div>
+    <div style="display:flex;gap:14px;margin:8px 0;font-size:11.5px;color:var(--m);font-weight:700">
+      <span>${i.listChecked?'☑':'☐'} 입점사목록</span>
+      <span>${i.roomLogged?'☑':'☐'} 소통방 기록</span>
+    </div>
+    ${fu?`<span class="sch-type" style="background:${fu.cls==='due'?'#FFE0E0':'#FFF3E0'};color:${fu.cls==='due'?'#c44':'#c4956a'}">${fu.text}</span>`:''}
+    ${matches.length&&!isRejected?`<div style="margin-top:8px;background:#FFF3F0;border:1.5px solid #F0C0C0;border-radius:10px;padding:10px 12px;font-size:12px;color:#a03030;line-height:1.6">${renderRejectAlertHtml(matches)}</div>`:''}
+    ${isRejected?`<div style="font-size:11.5px;color:#a03030;background:#FFF3F0;border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.6">🔴 <b>거절 등록됨</b> — 입점소통방에도 공유됐어요${i.rejectReason?'<br>사유: '+esc(i.rejectReason):''}</div>`:''}
+    <div class="sch-actions"><button class="sch-edit" onclick="openIpjumModal(${i.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delIpjum(${i.id})">🗑 삭제</button></div>
+    ${i.type!=='입점완료'&&!isRejected?`<button class="share-btn" style="background:#E8F7EE;color:#2E7D32;border-color:#A5D6A7;margin-top:6px" onclick="quickCompleteIpjum(${i.id})">✅ 입점완료로 변경</button>`:''}
+    ${i.type==='입점연락 옴'?`<button class="share-btn" onclick="shareIpjum(${i.id})">💬 메리에게 공유!</button>`:''}
+    ${!isRejected?`
+      <div id="ipjum-reject-form-${i.id}" style="display:none;margin-top:10px;background:#FFF8F8;border:1.5px solid #F5C6CB;border-radius:10px;padding:10px">
+        <label style="font-size:11px;color:#a03030;font-weight:700;margin-bottom:5px;display:block">거절 사유</label>
+        <input type="text" id="ipjum-reject-reason-${i.id}" placeholder="예) 자체공구만 진행" style="margin-bottom:8px">
+        <button class="btn" style="background:#C0392B;color:#fff;margin-top:0" onclick="registerIpjumReject(${i.id})">🔴 거절 등록 + 소통방 자동 공유</button>
+      </div>
+      <button class="sch-del-btn" style="width:100%;margin-top:8px" onclick="toggleRejectInlineForm(${i.id})">🔴 이 업체 거절 처리하기</button>
+    `:''}
+    ${i.type==='입점완료'?`<div style="margin-top:6px">${i.issueReport?`<div style="background:#FDE8E8;border:1px solid #F5C6CB;border-radius:8px;padding:7px 10px;font-size:11px;color:#A93226;margin-bottom:5px"><span style='font-size:10px;font-weight:700;display:block;margin-bottom:2px'>⚠ 내가 신고한 이슈</span>${esc(i.issueReport.text)}</div><button class="share-btn" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB" onclick="openIssueModal(${i.id})">✏ 이슈 수정</button>`:`<button class="share-btn" style="background:#FDE8E8;color:#C0392B;border-color:#F5C6CB" onclick="openIssueModal(${i.id})">⚠ 이슈 발생 신고</button>`}</div>`:''}
+    </div>`;
+  }).join('');
+}
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 let _tt=null;
@@ -1319,11 +1616,19 @@ function loadTodayBanner(){if(!DB)return;const _n=new Date();const dateStr=_n.ge
 function switchAdminIpjumSub(tab){document.getElementById('admin-ipjum-sec-status').style.display=tab==='status'?'block':'none';document.getElementById('admin-ipjum-sec-comm').style.display=tab==='comm'?'block':'none';document.getElementById('aisub-status').classList.toggle('active',tab==='status');document.getElementById('aisub-comm').classList.toggle('active',tab==='comm');if(tab==='comm')loadAdminComm();if(tab==='status')loadAdminIpjum();}
 
 // ══ 입점 소메뉴
-function switchIpjumSub(tab){document.getElementById('ipjum-sec-my').style.display=tab==='my'?'block':'none';document.getElementById('ipjum-sec-community').style.display=tab==='community'?'block':'none';document.getElementById('isub-my').classList.toggle('active',tab==='my');document.getElementById('isub-community').classList.toggle('active',tab==='community');if(tab==='community')loadComm();}
+function switchIpjumSub(tab){
+  document.getElementById('ipjum-sec-my').style.display=tab==='my'?'block':'none';
+  document.getElementById('ipjum-sec-search').style.display=tab==='search'?'block':'none';
+  document.getElementById('ipjum-sec-community').style.display=tab==='community'?'block':'none';
+  document.getElementById('isub-my').classList.toggle('active',tab==='my');
+  document.getElementById('isub-search').classList.toggle('active',tab==='search');
+  document.getElementById('isub-community').classList.toggle('active',tab==='community');
+  if(tab==='community')loadComm();
+  if(tab==='search'){ensureRejectCache(()=>renderSearchMemos());}
+}
 
 // ══ 소통방
-let _commCache=[];
-function loadComm(){if(!DB){renderComm();return;}const el=document.getElementById('comm-list');if(el)el.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';DB.ref('shared/rejectList').once('value',snap=>{const items=[];snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||'',ts:v.ts||0});});items.reverse();_commCache=items;_commPage=0;renderComm();});}
+function loadComm(){if(!DB){renderComm();return;}const el=document.getElementById('comm-list');if(el)el.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:13px">불러오는 중...</div>';DB.ref('shared/rejectList').once('value',snap=>{const items=[];snap.forEach(c=>{const v=c.val();items.push({id:c.key,company:v.company||'',product:v.product||'',reason:v.reason||'',who:v.who||'',dateStr:v.dateStr||'',ts:v.ts||0});});items.reverse();_commCache=items;_commCacheLoaded=true;_commPage=0;renderComm();});}
 let _commPage=0; const COMM_PER_PAGE=10;
 function commSearchChanged(){_commPage=0;renderComm();}
 function renderComm(){
@@ -1466,7 +1771,6 @@ async function migrateIssueReports(){
     console.error(e);
   }
 }
-
 </script>
 </body>
 </html>
