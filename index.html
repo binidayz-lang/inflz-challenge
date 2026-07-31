@@ -1081,7 +1081,7 @@ async function loadAdmin(){
   try{
     const snap=await DB.ref('students').once('value'); const data=snap.val();
     if(!data){document.getElementById('admin-summary').textContent='등록된 수강생이 없습니다';document.getElementById('admin-list').innerHTML='';return;}
-    const list=Object.entries(data).map(([key,s])=>({...s,_key:key})); const td=today();
+    const list=Object.entries(data).filter(([key,s])=>s.program!=='sellzup').map(([key,s])=>({...s,_key:key})); const td=today();
     const threeDaysAgo=addDays(td,-3);
 
     // 통계 계산
