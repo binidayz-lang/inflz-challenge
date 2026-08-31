@@ -817,10 +817,6 @@ label{display:block;font-size:11px;font-weight:700;color:var(--m);margin-bottom:
   </div>
 </div>
 
-<a class="kakao-float" href="https://open.kakao.com/o/sstU0gKg" target="_blank" rel="noopener">
-  <div class="kakao-btn"><svg viewBox="0 0 24 24" fill="#3B1D1D" xmlns="http://www.w3.org/2000/svg"><path d="M12 3C6.477 3 2 6.477 2 10.8c0 2.7 1.548 5.078 3.9 6.522L4.8 21l4.636-2.318A11.07 11.07 0 0 0 12 18.6c5.523 0 10-3.477 10-7.8S17.523 3 12 3z"/></svg></div>
-  <div class="kakao-label">챌린지방 바로가기</div>
-</a>
 
 <div class="notice-popup-wrap" id="notice-popup">
   <div class="notice-popup-box">
@@ -1447,7 +1443,31 @@ async function delGongu(id){
   renderCal(_dib2,_lv2,_base2); showToast('삭제됐어요');
 }
 function filterGongu(f,btn){_gonguFilter=f;document.querySelectorAll('#gongu-filter .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderGongu();}
-function shareGongu(id){const g=(S.gonguSchedules||[]).find(x=>x.id===id);if(!g)return;const dateStr=g.startDate&&g.endDate?`${g.startDate} ~ ${g.endDate}`:g.startDate||'-';const msg=`🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;navigator.clipboard.writeText(msg).then(()=>{showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'),1000);}).catch(()=>{const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 복사됐어요!');setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'),1000);});}
+function shareGongu(id){
+  const g=(S.gonguSchedules||[]).find(x=>x.id===id);
+  if(!g)return;
+  const dateStr=g.startDate&&g.endDate?`${g.startDate} ~ ${g.endDate}`:g.startDate||'-';
+  const msg=`🛒 [${g.type}] 공유드려요!\n\n셀러: ${g.seller||'-'}\n상품: ${g.product}\n일정: ${dateStr}${g.memo?'\n메모: '+g.memo:''}`;
+  navigator.clipboard.writeText(msg).then(()=>{
+    showToast('📋 복사됐어요! 메리님께 개인톡으로 전달해주세요');
+  }).catch(()=>{
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=msg;
+      ta.style.position='fixed';
+      ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok) showToast('📋 복사됐어요! 메리님께 개인톡으로 전달해주세요');
+      else showToast('⚠️ 복사에 실패했어요. 문구를 길게 눌러 직접 복사해주세요');
+    }catch(e){
+      showToast('⚠️ 복사에 실패했어요. 문구를 길게 눌러 직접 복사해주세요');
+    }
+  });
+}
 function renderGongu(){const list=document.getElementById('gongu-list');if(!list)return;let items=(S.gonguSchedules||[]);if(_gonguFilter!=='all')items=items.filter(g=>g.type===_gonguFilter);if(items.length===0){list.innerHTML=`<div class="empty-state">아직 공구일정이 없어요 🛒<br>+ 추가 버튼으로 등록해보세요!</div>`;return;}list.innerHTML=items.map(g=>`<div class="sch-card">${typeBadge(g.type)}<div class="sch-title">${esc(g.product)}</div><div class="sch-detail">${g.seller?`📱 ${esc(g.seller)}<br>`:''}${g.startDate?`📅 ${g.startDate}${g.endDate?' ~ '+g.endDate:''}<br>`:''}${g.memo?`📝 ${esc(g.memo)}`:''}</div><div class="sch-actions"><button class="sch-edit" onclick="openGonguModal(${g.id})">✏️ 수정</button><button class="sch-del-btn" onclick="delGongu(${g.id})">🗑 삭제</button></div>${(g.type==='공구일정 확정'||g.type==='협찬')?`<button class="share-btn" onclick="shareGongu(${g.id})">💬 메리에게 공유!</button>`:''}</div>`).join('');}
 function renderGonguCalendar(){const confirmed=(S.gonguSchedules||[]).filter(g=>g.type==='공구일정 확정'&&g.startDate);const card=document.getElementById('gongu-cal-card');const calList=document.getElementById('gongu-cal-list');if(!card||!calList)return;if(confirmed.length===0){card.style.display='none';return;}card.style.display='block';calList.innerHTML=confirmed.map(g=>`<div class="gongu-cal-item"><div class="gongu-dot"></div><div><div style="font-size:13px;font-weight:700">${esc(g.product)}</div><div style="font-size:11px;color:var(--m)">${g.startDate}${g.endDate?' ~ '+g.endDate:''} ${g.seller?'· '+esc(g.seller):''}</div></div></div>`).join('');}
 
@@ -1628,7 +1648,30 @@ async function saveIpjum(){
 }
 async function delIpjum(id){if(!confirm('삭제할까요?'))return;S.ipjumItems=(S.ipjumItems||[]).filter(i=>i.id!==id);await fbSave();renderIpjum();showToast('삭제됐어요');}
 function filterIpjum(f,btn){_ipjumFilter=f;document.querySelectorAll('#ipjum-filter .filter-btn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderIpjum();}
-function shareIpjum(id){const i=(S.ipjumItems||[]).find(x=>x.id===id);if(!i)return;const msg=`🏪 [${i.type}] 공유드려요!\n\n제품: ${i.product}\n회사: ${i.company||'-'}${i.memo?'\n메모: '+i.memo:''}`;navigator.clipboard.writeText(msg).then(()=>{showToast('📋 복사됐어요! 카카오톡에 붙여넣기해서 메리님께 보내주세요');setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'),1000);}).catch(()=>{const ta=document.createElement('textarea');ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('📋 복사됐어요!');setTimeout(()=>window.open('https://open.kakao.com/o/sstU0gKg','_blank'),1000);});}
+function shareIpjum(id){
+  const i=(S.ipjumItems||[]).find(x=>x.id===id);
+  if(!i)return;
+  const msg=`🏪 [${i.type}] 공유드려요!\n\n제품: ${i.product}\n회사: ${i.company||'-'}${i.memo?'\n메모: '+i.memo:''}`;
+  navigator.clipboard.writeText(msg).then(()=>{
+    showToast('📋 복사됐어요! 메리님께 개인톡으로 전달해주세요');
+  }).catch(()=>{
+    try{
+      const ta=document.createElement('textarea');
+      ta.value=msg;
+      ta.style.position='fixed';
+      ta.style.opacity='0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok=document.execCommand('copy');
+      document.body.removeChild(ta);
+      if(ok) showToast('📋 복사됐어요! 메리님께 개인톡으로 전달해주세요');
+      else showToast('⚠️ 복사에 실패했어요. 문구를 길게 눌러 직접 복사해주세요');
+    }catch(e){
+      showToast('⚠️ 복사에 실패했어요. 문구를 길게 눌러 직접 복사해주세요');
+    }
+  });
+}
 
 function daysBetween(dateStr){const then=new Date(dateStr);const now=new Date();return Math.floor((now-then)/86400000);}
 function followupStatusIpjum(item){
